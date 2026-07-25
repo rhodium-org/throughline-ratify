@@ -41,7 +41,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--list", action="store_true",
                    help="print the ratification worklist and exit (no TUI)")
     p.add_argument("--all", action="store_true",
-                   help="with --list, include already-ratified items")
+                   help="with --list, include already-ratified and dead "
+                        "(rejected/tombstoned) items, not just the pending backlog")
     p.add_argument("--sort", choices=core.SORTS, default="concern",
                    help="worklist ordering: concern (default), roots (shallowest "
                         "grounding depth first) or leaves (deepest first)")

@@ -2,9 +2,10 @@ uid: SR-0001
 type: system_requirement
 status: ratified
 title: Queue lists local items that are neither ratified nor in a dead status
-text: build_queue yields every consumer item whose status is not the ratified role
-  and not a dead status; already-ratified items appear only under show_all, tombstoned/rejected
-  never.
+text: The default worklist build_queue yields every consumer item whose status is
+  neither the ratified role nor a dead status. Already-ratified items appear only
+  under show_all; dead (tombstoned/rejected) items appear only under show_all too, as
+  refined by SR-0020.
 normative: true
 links:
 - target: UR-0001

@@ -36,6 +36,44 @@ def test_show_all_includes_ratified(demo_project):
     assert "FR-0005" in rows
 
 
+def test_dead_items_hidden_by_default_visible_under_show_all(demo_project):
+    # A rejected/tombstoned item must not silently vanish: it is excluded from the
+    # default backlog but reappears under show_all so a reviewer can see it (SR-0020).
+    session = core.open_session(demo_project)
+    default = _by_uid(core.build_queue(session))
+    assert "FR-0008" not in default  # rejected
+    assert "FR-0009" not in default  # deleted
+    allrows = _by_uid(core.build_queue(session, show_all=True))
+    assert "FR-0008" in allrows
+    assert "FR-0009" in allrows
+
+
+def test_dead_items_get_role_derived_concern_and_are_not_actionable(demo_project):
+    session = core.open_session(demo_project)
+    rows = _by_uid(core.build_queue(session, show_all=True))
+    rejected = rows["FR-0008"]
+    deleted = rows["FR-0009"]
+    assert rejected.concern == "rejected"        # invalidated role
+    assert deleted.concern == "deleted"          # tombstone role
+    assert not rejected.ratifiable_now
+    assert not deleted.ratifiable_now
+    # the rejection reason travels with the row for the detail pane
+    assert rejected.reason == "superseded by FR-0002"
+
+
+def test_reject_then_show_all_reveals_the_rejected_item(demo_project):
+    # The reported bug: rejecting made an item disappear even under show_all. After a
+    # reject, the item is dead but must still be visible in the wide view.
+    session = core.open_session(demo_project)
+    core.reject_item(session, "FR-0002", reason="not needed")
+    fresh = core.open_session(demo_project)
+    assert "FR-0002" not in _by_uid(core.build_queue(fresh))          # gone from backlog
+    allrows = _by_uid(core.build_queue(fresh, show_all=True))
+    assert "FR-0002" in allrows                                       # still visible
+    assert allrows["FR-0002"].concern == "rejected"
+    assert allrows["FR-0002"].reason == "not needed"
+
+
 def test_ratified_items_get_their_own_concern(demo_project):
     # a signed-off item is "ratified", NOT conflated with the "ready" state used
     # for approved-but-unratified items (SR-0010).

@@ -1,0 +1,21 @@
+uid: SR-0020
+type: system_requirement
+status: implemented
+title: Dead items stay visible under the wide (show-all) view
+text: Rejecting or otherwise invalidating an item must not make it silently disappear.
+  The default worklist stays the actionable backlog and hides settled outcomes, but
+  the wide view (show_all, the assistant's 'a' toggle and the CLI's --all) reveals
+  the whole local graph — already-ratified items and dead items alike, where dead
+  means any status playing the invalidated or tombstone role. A dead item is rendered
+  with its own concern (rejected or deleted, decided from the project's [status.roles],
+  not a hardcoded status name), is never offered as actionable, and carries its recorded
+  invalidation reason so a reviewer can see what was thrown away and why.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+- target: SR-0001
+  type: refines
+attrs:
+  origin: hybrid
+  ratified_by: henry

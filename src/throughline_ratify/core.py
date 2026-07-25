@@ -88,6 +88,9 @@ CONCERNS: dict[str, tuple[str, int]] = {
     "ungrounded": ("\u26a0", 3),  # ⚠ reaches no root — must be linked before sign-off
     "ambiguous": ("\u2691", 4),  # ⚑ flagged ambiguous — must be clarified first
     "ratified": ("\u2713", 5),   # ✓ already signed off — done (only shown under --all)
+    # Dead items — kept for the record, shown only under --all and never actionable.
+    "rejected": ("\u2717", 6),   # ✗ invalidated (rejected) — retained, not signed off
+    "deleted": ("\u2620", 7),    # ☠ tombstoned (soft-deleted) — retained for history
 }
 
 # The orderings the queue can be sorted by (SR-0011). "concern" is the default
@@ -139,6 +142,9 @@ class QueueItem:
     # to ratified) yet was never signed off: the config-permitted status itinerary
     # that records the missed ratification and restores its status. None otherwise.
     reratify_path: list[str] | None = None
+    # Why a dead (rejected) item was invalidated, if it recorded a reason. Empty
+    # for live items and for tombstones with no reason.
+    reason: str = ""
 
     @property
     def icon(self) -> str:
@@ -280,11 +286,13 @@ def _compose_public_fallback(consumer, declared, root):  # pragma: no cover
 def build_queue(
     session: Session, *, show_all: bool = False, sort: str = "concern"
 ) -> list[QueueItem]:
-    """The ratification worklist: every local item not yet ratified and not dead,
-    ranked most-actionable first. ``show_all`` additionally includes items that are
-    already ratified (dead/tombstoned items are always excluded). ``sort`` chooses
-    the ordering — ``"concern"`` (default), ``"roots"`` (shallowest grounding depth
-    first) or ``"leaves"`` (deepest first); see :data:`SORTS`."""
+    """The ratification worklist: by default every local item that is neither already
+    ratified nor dead, ranked most-actionable first. ``show_all`` widens the view to
+    the whole local graph — already-ratified items *and* dead (rejected/tombstoned)
+    items become visible too, so a reviewer can see what they invalidated instead of
+    it silently vanishing. ``sort`` chooses the ordering — ``"concern"`` (default),
+    ``"roots"`` (shallowest grounding depth first) or ``"leaves"`` (deepest first);
+    see :data:`SORTS`."""
     if sort not in SORTS:
         raise RatifierError(f"unknown sort {sort!r}; choose one of {', '.join(SORTS)}")
     schema = session.schema
@@ -293,13 +301,14 @@ def build_queue(
     rows: list[QueueItem] = []
 
     for item in session.project.items():
-        if item.status in dead:
-            continue
+        is_dead = item.status in dead
         is_ratified = _is_ratified(session, item)
-        if is_ratified and not show_all:
+        # The default queue is the actionable backlog: hide the settled outcomes
+        # (already ratified) and the dead. show_all keeps everything for review.
+        if not show_all and (is_dead or is_ratified):
             continue
 
-        rows.append(_evaluate(session, item, is_ratified, depths.get(item.uid)))
+        rows.append(_evaluate(session, item, is_ratified, is_dead, depths.get(item.uid)))
 
     _sort_rows(rows, sort)
     return rows
@@ -314,6 +323,17 @@ def _is_ratified(session: Session, item: Item) -> bool:
         item.status == session.ratified_status
         or bool(item.attrs.get(RATIFIED_BY_ATTR))
     )
+
+
+def _dead_concern(schema, status: str) -> str:
+    """Which dead concern a status earns, decided from the project's own
+    ``[status.roles]``: the ``tombstone`` role reads as ``"deleted"``, every other
+    dead status (the ``invalidated`` role) as ``"rejected"``. No status name is
+    assumed — an undeclared tombstone role simply means everything dead is rejected."""
+    roles = schema.status_roles or {}
+    if status == roles.get("tombstone"):
+        return "deleted"
+    return "rejected"
 
 
 def _sort_rows(rows: list[QueueItem], sort: str) -> None:
@@ -369,16 +389,23 @@ def ratification_progress(session: Session) -> tuple[int, int]:
 
 
 def _evaluate(
-    session: Session, item: Item, is_ratified: bool, depth: int | None
+    session: Session, item: Item, is_ratified: bool, is_dead: bool, depth: int | None
 ) -> QueueItem:
     schema = session.schema
     union_item = session.union.get(item.uid) or item
     grounded = schema.is_root(union_item) or reaches_root(session.index, schema, item.uid)
     ambiguous = bool(item.attrs.get("ambiguous"))
     directly = schema.allows_transition(item.status, session.ratified_status)
-    ratifiable_now = directly and grounded and not ambiguous and not is_ratified
+    # A dead item is never actionable, whatever stamp it may still carry.
+    ratifiable_now = (
+        directly and grounded and not ambiguous and not is_ratified and not is_dead
+    )
 
-    if is_ratified:
+    if is_dead:
+        # Invalidated/tombstoned — surfaced only under show_all, for the record. This
+        # takes precedence over any lingering ratified stamp: it is now dead.
+        concern = _dead_concern(schema, item.status)
+    elif is_ratified:
         concern = "ratified"  # done — only appears under show_all
     elif ambiguous:
         concern = "ambiguous"
@@ -410,6 +437,7 @@ def _evaluate(
         links=_resolve_links(session, item),
         depth=depth,
         reratify_path=reratify_path,
+        reason=str(item.attrs.get("invalidated_reason") or ""),
     )
 
 

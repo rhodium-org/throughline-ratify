@@ -42,6 +42,8 @@ def _init_colours() -> None:
         "ungrounded": (curses.COLOR_RED, bg),
         "ambiguous": (curses.COLOR_RED, bg),
         "ratified": (curses.COLOR_GREEN, bg),
+        "rejected": (curses.COLOR_MAGENTA, bg),
+        "deleted": (curses.COLOR_MAGENTA, bg),
         "dim": (curses.COLOR_WHITE, bg),
         "ok": (curses.COLOR_GREEN, bg),
         "warn": (curses.COLOR_YELLOW, bg),
@@ -70,6 +72,8 @@ _CONCERN_LABEL = {
     "ungrounded": "ungrounded",
     "ambiguous": "ambiguous",
     "ratified": "ratified",
+    "rejected": "rejected",
+    "deleted": "deleted",
 }
 
 
@@ -333,6 +337,9 @@ class App:
 
     @staticmethod
     def _why_blocked(item: QueueItem) -> str:
+        if item.concern in ("rejected", "deleted"):
+            state = "rejected" if item.concern == "rejected" else "tombstoned"
+            return f"{item.uid} is {state} and cannot be ratified"
         if item.ambiguous:
             return f"{item.uid} is flagged ambiguous — clarify it before ratifying"
         if not item.grounded:
@@ -398,7 +405,8 @@ class App:
         x += 7
         concerns = ["proposed", "ready", "blocked", "ungrounded", "ambiguous"]
         if self.show_all:
-            concerns.append("ratified")
+            # Also account for the settled outcomes the wide view reveals.
+            concerns += ["ratified", "rejected", "deleted"]
         for concern in concerns:
             icon = core.CONCERNS[concern][0]
             seg = f"{icon} {counts.get(concern, 0)} {_CONCERN_LABEL[concern]}  "
@@ -511,7 +519,14 @@ class App:
             add()
 
         # readiness line
-        if item.concern == "ratified":
+        if item.concern == "rejected":
+            line = f"  \u2717 rejected (status '{item.status}')"
+            if item.reason:
+                line += f" — {item.reason}"
+            add(line, _attr("rejected"))
+        elif item.concern == "deleted":
+            add(f"  \u2620 tombstoned (status '{item.status}')", _attr("deleted"))
+        elif item.concern == "ratified":
             add("  \u2713 already ratified", _attr("ok"))
         elif item.ratifiable_now:
             add(f"  \u2713 ready to ratify  ({item.status} \u2192 {self.session.ratified_status})",
@@ -644,7 +659,8 @@ class App:
             "               overshot ratification, record the missed sign-off",
             "               via a route the project's transitions permit",
             "  x            reject (invalidate) the selected item",
-            "  a            toggle showing already-ratified items",
+            "  a            toggle the wide view: also show already-ratified",
+            "               and dead (rejected/tombstoned) items",
             "  s            cycle sort: concern \u2192 roots\u2193 \u2192 leaves\u2191",
             "  /            filter by uid or title",
             "  R            reload the graph from disk",
@@ -665,6 +681,8 @@ class App:
             "  \u26a0 ungrounded  reaches no root \u2014 link it first",
             "  \u2691 ambiguous   flagged ambiguous \u2014 clarify first",
             "  \u2713 ratified    already signed off (shown under 'a')",
+            "  \u2717 rejected    invalidated, kept for the record (under 'a')",
+            "  \u2620 deleted     tombstoned, kept for history (under 'a')",
             "",
             "sort roots\u2193 orders shallowest-first (closest to intent);",
             "leaves\u2191 orders deepest-first. ungrounded items sort last.",

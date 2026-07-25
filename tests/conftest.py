@@ -98,6 +98,17 @@ _ITEMS = [
     ("FR-0007", "requirements", "FR", "Requirements", "requirement", "implemented",
      "Overshot requirement",
      "links:\n- target: INT-0001\n  type: derives_from\n"),
+    # REJECTED (invalidated) with a recorded reason -> dead: hidden by default,
+    # visible under show_all as concern "rejected", never actionable.
+    ("FR-0008", "requirements", "FR", "Requirements", "requirement", "rejected",
+     "Abandoned requirement",
+     "attrs:\n  invalidated_reason: superseded by FR-0002\n"
+     "links:\n- target: INT-0001\n  type: derives_from\n"),
+    # DELETED (tombstoned) -> dead: hidden by default, visible under show_all as
+    # concern "deleted".
+    ("FR-0009", "requirements", "FR", "Requirements", "requirement", "deleted",
+     "Tombstoned requirement",
+     "links:\n- target: INT-0001\n  type: derives_from\n"),
 ]
 
 
