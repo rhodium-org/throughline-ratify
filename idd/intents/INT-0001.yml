@@ -1,0 +1,10 @@
+uid: INT-0001
+type: intent
+status: ratified
+title: Clear a backlog of un-ratified items quickly and safely from the terminal
+text: A reviewer facing many AI-proposed or approved items can work through them
+  item-by-item in one full-screen tool, ratifying or rejecting each with the same
+  grounding guarantees the throughline CLI enforces.
+normative: true
+attrs:
+  origin: human

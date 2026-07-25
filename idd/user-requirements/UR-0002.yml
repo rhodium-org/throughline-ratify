@@ -1,0 +1,12 @@
+uid: UR-0002
+type: user_requirement
+status: ratified
+title: Ratify or reject an item without leaving the full-screen view
+text: As a reviewer I want to sign off or reject the selected item in place, with
+  a confirmation, so review is a continuous flow.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+attrs:
+  origin: human

@@ -1,0 +1,18 @@
+uid: SR-0016
+type: system_requirement
+status: implemented
+title: Interrupting the cockpit with Ctrl-C exits cleanly, without a traceback
+text: A KeyboardInterrupt raised by Ctrl-C while the full-screen view is waiting
+  for input is treated like the quit key — the terminal is restored and the program
+  exits with no Python traceback. The interrupt is absorbed both in the main input
+  loop and at the curses.wrapper boundary, so an interrupt fired during a help screen
+  or confirmation prompt is handled the same way.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+- target: SR-0007
+  type: refines
+attrs:
+  origin: hybrid
+  ratified_by: henry

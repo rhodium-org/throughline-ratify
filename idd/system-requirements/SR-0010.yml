@@ -1,0 +1,17 @@
+uid: SR-0010
+type: system_requirement
+status: ratified
+title: The summary shows ratification progress and marks ratified items distinctly
+  from ready ones
+text: The header summary carries a project-wide progress figure (items ratified out
+  of total gradable items) that climbs as the human signs off, and already-ratified
+  items render under their own 'ratified' concern and glyph rather than sharing the
+  'ready' state used for approved-but-unratified items, so the number a human watches
+  actually reflects work done.
+normative: true
+links:
+- target: UR-0004
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: henry

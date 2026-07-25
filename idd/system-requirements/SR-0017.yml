@@ -1,0 +1,18 @@
+uid: SR-0017
+type: system_requirement
+status: implemented
+title: The release workflow publishes to PyPI on a GitHub Release using supported,
+  non-deprecated action runtimes
+text: On a published GitHub Release the workflow builds an sdist and wheel, checks
+  their metadata, and publishes to PyPI via Trusted Publishing (OIDC), with no stored
+  API token. The reusable actions it depends on are pinned to versions whose runtime
+  is still supported by GitHub — actions running on a deprecated Node runtime are
+  bumped to a current major so the pipeline does not rely on the runner's temporary
+  forward-compatibility shim.
+normative: true
+links:
+- target: INT-0002
+  type: derives_from
+attrs:
+  origin: hybrid
+  ratified_by: henry

@@ -1,0 +1,12 @@
+uid: UR-0003
+type: user_requirement
+status: ratified
+title: On a composed project, items grounded through a source are ratifiable
+text: As a reviewer of a tl-compose project I want an item whose grounding chain
+  reaches a root only through a borrowed source treated as grounded, not orphaned.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+attrs:
+  origin: human

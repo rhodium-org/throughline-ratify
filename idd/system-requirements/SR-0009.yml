@@ -1,0 +1,17 @@
+uid: SR-0009
+type: system_requirement
+status: ratified
+title: Opening a project that cannot be ratified against fails with clear guidance,
+  not a traceback
+text: When a project is missing the configuration tl-ratify needs to run its accountability
+  gate (for example no status is bound to the 'ratified' or 'proposed' role under
+  [status.roles]), open_session raises a user-facing RatifierError naming the offending
+  file and how to fix it, and the CLI prints a single-line message and exits non-zero
+  rather than dumping a Python traceback.
+normative: true
+links:
+- target: UR-0001
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: henry

@@ -1,0 +1,48 @@
+[project]
+name = "throughline-ratify"
+format_version = 3
+
+# Intents are the only roots; every requirement must ground upward to one.
+[grounding]
+root_types = ["intent"]
+delivery_roots = ["intent"]
+ground_link_types = ["derives_from", "refines"]
+ai_origins = ["ai", "hybrid"]
+
+[types.intent]
+attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
+
+[types.user_requirement]
+attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
+
+[types.system_requirement]
+attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
+
+[links]
+types = ["derives_from", "refines", "relates"]
+
+[link_rules]
+derives_from = { from = ["user_requirement", "system_requirement"], to = ["intent", "user_requirement"] }
+refines      = { from = ["system_requirement"], to = ["system_requirement"] }
+
+[status]
+values = ["proposed", "draft", "approved", "ratified", "implemented",
+          "verified", "suspect", "rejected", "deleted"]
+
+[transitions]
+proposed    = ["draft", "approved", "ratified", "rejected", "deleted"]
+draft       = ["approved", "ratified", "rejected", "deleted"]
+approved    = ["ratified", "implemented", "suspect", "rejected", "deleted"]
+ratified    = ["implemented", "suspect", "rejected", "deleted"]
+implemented = ["verified", "suspect", "rejected", "deleted"]
+verified    = ["implemented", "suspect", "deleted"]
+suspect     = ["approved", "ratified", "implemented", "verified", "rejected", "deleted"]
+rejected    = ["draft", "deleted"]
+
+[status.roles]
+initial = "draft"
+proposed = "proposed"
+ratified = "ratified"
+invalidated = "rejected"
+suspect = "suspect"
+tombstone = "deleted"

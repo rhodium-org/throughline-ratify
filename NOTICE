@@ -1,0 +1,11 @@
+throughline-ratify
+Copyright 2026 The throughline-ratify authors
+
+This product includes software developed by the throughline-ratify authors.
+
+Licensed under the Apache License, Version 2.0. See the LICENSE file for the
+full terms.
+
+throughline-ratify is a full-screen terminal companion for
+throughline (the `tl` CLI) and throughline-compose (`tl-compose`). It builds
+on their public Python APIs; no third-party source code was copied.

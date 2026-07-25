@@ -1,0 +1,23 @@
+uid: SR-0019
+type: system_requirement
+status: implemented
+title: Overshot items can be retrospectively ratified via a config-computed route
+text: An item that was advanced past the ratified status without ever being signed
+  off (it carries no ratification stamp) is grounded and unambiguous yet cannot move
+  straight to ratified. The assistant offers to record the missed sign-off by walking
+  a status itinerary — from the current status, through ratified, and back to the
+  current status — computed solely from the project's own [transitions] table, never
+  from any hardcoded status name. If the configuration affords no such round-trip
+  the affordance does not appear. Walking the route applies the ratification stamp
+  as it passes through the ratified status and persists only the end state, which
+  equals the item's original status, so the item ends exactly where it was but now
+  proven ratified.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+- target: SR-0018
+  type: refines
+attrs:
+  origin: hybrid
+  ratified_by: henry

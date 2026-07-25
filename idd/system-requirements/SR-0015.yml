@@ -1,0 +1,19 @@
+uid: SR-0015
+type: system_requirement
+status: implemented
+title: A composed link shows the target's authoritative source reference, not just
+  its namespace
+text: When a link targets an item borrowed from a composed source, the detail pane
+  labels it with the target's attrs.source_ref — the authoritative clause reference
+  such as an ASVS clause id — rather than repeating the source namespace, which the
+  reference prefix already carries. It falls back to the namespace only when the
+  target declares no source_ref.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+- target: SR-0012
+  type: refines
+attrs:
+  origin: hybrid
+  ratified_by: henry

@@ -1,0 +1,13 @@
+uid: INT-0002
+type: intent
+status: ratified
+title: The assistant is distributed as an installable package, obtainable without
+  cloning the source
+text: A user should be able to install the assistant from a package index and run
+  it, without cloning the repository or building from source. This makes the tool
+  something people adopt rather than a script they copy, and it means the project
+  owns a release pipeline as a first-class, maintained concern.
+normative: true
+attrs:
+  origin: hybrid
+  ratified_by: henry

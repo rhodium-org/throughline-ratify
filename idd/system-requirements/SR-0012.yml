@@ -1,0 +1,20 @@
+uid: SR-0012
+type: system_requirement
+status: ratified
+title: The detail pane resolves each link to its referenced title and content, including
+  items from composed sources
+text: For the selected item, every link shows the referenced item's title, and —
+  for references borrowed from a composed source — its body content, resolved over
+  the composed union. The reference is displayed as authored (namespace-qualified
+  for source items) while its meaning is looked up through the union, so a reviewer
+  can see what an external clause such as asvs SR-0195 actually says without leaving
+  the cockpit. A reference that resolves to nothing is marked unresolved.
+normative: true
+links:
+- target: UR-0002
+  type: derives_from
+- target: SR-0007
+  type: refines
+attrs:
+  origin: ai
+  ratified_by: henry

@@ -1,0 +1,13 @@
+uid: SR-0008
+type: system_requirement
+status: ratified
+title: A non-interactive --list mode prints the same worklist
+text: tl-ratify --list prints the ranked worklist to stdout without curses for pipelines,
+  CI logs and quick glances, refusing the TUI when stdout is not a terminal.
+normative: true
+links:
+- target: UR-0001
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: henry

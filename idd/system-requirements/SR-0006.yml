@@ -1,0 +1,14 @@
+uid: SR-0006
+type: system_requirement
+status: ratified
+title: Grounding is evaluated over the composed union when sources are declared
+text: When the consumer declares [[sources]], the session composes them with build_union
+  and grounds items over that union, so a chain reaching a root through a source
+  counts; writes still land only on the consumer.
+normative: true
+links:
+- target: UR-0003
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: henry

@@ -1,0 +1,14 @@
+uid: SR-0003
+type: system_requirement
+status: ratified
+title: Ratify runs throughline's grounding gate then writes only the consumer register
+text: Ratification refuses ambiguous or ungrounded items, sets the ratified-role
+  status via set_status, records ratified_by, and persists with write_item to the
+  item's own register.
+normative: true
+links:
+- target: UR-0002
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: henry

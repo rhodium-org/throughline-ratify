@@ -1,0 +1,21 @@
+uid: SR-0018
+type: system_requirement
+status: implemented
+title: An item ratified then advanced beyond the ratified status is still treated
+  as signed off
+text: Ratification is recorded by a stamp the ratify action writes (the ratified_by
+  attribute), which persists after the item moves on to implemented or verified.
+  An item carrying that stamp counts as signed off even when its current status is
+  no longer the ratified one — it is excluded from the pending queue, shown as ratified
+  under show-all, and counted in ratification progress. This stops a since-advanced
+  item being re-offered for a ratification its status can no longer accept, which
+  would otherwise surface only as a dead-end "cannot move to ratified" message.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+- target: SR-0001
+  type: refines
+attrs:
+  origin: hybrid
+  ratified_by: henry

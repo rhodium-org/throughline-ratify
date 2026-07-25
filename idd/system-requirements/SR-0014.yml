@@ -1,0 +1,19 @@
+uid: SR-0014
+type: system_requirement
+status: ratified
+title: A link can be removed from a local item in the cockpit, refused when removal
+  would leave the item ungrounded
+text: With a link selected in the detail pane, the reviewer can remove it after confirmation.
+  Removal is refused when it would leave the item reaching no root, so the graph
+  cannot be silently orphaned, and the edit is written only to the consumer's own
+  register so a composed source stays read-only. Removing an informational link that
+  is not the item's only path to a root is allowed.
+normative: true
+links:
+- target: UR-0002
+  type: derives_from
+- target: SR-0006
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: henry

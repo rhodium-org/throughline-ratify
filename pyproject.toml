@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "throughline-ratify"
+version = "0.1.2"
+description = "A full-screen, htop-style terminal assistant for reviewing and ratifying throughline requirement items. Compose-aware: grounds items over the composed union so borrowed clauses count. Ships the tl-ratify TUI."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "Henry J Grech-Cini", email = "henry.grechcini@gmail.com" }]
+keywords = [
+  "requirements",
+  "requirements-management",
+  "ratification",
+  "review",
+  "tui",
+  "curses",
+  "traceability",
+  "grounding",
+  "idd",
+  "intent-driven-development",
+  "throughline",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console :: Curses",
+  "Intended Audience :: Developers",
+  "Operating System :: POSIX",
+  "Operating System :: MacOS",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Documentation",
+  "Topic :: Software Development :: Quality Assurance",
+]
+# throughline-compose re-exports the throughline core it composes over, so this
+# single pin gives us both the union engine and the model/grounding APIs.
+dependencies = ["throughline-compose>=0.3.1"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.urls]
+Homepage = "https://github.com/rhodium-org/throughline-ratify"
+Repository = "https://github.com/rhodium-org/throughline-ratify"
+Issues = "https://github.com/rhodium-org/throughline-ratify/issues"
+
+[project.scripts]
+tl-ratify = "throughline_ratify.cli:main"
+throughline-ratify = "throughline_ratify.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

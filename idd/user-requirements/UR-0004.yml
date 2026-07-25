@@ -1,0 +1,12 @@
+uid: UR-0004
+type: user_requirement
+status: ratified
+title: Read the interface like htop, not a scrolling log
+text: As a reviewer I want a full-screen, colour-and-glyph interface using the whole
+  terminal, with keyboard navigation, so semantic concerns are seen at a glance.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+attrs:
+  origin: human

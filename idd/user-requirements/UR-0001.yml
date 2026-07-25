@@ -1,0 +1,12 @@
+uid: UR-0001
+type: user_requirement
+status: ratified
+title: See every item awaiting my ratification, most-actionable first
+text: As a reviewer I want the items that still need a human decision surfaced and
+  ranked so I act on the ready ones before the blocked ones.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+attrs:
+  origin: human
