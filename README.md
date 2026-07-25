@@ -42,7 +42,7 @@ tl-ratify                    # open the cockpit
 tl-ratify -C path/to/project # point at a specific project
 tl-ratify --by alice         # record a specific ratifier on sign-off
 tl-ratify --list             # print the worklist (no TUI) — good for CI/pipelines
-tl-ratify --list --all       # include already-ratified items
+tl-ratify --list --all       # widen: also show ratified and dead (rejected/tombstoned) items
 ```
 
 ### Keys
@@ -51,9 +51,9 @@ tl-ratify --list --all       # include already-ratified items
 | --- | --- |
 | `j` / `↓`, `k` / `↑` | move |
 | `g` / `G`, PgUp / PgDn | jump / page |
-| `r` / `Enter` | ratify the selected item (with confirm) |
+| `r` / `Enter` | ratify the selected item (with confirm); on an item that overshot ratification, record the missed sign-off via a route the project's transitions permit |
 | `x` | reject (invalidate) the selected item, cascading suspect to dependents |
-| `a` | toggle showing already-ratified items |
+| `a` | toggle the wide view — also show already-ratified and dead (rejected/tombstoned) items |
 | `/` | filter by uid or title |
 | `R` | reload the graph from disk |
 | `?` | help |
@@ -70,6 +70,9 @@ Every row is classified by the one thing you most need to know about it:
 | ○ | blocked | pending, but not directly ratifiable from its status |
 | ⚠ | ungrounded | reaches no root — link it upward before sign-off |
 | ⚑ | ambiguous | flagged ambiguous — clarify it first |
+| ✓ | ratified | already signed off — shown only in the wide view (`a`) |
+| ✗ | rejected | invalidated, kept for the record — shown only in the wide view (`a`) |
+| ☠ | deleted | tombstoned, kept for history — shown only in the wide view (`a`) |
 
 ## How it works
 
