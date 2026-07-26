@@ -101,9 +101,9 @@ tl -C idd check --strict   # this repo is itself throughline-managed
 ```
 
 This project practises what it automates: its own requirements live in
-[`idd/`](idd/) as a throughline graph, and CI gates every change on
+[`idd/`](https://github.com/rhodium-org/throughline-ratify/tree/main/idd) as a throughline graph, and CI gates every change on
 `tl check --strict`.
 
 ## Licence
 
-Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+Apache-2.0. See [LICENSE](https://github.com/rhodium-org/throughline-ratify/blob/main/LICENSE) and [NOTICE](https://github.com/rhodium-org/throughline-ratify/blob/main/NOTICE).
