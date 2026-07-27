@@ -106,4 +106,6 @@ This project practises what it automates: its own requirements live in
 
 ## Licence
 
-Apache-2.0. See [LICENSE](https://github.com/rhodium-org/throughline-ratify/blob/main/LICENSE) and [NOTICE](https://github.com/rhodium-org/throughline-ratify/blob/main/NOTICE).
+Copyright © 2026 Time Back Solutions Limited (Company No. 12938914), authored by
+Henry J Grech-Cini. Released under the Apache License 2.0 — see
+[LICENSE](https://github.com/rhodium-org/throughline-ratify/blob/main/LICENSE) and [NOTICE](https://github.com/rhodium-org/throughline-ratify/blob/main/NOTICE).
