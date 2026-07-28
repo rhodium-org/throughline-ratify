@@ -299,9 +299,10 @@ class App:
         try:
             walked = core.reratify_item(self.session, item.uid, self.ratifier)
             self.refresh_queue()
+            walked_route = " \u2192 ".join(walked)
             self.flash = _Flash(
                 f"\u2713 {item.uid} ratified by {self.ratifier} "
-                f"(via {' \u2192 '.join(walked)})",
+                f"(via {walked_route})",
                 "ok",
             )
         except core.RatifierError as exc:
