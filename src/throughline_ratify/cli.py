@@ -69,6 +69,8 @@ def _print_list(session: core.Session, show_all: bool, sort: str) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    from throughline.cli import force_utf8_io
+    force_utf8_io()
     args = build_parser().parse_args(argv)
     try:
         session = core.open_session(args.path)
