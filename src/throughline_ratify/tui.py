@@ -107,10 +107,13 @@ class _Flash:
 
 
 class App:
-    def __init__(self, stdscr, session: Session, ratifier: str):
+    def __init__(self, stdscr, session: Session, ratifier: str, log=None):
         self.scr = stdscr
         self.session = session
         self.ratifier = ratifier
+        # The sitting's running account (SR-0021). None when --summary was not
+        # asked for; every recording site is guarded, so the UI is unchanged.
+        self.log = log
         self.show_all = False
         self.sort = "concern"
         self.filter = ""
@@ -252,6 +255,11 @@ class App:
         except core.RatifierError as exc:
             self.flash = _Flash(str(exc), "err")
             return
+        if self.log is not None:
+            self.log.link_removed(
+                item.uid, item.title, lv.type, lv.ref,
+                grounding=lv.type in self.session.schema.ground_link_types,
+            )
         self.refresh_queue()
         self.expanded = set()
         cur = self.current
@@ -280,6 +288,8 @@ class App:
             return
         try:
             core.ratify_item(self.session, item.uid, self.ratifier)
+            if self.log is not None:
+                self.log.ratified(item.uid, item.title)
             self.refresh_queue()
             self.flash = _Flash(f"\u2713 {item.uid} ratified by {self.ratifier}", "ok")
         except core.RatifierError as exc:
@@ -298,6 +308,8 @@ class App:
             return
         try:
             walked = core.reratify_item(self.session, item.uid, self.ratifier)
+            if self.log is not None:
+                self.log.reratified(item.uid, item.title, walked)
             self.refresh_queue()
             walked_route = " \u2192 ".join(walked)
             self.flash = _Flash(
@@ -321,6 +333,8 @@ class App:
             return
         try:
             affected = core.reject_item(self.session, item.uid, reason)
+            if self.log is not None:
+                self.log.rejected(item.uid, item.title, reason, list(affected))
             self.refresh_queue()
             extra = f", {len(affected)} dependent(s) now suspect" if affected else ""
             self.flash = _Flash(f"\u2717 {item.uid} rejected{extra}", "warn")
@@ -699,10 +713,14 @@ class App:
         self.scr.getch()
 
 
-def run(session: Session, ratifier: str) -> None:
+def run(session: Session, ratifier: str, log=None) -> None:
+    """Open the cockpit. ``log`` is an optional
+    :class:`throughline_ratify.report.DecisionLog`; when given, every decision the
+    ratifier takes is appended to it as it is persisted, so the caller can render
+    the sitting's account once curses has closed (SR-0021)."""
     def _main(stdscr):
         _init_colours()
-        App(stdscr, session, ratifier).run()
+        App(stdscr, session, ratifier, log).run()
 
     try:
         # curses.wrapper restores the terminal in its finally before re-raising,

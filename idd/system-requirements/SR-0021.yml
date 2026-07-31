@@ -1,0 +1,45 @@
+uid: SR-0021
+type: system_requirement
+status: ratified
+title: A session summary of every decision taken, ready to paste into a commit
+text: The assistant shall accept a `--summary` option taking an optional file path.
+  When it is given, the assistant shall record every decision the ratifier takes
+  during the sitting and, on exit, render them as a plain-text report — to the named
+  file if a path was supplied, otherwise to stdout after the full-screen view has
+  closed. The report shall carry a header naming the project, whether the scope was
+  the local graph or a composed union, the ratifier recorded on sign-off, and when
+  the sitting ended; then one entry per decision in the order taken, each naming
+  the item, its title, and what was decided — ratified, re-ratified, rejected with
+  the reason given, or a grounding link removed. Where the assistant moved an item
+  through intermediate statuses to carry a decision out, the entry shall name the
+  route it walked; where a rejection cascaded suspicion to dependents, the entry
+  shall name them. The report shall end with a tally and a single line listing the
+  decided item UIDs, formatted as the trailer the estate's commit convention expects,
+  so it can be pasted into the commit that carries the work. A sitting in which no
+  decision was taken shall produce no report and shall not create the file. The option
+  shall be rejected as a usage error alongside `--list`, which takes no decisions.
+  The report shall name only the ratifier the sitting already recorded, never a value
+  the assistant chose, and shall describe what happened rather than govern anything
+  — the items themselves remain the only source of truth.
+rationale: The name is `--summary` rather than `--with-summary` because the flag
+  names the artefact it produces, matching `--list`, and because the argument is
+  the report's destination — `--with-summary` reads as a modifier and leaves nowhere
+  natural to put the path. Note the full-screen view already draws a pane it calls
+  the summary, showing ratification progress; this is a different thing, and the
+  distinction is worth holding — one is the state of the backlog, the other is the
+  account of a sitting. Rendering after curses has closed is what makes the output
+  redirectable and pasteable, which is the whole point of UR-0005; a report drawn
+  inside the full-screen view could be read but not used. Producing nothing when
+  nothing was decided keeps a browsing session from leaving a misleading empty artefact
+  behind, and refusing the flag alongside `--list` fails fast rather than silently
+  handing back an empty report the user would reasonably read as "I changed nothing".
+  The trailer line is the detail that earns the feature — it turns the sitting directly
+  into the commit that records it, which is the moment the ratifier actually needs
+  this.
+normative: true
+links:
+- target: UR-0005
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini

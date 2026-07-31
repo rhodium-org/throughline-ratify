@@ -1,0 +1,26 @@
+uid: UR-0005
+type: user_requirement
+status: ratified
+title: Leave a ratification session with a written record of what I decided
+text: On request, the assistant shall give the ratifier a written account of what
+  they decided in the sitting — which items they accepted, which they rejected and
+  why, and anything the assistant changed on their behalf to carry those decisions
+  out. The account shall be produced without the ratifier having to keep their own
+  notes as they work, and shall be usable outside the terminal, so it can go into
+  the commit that carries the decisions or to someone who was not present.
+rationale: Ratification is the accountability act this whole toolchain exists to
+  protect, yet a sitting currently leaves no account of itself. The evidence it produces
+  is scattered one field at a time across dozens of item files, so the only way to
+  answer "what did I accept just now, and why did that one get rejected" is to read
+  a diff. That matters most at exactly the moment the record is needed — writing
+  the commit. The estate convention is that a commit cites the items it supports,
+  and after a sitting that cleared 25 items the ratifier is asked to reconstruct
+  that list by hand from the working tree. A ratifier who cannot easily say what
+  they took responsibility for is a weaker accountability record than one who can.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini

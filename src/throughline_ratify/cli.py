@@ -5,6 +5,9 @@
 Launches the full-screen ratification cockpit over the throughline project
 enclosing ``--path`` (default: the current directory). ``--list`` prints the same
 worklist to stdout without curses, for pipelines, CI logs and quick glances.
+``--summary`` leaves the sitting with a written account of every decision taken,
+rendered once curses has closed so it can be redirected or pasted into the commit
+that carries the work (see :mod:`throughline_ratify.report`).
 """
 from __future__ import annotations
 
@@ -12,7 +15,7 @@ import argparse
 import sys
 from importlib.metadata import PackageNotFoundError, version as _pkg_version
 
-from . import core
+from . import core, report
 
 
 def _v(name: str) -> str:
@@ -46,6 +49,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--sort", choices=core.SORTS, default="concern",
                    help="worklist ordering: concern (default), roots (shallowest "
                         "grounding depth first) or leaves (deepest first)")
+    # nargs="?" makes the path optional: bare --summary reports to stdout once the
+    # full-screen view has closed, which is what makes it redirectable (SR-0021).
+    p.add_argument("--summary", nargs="?", const=report.STDOUT, default=None,
+                   metavar="PATH",
+                   help="on exit, write an account of every decision taken during "
+                        "the sitting to PATH (or stdout if PATH is omitted), ending "
+                        "with a commit-ready trailer of the decided item UIDs")
     return p
 
 
@@ -72,6 +82,14 @@ def main(argv: list[str] | None = None) -> int:
     from throughline.cli import force_utf8_io
     force_utf8_io()
     args = build_parser().parse_args(argv)
+
+    # --list takes no decisions, so it could only ever produce an empty report the
+    # user would reasonably read as "I changed nothing". Fail fast instead (SR-0021).
+    if args.list and args.summary is not None:
+        print("tl-ratify: --summary cannot be used with --list; --list takes no "
+              "decisions, so there is nothing to summarise", file=sys.stderr)
+        return 2
+
     try:
         session = core.open_session(args.path)
     except core.RatifierError as exc:
@@ -89,7 +107,18 @@ def main(argv: list[str] | None = None) -> int:
     from . import tui  # deferred: only import curses when we actually open the UI
 
     ratifier = args.by or core.default_ratifier()
-    tui.run(session, ratifier)
+    # The log carries exactly the name the sitting signs off under — the report
+    # never names a ratifier of its own choosing.
+    log = report.DecisionLog(ratifier) if args.summary is not None else None
+    tui.run(session, ratifier, log)
+
+    # Rendered only now, with curses closed, so the output is redirectable and
+    # pasteable rather than merely readable inside the full-screen view.
+    if log is not None:
+        written = report.emit(log, args.summary, project_name=session.project_name,
+                              composed=session.composed)
+        if written is not None:
+            print(f"tl-ratify: session summary written to {written}", file=sys.stderr)
     return 0
 
 

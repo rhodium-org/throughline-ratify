@@ -43,7 +43,53 @@ tl-ratify -C path/to/project # point at a specific project
 tl-ratify --by alice         # record a specific ratifier on sign-off
 tl-ratify --list             # print the worklist (no TUI) — good for CI/pipelines
 tl-ratify --list --all       # widen: also show ratified and dead (rejected/tombstoned) items
+tl-ratify --summary          # on exit, print an account of everything you decided
+tl-ratify --summary out.txt  # …or write it to a file
 ```
+
+### Leaving with a record of what you decided
+
+A sitting scatters its evidence one field at a time across dozens of item files,
+so answering *"what did I just accept, and why did that one get rejected?"* means
+reading a diff. `--summary` keeps a running account instead and renders it once
+the full-screen view has closed — so it can be redirected, pasted into the commit
+that carries the decisions, or sent to someone who was not there:
+
+```text
+tl-ratify session summary
+=========================
+
+Project  : throughline-ratify
+Scope    : local graph
+Ratifier : Ada Lovelace
+Ended    : 2026-07-31 07:12:44 BST
+
+Decisions taken (3), in the order taken:
+
+  1. ratified     SR-0021
+     A session summary of every decision taken
+
+  2. re-ratified  SR-0009
+     Ground each item over the composed union
+     route walked: implemented -> suspect -> ratified -> implemented
+
+  3. rejected     SR-0018
+     Colour the queue by grounding depth
+     reason: superseded by the concern ranking
+     dependents made suspect: SR-0019, SR-0020
+
+Tally: 1 ratified, 1 re-ratified, 1 rejected
+
+Items: SR-0021, SR-0009, SR-0018
+```
+
+The last line is a commit trailer, so the sitting turns straight into the commit
+that records it. Where the assistant moved an item through intermediate statuses
+on your behalf, the entry names the route it walked; where a rejection cascaded
+suspicion, it names the dependents. A sitting in which you decided nothing writes
+nothing — browsing never leaves an empty artefact behind. The report only ever
+names the ratifier the sitting already recorded, and it *describes*: the items
+themselves remain the only source of truth.
 
 ### Keys
 

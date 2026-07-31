@@ -41,7 +41,13 @@ tl-ratify -C idd                  # point at a graph under idd/
 tl-ratify --by alice              # record the ratifier on sign-off
 tl-ratify --list                  # print the worklist, no TUI (good for CI/scripts)
 tl-ratify --list --all            # also show ratified and dead items
+tl-ratify --summary [PATH]        # on exit, an account of every decision taken
 ```
+
+`--summary` renders after the full-screen view closes, so it is redirectable; it
+ends with an `Items:` trailer listing the decided UIDs, ready to paste into the
+commit that carries them. It takes no decisions of its own and is refused
+alongside `--list`.
 
 In the cockpit: `r`/`Enter` ratify · `x` reject (cascades *suspect* to
 dependents) · `/` filter · `a` wide view · `q` quit.
