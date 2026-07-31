@@ -11,3 +11,5 @@ normative: true
 attrs:
   origin: hybrid
   ratified_by: henry
+  ratified_fingerprint: sha256:18c78ba67d83f2ae2a62ee86443ced918663cff2b04e6f242041ab46782bd46d
+  ratified_backfilled: true

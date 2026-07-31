@@ -24,3 +24,5 @@ links:
 attrs:
   origin: ai
   ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:6dfc1642045c6cd9acb6dac8624810063a238285ab04a12363fd385d3c735ea5
+  ratified_backfilled: true

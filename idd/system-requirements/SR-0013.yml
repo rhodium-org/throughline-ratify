@@ -17,3 +17,5 @@ links:
 attrs:
   origin: ai
   ratified_by: henry
+  ratified_fingerprint: sha256:a926915a3f9b2a713b1497ba09fcc2e61e9efc8cb08159ca2ae16a97ba46bf59
+  ratified_backfilled: true
