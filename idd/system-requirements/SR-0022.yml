@@ -1,0 +1,36 @@
+uid: SR-0022
+type: system_requirement
+status: ratified
+title: Ratification is recorded through throughline's own ratify, never a copy of
+  it
+text: The assistant shall record a ratification by calling throughline's own ratify
+  operation, rather than by setting the ratified status and stamping the ratifier
+  itself, so every part of the record throughline writes is written here too and
+  stays written as throughline evolves. Where the assistant must reach the ratified
+  status by a route — an item that overshot ratification without ever being signed
+  off — it shall walk the intervening hops and hand the final move to that operation,
+  so the sign-off itself is always throughline's. It shall pass its composed-union
+  grounding view into the call, so an item that reaches a root only through a borrowed
+  clause is still accepted, and writes shall continue to land only on the consumer's
+  own registers. A refusal throughline raises — an ambiguous item, an ungrounded
+  one, or one already ratified whose content has not changed since — shall be surfaced
+  to the reviewer as it stands, never worked around.
+rationale: The cockpit forked ratification for a sound reason — it grounds over the
+  composed union while writing only to the consumer's register, which throughline's
+  own ratify could not do — but a fork of an accountability record drifts, and this
+  one did. When throughline began binding a signature to the content it signed (throughline
+  SR-0148), the cockpit went on writing the ratifier's name alone, so every item
+  ratified through this tool carries a signature that proves who accepted it but
+  not what they accepted. That is precisely the failure the stamp exists to prevent,
+  and nothing in the cockpit could show a reviewer it was happening. The durable
+  fix is one implementation rather than two — throughline accepts a prebuilt grounding
+  index (throughline SR-0151) so the union view can be handed in, and the cockpit
+  calls the real operation. The next field throughline adds to the record then appears
+  here for free, and a view over a tool can no longer fall silently behind it.
+normative: true
+links:
+- target: UR-0002
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini

@@ -15,6 +15,13 @@ Every status change routes through throughline's own config-driven choke points
 so no status literal is hardcoded here — the project's ``[status.roles]`` and
 ``[transitions]`` govern what "ratified", "rejected" and "suspect" mean and which
 moves are legal.
+
+Ratification itself is throughline's :func:`throughline.grounding.ratify`, called
+rather than copied (SR-0022). We hand it our union index and it writes the whole
+accountability record — who accepted the item *and* a fingerprint of what they
+accepted. A copy of that operation lived here once, and when throughline began
+binding signatures to content the copy silently fell behind, leaving every item
+ratified through this cockpit signed but unbound. One implementation, not two.
 """
 from __future__ import annotations
 
@@ -30,6 +37,11 @@ from throughline.grounding import (
     reaches_root,
     set_status,
 )
+# The real ratification operation (SR-0022). We do not reimplement it: it decides
+# what may be signed off and what gets recorded, and it accepts a prebuilt
+# grounding index (throughline SR-0151) so we can hand it our composed-union view
+# while it writes to the consumer's own item.
+from throughline.grounding import ratify as core_ratify
 from throughline.model import Item, Project
 from throughline.schema import SchemaError
 from throughline.storage import (
@@ -569,26 +581,19 @@ def default_ratifier() -> str:
 def ratify_item(session: Session, uid: str, by: str) -> None:
     """Take human accountability for ``uid``, grounding over the composed union.
 
-    Mirrors ``tl-compose ratify``: run the accountability gate over the union (so a
-    chain that reaches a root only through a source counts), then write the accepted
-    status back to the consumer's own register only."""
-    item = session.project.get(uid)
-    if item is None:
+    The sign-off itself is throughline's own :func:`throughline.grounding.ratify`
+    (SR-0022) — we hand it the union's grounding index so a chain that reaches a
+    root only through a source counts, and it writes the whole accountability
+    record onto the consumer's own item. Nothing about who may be ratified, or
+    what gets stamped, is decided here; a refusal it raises is surfaced as it
+    stands. Only the consumer's register is written; a composed source stays
+    read-only."""
+    if session.project.get(uid) is None:
         raise RatifierError(f"{uid} does not exist")
-    if item.attrs.get("ambiguous"):
-        raise RatifierError(f"{uid} is flagged ambiguous and cannot be ratified until clarified")
-
-    union_item = session.union.get(uid) or item
-    if not session.schema.is_root(union_item) and not reaches_root(
-        session.index, session.schema, uid
-    ):
-        raise RatifierError(f"{uid} is not grounded to a root and cannot be ratified")
-
     try:
-        set_status(session.schema, item, session.ratified_status)
+        item = core_ratify(session.project, uid, by, index=session.index)
     except GroundingError as exc:
         raise RatifierError(str(exc)) from exc
-    item.attrs[RATIFIED_BY_ATTR] = by
     write_item(item, session.project.register_of(uid))
 
 
@@ -599,22 +604,17 @@ def reratify_item(session: Session, uid: str, by: str) -> list[str]:
 
     Every hop is walked through throughline's own :func:`set_status` choke point, so
     each step is validated against the project's ``[transitions]`` exactly as the CLI
-    would; the ratification stamp is applied as we pass through the ratified status.
-    Only the end state is written, and it equals the item's original status — the item
-    ends up precisely where it started, now carrying the ratification stamp. Returns
-    the status itinerary that was walked, for the caller to report. The same
-    grounding/ambiguity gates as :func:`ratify_item` apply first."""
+    would — except the hop that lands on ratified, which is handed to throughline's
+    own ratify (SR-0022). That keeps the sign-off, and the whole record it stamps,
+    the tool's rather than ours: we only get the item *to* the point of ratification,
+    never perform it. Only the end state is written, and it equals the item's original
+    status — the item ends up precisely where it started, now carrying the full
+    ratification stamp. Walking on afterwards does not stale the signature: the
+    content fingerprint deliberately excludes status. Returns the status itinerary
+    that was walked, for the caller to report."""
     item = session.project.get(uid)
     if item is None:
         raise RatifierError(f"{uid} does not exist")
-    if item.attrs.get("ambiguous"):
-        raise RatifierError(f"{uid} is flagged ambiguous and cannot be ratified until clarified")
-
-    union_item = session.union.get(uid) or item
-    if not session.schema.is_root(union_item) and not reaches_root(
-        session.index, session.schema, uid
-    ):
-        raise RatifierError(f"{uid} is not grounded to a root and cannot be ratified")
 
     route = _reratify_route(session, item)
     if route is None:
@@ -623,16 +623,24 @@ def reratify_item(session: Session, uid: str, by: str) -> list[str]:
             "no route back through ratified"
         )
 
-    # Walk the computed itinerary through the config-driven choke point. The route
-    # starts at the current status, so step through the remaining hops in order.
     schema = session.schema
-    for to in route[1:]:
-        try:
+    pivot = route.index(session.ratified_status)
+    was = item.status
+    try:
+        # Up to, but not including, the hop onto ratified — that one is not ours.
+        for to in route[1:pivot]:
             set_status(schema, item, to)
-        except GroundingError as exc:
-            raise RatifierError(str(exc)) from exc
-        if to == session.ratified_status:
-            item.attrs[RATIFIED_BY_ATTR] = by
+        # throughline moves it the last step and records who accepted what. Its
+        # gates (ambiguous, ungrounded, unchanged-already-ratified) bite here.
+        core_ratify(session.project, uid, by, index=session.index)
+        for to in route[pivot + 1:]:
+            set_status(schema, item, to)
+    except GroundingError as exc:
+        # A refusal part-way along must not leave the in-memory item stranded at an
+        # intermediate status the ratifier never chose. Nothing was written, so
+        # restoring where it started makes the failure a true no-op.
+        item.status = was
+        raise RatifierError(str(exc)) from exc
     write_item(item, session.project.register_of(uid))
     return route
 

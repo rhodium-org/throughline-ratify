@@ -133,14 +133,94 @@ def test_reratify_records_signoff_and_restores_status(demo_project):
     assert _by_uid(core.build_queue(fresh, show_all=True))["FR-0007"].concern == "ratified"
 
 
-def test_reratify_refuses_when_no_route_and_gates_apply(demo_project):
+def _fingerprint_of(project, uid: str) -> str:
+    from throughline.fingerprint import fingerprint
+    return fingerprint(project.get(uid), project.schema)
+
+
+def test_ratifying_binds_the_signature_to_the_content_signed(demo_project):
+    """The cockpit calls throughline's own ratify, so the whole record it stamps is
+    written here too — not just who signed, but what they signed (SR-0022). Writing
+    the ratifier alone left a signature bound to nothing."""
     session = core.open_session(demo_project)
-    # ungrounded item is refused on the grounding gate, before any routing
-    with pytest.raises(core.RatifierError, match="grounded"):
-        core.reratify_item(session, "FR-0003", by="tester")
+    core.ratify_item(session, "FR-0001", by="tester")
+
+    fresh = core.open_session(demo_project)
+    item = fresh.project.get("FR-0001")
+    assert item.attrs.get("ratified_by") == "tester"
+    assert item.attrs.get("ratified_fingerprint") == _fingerprint_of(fresh.project, "FR-0001")
+
+
+def test_reratifying_binds_the_signature_too_and_the_walk_does_not_stale_it(
+    demo_project,
+):
+    """The route walks on past ratified to restore the item's status. That must not
+    invalidate the stamp — the content fingerprint deliberately excludes status."""
+    session = core.open_session(demo_project)
+    core.reratify_item(session, "FR-0007", by="tester")
+
+    fresh = core.open_session(demo_project)
+    item = fresh.project.get("FR-0007")
+    assert item.status == "implemented"          # walked on, as before
+    assert item.attrs.get("ratified_fingerprint") == _fingerprint_of(fresh.project, "FR-0007")
+
+
+def test_a_ratified_item_whose_content_has_not_changed_is_refused(demo_project):
+    """throughline refuses a second sign-off that accepts nothing rather than
+    silently replacing the record of who accepted it (throughline SR-0148). The
+    cockpit's own copy allowed it; calling the real operation does not."""
+    session = core.open_session(demo_project)
+    core.ratify_item(session, "FR-0001", by="alice")
+    with pytest.raises(core.RatifierError, match="already ratified by alice"):
+        core.ratify_item(session, "FR-0001", by="bob")
+    assert session.project.get("FR-0001").attrs["ratified_by"] == "alice"
+
+
+def test_an_unbound_signature_can_be_bound_without_changing_anything_else(
+    demo_project,
+):
+    """The back catalogue: an item carrying a ratifier but no fingerprint — every
+    item this cockpit ever ratified — can be re-ratified in place to bind the
+    signature, and nothing but the stamp moves."""
+    session = core.open_session(demo_project)
+    item = session.project.get("FR-0006")  # ratified_by alice, no fingerprint
+    assert item.attrs.get("ratified_by") and "ratified_fingerprint" not in item.attrs
+    before_status, before_text = item.status, item.text
+
+    core.reratify_item(session, "FR-0006", by="alice")
+
+    fresh = core.open_session(demo_project).project.get("FR-0006")
+    assert fresh.status == before_status and fresh.text == before_text
+    assert fresh.attrs["ratified_by"] == "alice"
+    assert fresh.attrs["ratified_fingerprint"].startswith("sha256:")
+
+
+def test_reratify_refuses_when_the_config_offers_no_route(demo_project):
+    session = core.open_session(demo_project)
     # a directly-ratifiable item has no round-trip overshoot route
     with pytest.raises(core.RatifierError, match="no route"):
         core.reratify_item(session, "FR-0001", by="tester")
+    # nor does an ungrounded one still sitting at proposed — routing is judged
+    # first, and the cockpit never sends such an item down this path anyway
+    with pytest.raises(core.RatifierError, match="no route"):
+        core.reratify_item(session, "FR-0003", by="tester")
+
+
+def test_reratify_surfaces_throughlines_own_refusal_and_leaves_the_item_alone(
+    demo_project,
+):
+    """Where a route exists, the gates are throughline's to apply, not ours — its
+    refusal is passed through as it stands, and a failure part-way along the route
+    must leave the item exactly where it started (SR-0022)."""
+    session = core.open_session(demo_project)
+    session.project.get("FR-0007").attrs["ambiguous"] = True
+    with pytest.raises(core.RatifierError, match="ambiguous"):
+        core.reratify_item(session, "FR-0007", by="tester")
+    assert session.project.get("FR-0007").status == "implemented"
+    # nothing was written: the item on disk is untouched and still unratified
+    fresh = core.open_session(demo_project).project.get("FR-0007")
+    assert fresh.status == "implemented"
+    assert core.RATIFIED_BY_ATTR not in fresh.attrs
 
 
 def test_progress_climbs_as_items_are_ratified(demo_project):
