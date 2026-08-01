@@ -102,6 +102,37 @@ governed by *this* project's schema, so `idd/throughline.toml` declares some typ
 links and statuses only to accept the source's items; those lines are marked as
 such — they are not this project's own model.
 
+### If you are also working on throughline or throughline-compose — chain the editables
+
+`pip install -e ".[dev]"` makes *this* package editable and resolves
+[throughline-compose](https://github.com/rhodium-org/throughline-compose) and
+[throughline](https://github.com/rhodium-org/throughline) **from PyPI**. This repo is
+the most exposed of the three, because it sits on top of both: the cockpit you run
+can be your working tree while the validator behind it is a published release, and
+every version string will still agree. A cockpit reporting `38/38 ratified` while
+`tl-compose check --strict` reports an error is exactly what that looks like, and it
+is indistinguishable from a real defect until you check which build you are running.
+
+Check all three out side by side and chain them in a **single** command, so the
+resolver never reaches the index:
+
+```sh
+pip install -e ../throughline -e ../throughline-compose -e ".[dev]"
+```
+
+Then verify rather than assume — every path must be your checkout, not
+`site-packages`:
+
+```sh
+python -c "import throughline as a, throughline_compose as b, throughline_ratify as c; \
+[print(m.__file__) for m in (a, b, c)]"
+```
+
+Because `tl-ratify` is a CLI you also *use*, the pipx installation needs the same
+treatment; throughline's own
+[AGENTS.md](https://github.com/rhodium-org/throughline/blob/main/AGENTS.md#working-on-more-than-one-package-at-once--chain-the-editable-installs)
+carries that recipe and the two traps in `pipx inject` that fail silently.
+
 Changes here follow the same IDD discipline this tool serves: ground the change in
 an `idd/` item (create + get it ratified if new — you can dogfood `tl-ratify`
 itself), cite the UID in your commit, and keep `tl-compose -C idd check --strict`
