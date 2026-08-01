@@ -15,6 +15,7 @@ import textwrap
 from dataclasses import dataclass
 
 from . import core
+from . import __version__
 from .core import QueueItem, Session
 
 # ------------------------------------------------------------------ colours
@@ -487,12 +488,25 @@ class App:
 
     def _draw_header(self, w: int) -> None:
         _hline(self.scr, 0, 0, w, _attr("header", bold=True))
-        left = f" throughline-ratify \u2502 {self.session.project_name}"
-        _safe_addstr(self.scr, 0, 0, left, _attr("header", bold=True))
         if self.session.composed:
             right = f"composed \u2502 {len(self.session.sources)} source(s) "
         else:
             right = "local project "
+        # The version is taken from the imported package, never restated here, so the
+        # header cannot disagree with the build rendering it (SR-0031). As the header
+        # runs out of room it sheds the project name, then the tool's long name, and
+        # only ever keeps the version: a header that has quietly dropped it looks
+        # exactly like one from a build that never showed it, which is the confusion
+        # this exists to end. The project name is recoverable elsewhere; the identity
+        # of the running build is not.
+        avail = max(0, w - len(right))
+        for left in (f" throughline-ratify {__version__} \u2502 {self.session.project_name}",
+                     f" throughline-ratify {__version__}",
+                     f" tl-ratify {__version__}",
+                     f" {__version__}"):
+            if len(left) <= avail:
+                break
+        _safe_addstr(self.scr, 0, 0, left, _attr("header", bold=True))
         _safe_addstr(self.scr, 0, max(0, w - len(right)), right, _attr("header", bold=True))
 
     def _draw_summary(self, w: int) -> None:

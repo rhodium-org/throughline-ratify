@@ -255,3 +255,48 @@ def test_an_unsigned_overshoot_still_reads_as_a_missed_signature(demo_project,
     app.do_ratify()
 
     assert asked[0].startswith("FR-0007 is at 'implemented' and was never ratified.")
+
+
+# --------------------------------------------------------------------------- #
+# SR-0031 — the header names the build that is rendering it
+# --------------------------------------------------------------------------- #
+
+def test_the_header_names_the_running_version(demo_project, monkeypatch):
+    """A build that does not say which build it is cannot be told apart from any
+    other, which is how an install several features behind came to be read as a
+    defect in the current one. Driven through the real _draw_header, because the
+    obligation is about what reaches the screen."""
+    monkeypatch.setattr(tui, "_attr", lambda name, bold=False: 0)
+    monkeypatch.setattr(tui, "_hline", lambda *a, **k: None)
+    session = core.open_session(demo_project)
+    scr = FakeScreen(24, 100, [])
+    app = tui.App(scr, session, "Ada Lovelace", None)
+
+    app._draw_header(100)
+
+    header = scr.rows[0]
+    assert tui.__version__ in header
+    assert "throughline-ratify" in header
+    assert session.project_name in header
+
+
+def test_the_header_version_is_the_imported_packages_own(monkeypatch):
+    """Taken from the package actually imported, never a string restated here — a
+    version written down twice is a claim nothing checks (SR-0031)."""
+    from importlib.metadata import version as _dist_version
+
+    assert tui.__version__ == _dist_version("throughline-ratify")
+
+
+def test_a_narrow_header_keeps_the_version(demo_project, monkeypatch):
+    """A header that has silently dropped the version is indistinguishable from one
+    whose build never showed it — which is the failure this exists to prevent."""
+    monkeypatch.setattr(tui, "_attr", lambda name, bold=False: 0)
+    monkeypatch.setattr(tui, "_hline", lambda *a, **k: None)
+    session = core.open_session(demo_project)
+    scr = FakeScreen(24, 30, [])
+    app = tui.App(scr, session, "Ada Lovelace", None)
+
+    app._draw_header(30)
+
+    assert tui.__version__ in scr.rows[0]

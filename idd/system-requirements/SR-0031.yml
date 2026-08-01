@@ -1,0 +1,39 @@
+uid: SR-0031
+type: system_requirement
+status: proposed
+title: The cockpit names the build it is, so a stale install cannot pass for the
+  current one
+text: >-
+  The full-screen view shall show the version of the assistant that is running,
+  in the header, where it is visible without leaving the view or knowing to ask.
+  It shall report the version of the package actually imported rather than a
+  string held separately, so the two cannot disagree, and it shall not be
+  suppressed when the header is short of room in preference to the project name
+  — a header that has dropped the version is indistinguishable from one whose
+  build never showed it.
+normative: true
+links:
+- target: UR-0004
+  type: derives_from
+- target: SR-0007
+  type: relates
+attrs:
+  origin: ai
+rationale: >-
+  Ratification is the one act in this toolchain a validator cannot check, so the
+  question a reviewer must be able to settle from the screen is not only what an
+  item says but whether the thing showing it is the thing they think it is. This
+  requirement was written from a live failure of exactly that. A pipx-installed
+  build several features behind was on PATH; the working tree carried a newly
+  added concern; both reported the same version string, and nothing in the
+  full-screen view distinguished them. The reviewer opened the cockpit, saw an
+  item shown as settled that the strict check called stale, and reasonably
+  concluded the new work was defective — when in fact the screen was rendered by
+  a build that predated it. The cost fell on the person this tool exists to
+  serve, and it fell at the moment they were exercising the very judgement the
+  tool is for. A version in the header is a small thing that turns that whole
+  class of confusion into a glance. It is deliberately taken from the imported
+  package rather than restated, for the same reason SR-0029 prefers a resolved
+  reference to a quoted one — a version written down in a second place is a
+  claim nothing checks, and this requirement exists because an unchecked claim
+  about a version had already cost a sitting once.
