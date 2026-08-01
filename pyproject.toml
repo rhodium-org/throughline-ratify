@@ -43,10 +43,13 @@ classifiers = [
 # throughline.identity, which decides both who is offered by default (SR-0027) and
 # what a stable identifier may look like (SR-0028), arrived in throughline>=1.8.0;
 # compose>=0.8.0 requires it. The fingerprint that survives composition unchanged
-# (item._authored_normative_attrs) — so this graph need not mirror throughline's
-# normative flags to adopt it as a source (SR-0029) — is in that same 1.8.0, so
-# pinning the floor there flows all three in transitively.
-dependencies = ["throughline-compose>=0.8.0"]
+# (item._authored_normative_attrs, set by the union from the source's own schema)
+# — so this graph need not mirror throughline's normative flags to adopt it as a
+# source (SR-0029) — needs throughline>=1.9.0, which compose>=0.9.0 requires, so
+# pinning the floor there flows all three in transitively. Below it, all 204
+# borrowed items report ratified-stale: without the authored set, a borrowed
+# item is fingerprinted under this graph's normative flags rather than its own.
+dependencies = ["throughline-compose>=0.9.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
