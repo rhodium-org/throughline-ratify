@@ -1,6 +1,6 @@
 uid: SR-0011
 type: system_requirement
-status: ratified
+status: implemented
 title: The worklist can be ordered by grounding depth, roots-first or leaves-first
 text: In addition to the default most-actionable-first ordering, the operator can
   re-sort the queue by each item's grounding depth — either roots-first (shallowest,

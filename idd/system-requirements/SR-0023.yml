@@ -1,0 +1,35 @@
+uid: SR-0023
+type: system_requirement
+status: implemented
+title: Text being typed at the prompt stays visible as it grows
+text: Wherever the cockpit takes typed input from a human at the foot of the screen
+  — a rejection reason, a filter, or any prompt added later — the whole of what has
+  been entered shall remain visible while it is being entered. When the text no longer
+  fits the terminal's width it shall wrap, and the prompt area shall grow upward
+  from the bottom one line at a time to hold it, giving back the space when the text
+  shrinks or the prompt closes. The cursor shall stay at the insertion point. No
+  entered character shall ever be hidden or silently discarded because the terminal
+  is narrow.
+rationale: The prompt currently truncates the label and the buffer to the terminal's
+  width and keeps the front of that string, so the moment a reason runs past one
+  line the display stops moving and the person is typing blind at a cursor pinned
+  to the right-hand edge. A rejection reason is the worst place in this tool for
+  that to happen. It is the only free-text account of why an item was refused, it
+  is written once and read later by someone who was not there, and it is exactly
+  the field a person is most likely to write a full sentence into. Someone who cannot
+  see what they have typed cannot check it, so they either write less than the record
+  deserves or leave a mistake standing in it — and a truncated or careless reason
+  weakens the audit trail the cockpit exists to produce. Growing the prompt upward
+  rather than opening a separate editor keeps the item and its context on screen
+  while the reason is written, which is the htop-like reading UR-0004 asks for; the
+  space is borrowed only while it is needed.
+normative: true
+links:
+- target: UR-0002
+  type: derives_from
+- target: UR-0004
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:6dea89d3100c002acbbda2cea1088247c55f89f5ffd73aec5b6f9290866ff2e2

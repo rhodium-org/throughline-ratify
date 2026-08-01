@@ -2,14 +2,22 @@
 name = "throughline-ratify"
 format_version = 3
 
-# Intents are the only roots; every requirement must ground upward to one.
+# Intents are the delivery roots; every requirement must ground upward to one.
+# non_goal is a root too, but deliberately NOT a delivery root — a recorded
+# non-goal is negative space, so nothing derives from it and it is never flagged
+# unserved. It is passive: the tool never tries to detect items that 'violate' one.
 [grounding]
-root_types = ["intent"]
+root_types = ["intent", "non_goal"]
 delivery_roots = ["intent"]
 ground_link_types = ["derives_from", "refines"]
 ai_origins = ["ai", "hybrid"]
 
 [types.intent]
+attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
+
+# Deliberately-excluded scope, recorded so it is visible to reviewers and agents
+# rather than living only in prose.
+[types.non_goal]
 attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
 
 [types.user_requirement]

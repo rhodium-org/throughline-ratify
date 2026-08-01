@@ -1,6 +1,6 @@
 uid: SR-0012
 type: system_requirement
-status: ratified
+status: implemented
 title: The detail pane resolves each link to its referenced title and content, including
   items from composed sources
 text: For the selected item, every link shows the referenced item's title, and —

@@ -1,6 +1,6 @@
 uid: SR-0013
 type: system_requirement
-status: ratified
+status: implemented
 title: The detail pane is focusable and its links can be navigated and expanded to
   read referenced content
 text: Pressing Tab moves focus between the worklist and the detail pane. With the

@@ -1,6 +1,6 @@
 uid: SR-0022
 type: system_requirement
-status: ratified
+status: implemented
 title: Ratification is recorded through throughline's own ratify, never a copy of
   it
 text: The assistant shall record a ratification by calling throughline's own ratify

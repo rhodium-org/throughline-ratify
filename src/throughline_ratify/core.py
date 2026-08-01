@@ -188,6 +188,17 @@ class Session:
         return self.project.schema
 
     @property
+    def suspect_status(self) -> str | None:
+        """The status this project binds to the ``suspect`` role, or ``None`` when it
+        binds none. Unlike the ratified and proposed roles (SR-0009) suspicion is
+        optional vocabulary, so its absence degrades inertly rather than refusing to
+        open the project — the same treatment ``dead_statuses`` gives its own roles."""
+        try:
+            return self.schema.status_role("suspect")
+        except SchemaError:
+            return None
+
+    @property
     def index(self) -> Index:
         # Grounding topology is link-based and independent of status, so one index
         # built over the union survives every ratify/reject in a session.
@@ -327,10 +338,17 @@ def build_queue(
 
 
 def _is_ratified(session: Session, item: Item) -> bool:
-    """Whether ``item`` has already been signed off. True if it currently holds the
-    ratified status *or* carries the ratification stamp — the latter catching an item
+    """Whether ``item`` counts as signed off *now*. True if it currently holds the
+    ratified status, or carries the ratification stamp — the latter catching an item
     that was ratified and has since advanced to ``implemented``/``verified``, so it is
-    not wrongly re-offered for a ratification its status can no longer accept."""
+    not wrongly re-offered for a ratification its status can no longer accept.
+
+    A past stamp settles the item only while its status still stands on it (SR-0024).
+    Once the item is suspect that sign-off no longer holds — something it rested on
+    was withdrawn — so it is awaiting a human again and belongs back in the worklist,
+    not filtered out of it by the very stamp the cascade called into question."""
+    if session.suspect_status is not None and item.status == session.suspect_status:
+        return False
     return (
         item.status == session.ratified_status
         or bool(item.attrs.get(RATIFIED_BY_ATTR))
@@ -645,21 +663,64 @@ def reratify_item(session: Session, uid: str, by: str) -> list[str]:
     return route
 
 
+def preview_reject(session: Session, uid: str) -> list[str]:
+    """The items that rejecting ``uid`` would actually make suspect, worked out
+    without changing anything (SR-0025).
+
+    A confirmation must state the consequence the cockpit has established, not the
+    one an action of this kind can have in general, so the blast radius has to be
+    known *before* the question is asked rather than read off the return value
+    afterwards. Every fact used here is asked of throughline — the impact set from
+    its index, the suspect status and the dead set from the project's own
+    ``[status.roles]``, the legality of the move from its ``[transitions]`` — so the
+    prediction is made the same way the cascade is, and the assistant carries no
+    account of its own (SR-0026)."""
+    project = session.project
+    if project.get(uid) is None:
+        raise RatifierError(f"{uid} does not exist")
+    suspect = session.suspect_status
+    if suspect is None:
+        return []
+    schema = session.schema
+    dead = schema.dead_statuses()
+    return [
+        aid
+        for aid in sorted(Index.build(project).impact(uid))
+        if (dep := project.get(aid)) is not None
+        and dep.status not in dead
+        and schema.allows_transition(dep.status, suspect)
+    ]
+
+
 def reject_item(session: Session, uid: str, reason: str = "") -> list[str]:
     """Reject (invalidate) ``uid`` and cascade suspicion to its dependents, then
-    persist every touched local item. Returns the affected UIDs."""
-    if session.project.get(uid) is None:
+    persist every touched local item.
+
+    Returns the UIDs that were *actually* made suspect, observed by comparing each
+    dependent's status either side of the call — not the impact set throughline
+    returns, which is everything reachable and includes dependents left untouched
+    because they were already dead or could not legally become suspect. What is
+    reported afterwards, and what the session summary records, is then a fact about
+    what happened rather than a claim about what might have (SR-0025)."""
+    project = session.project
+    if project.get(uid) is None:
         raise RatifierError(f"{uid} does not exist")
+    # Snapshot first: an item that was *already* suspect would otherwise be counted
+    # as newly suspected, reporting a consequence this rejection did not have.
+    before = {i.uid: i.status for i in project.items()}
     try:
-        affected = invalidate(session.project, uid, reason)
+        reachable = invalidate(project, uid, reason)
     except GroundingError as exc:
         raise RatifierError(str(exc)) from exc
 
-    write_item(session.project.get(uid), session.project.register_of(uid))
+    affected = [
+        aid
+        for aid in reachable
+        if (dep := project.get(aid)) is not None and dep.status != before.get(aid)
+    ]
+    write_item(project.get(uid), project.register_of(uid))
     for aid in affected:
-        dep = session.project.get(aid)
-        if dep is not None:
-            write_item(dep, session.project.register_of(aid))
+        write_item(project.get(aid), project.register_of(aid))
     return affected
 
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from throughline.graph import Index
 from throughline_ratify import core
 
 
@@ -394,3 +395,87 @@ def test_open_session_without_status_roles_errors_cleanly(tmp_path):
     )
     with pytest.raises(core.RatifierError, match=r"\[status.roles\]"):
         core.open_session(root)
+
+
+# --------------------------------------------------------------------------- #
+# SR-0024 — an item made suspect returns to the worklist
+# --------------------------------------------------------------------------- #
+
+def _uids(rows) -> set[str]:
+    return {r.uid for r in rows}
+
+
+def test_a_suspect_item_is_back_in_the_default_worklist(demo_project):
+    """A previously-ratified item that a cascade made suspect is awaiting a human
+    again, so it belongs in the queue the reviewer is already working through — not
+    hidden behind the wide view by the very stamp the cascade called into question."""
+    session = core.open_session(demo_project)
+    core.ratify_item(session, "FR-0001", "Ada Lovelace")
+
+    session = core.open_session(demo_project)
+    assert "FR-0001" not in _uids(core.build_queue(session)), "ratified: settled"
+
+    # reject something FR-0001 stands on, so the sign-off no longer holds
+    core.reject_item(session, "INT-0001", "superseded")
+    session = core.open_session(demo_project)
+    item = session.project.get("FR-0001")
+    assert item.status == session.suspect_status
+    assert item.attrs.get("ratified_by") == "Ada Lovelace", "the stamp survives"
+    assert "FR-0001" in _uids(core.build_queue(session)), "suspect: awaiting a human"
+
+
+def test_a_stamped_item_that_moved_on_stays_out_of_the_worklist(demo_project):
+    """The stamp test still does its original job: an item ratified and since advanced
+    is not re-offered for a ratification its status can no longer accept (SR-0019)."""
+    session = core.open_session(demo_project)
+    item = session.project.get("FR-0007")   # overshot to 'implemented'
+    item.attrs["ratified_by"] = "Ada Lovelace"
+    assert core._is_ratified(session, item)
+
+
+# --------------------------------------------------------------------------- #
+# SR-0025 — a confirmation states the consequence it has actually computed
+# --------------------------------------------------------------------------- #
+
+def test_preview_reject_predicts_exactly_what_reject_does(demo_project):
+    """The set shown before the question and the set produced after the answer are
+    the same set. If these can drift the confirmation is boilerplate again."""
+    session = core.open_session(demo_project)
+    predicted = core.preview_reject(session, "INT-0001")
+    assert predicted, "this rejection really does have dependents"
+
+    session = core.open_session(demo_project)
+    actual = core.reject_item(session, "INT-0001", "superseded")
+    assert sorted(actual) == sorted(predicted)
+
+
+def test_preview_reject_excludes_dependents_that_cannot_become_suspect(demo_project):
+    """Reachability is not consequence. FR-0001 is reachable from INT-0001 but sits at
+    'proposed', which this project's [transitions] give no route to suspect, so the
+    cascade leaves it alone and the confirmation must not claim it."""
+    session = core.open_session(demo_project)
+    idx = Index.build(session.project)
+    assert "FR-0001" in idx.impact("INT-0001"), "reachable"
+    assert "FR-0001" not in core.preview_reject(session, "INT-0001"), "but untouched"
+
+
+def test_preview_reject_is_read_only(demo_project):
+    """It is called before the human has answered, so it must change nothing."""
+    session = core.open_session(demo_project)
+    before = {i.uid: i.status for i in session.project.items()}
+    core.preview_reject(session, "INT-0001")
+    assert {i.uid: i.status for i in session.project.items()} == before
+    assert {i.uid: i.status for i in core.open_session(demo_project).project.items()} == before
+
+
+def test_preview_reject_says_nothing_is_affected_when_nothing_is(demo_project):
+    """The empty answer is as much of the requirement as the populated one — it is the
+    answer that most changes how freely a person can act."""
+    session = core.open_session(demo_project)
+    assert core.preview_reject(session, "FR-0006") == []
+
+
+def test_preview_reject_refuses_an_unknown_uid(demo_project):
+    session = core.open_session(demo_project)
+    with pytest.raises(core.RatifierError, match="does not exist"):
+        core.preview_reject(session, "NOPE-9999")

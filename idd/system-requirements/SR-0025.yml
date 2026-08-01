@@ -1,0 +1,32 @@
+uid: SR-0025
+type: system_requirement
+status: implemented
+title: A confirmation states the consequence it has actually computed
+text: Before a human confirms an action that may change items other than the one
+  they selected, the cockpit shall determine what those items are and say so — how
+  many there are, and which — and shall say plainly when there are none. A confirmation
+  shall not assert a consequence the cockpit has not established, and shall describe
+  what the action will do rather than what an action of that kind can do in general.
+rationale: The reject confirmation asks whether to reject the item "and mark dependents
+  suspect" whatever the circumstances, having computed nothing; the affected set
+  is only worked out afterwards, when the rejection has already been written. A human
+  who answers that prompt twice comes away certain that items were made suspect,
+  and may be entirely wrong — that is exactly what happened, and it sent someone
+  looking for a cascade that had never occurred. A confirmation exists so a person
+  can decide with their eyes open, so a prompt that overstates what will happen is
+  worse than none — it spends the reader's trust on a claim the tool has not checked,
+  and once they learn the wording is boilerplate they stop reading the prompts that
+  do matter. The numbers are already in hand a moment later, so this asks for a reordering
+  rather than new machinery. Saying so when nothing else is affected is as much of
+  the requirement as naming the items when something is, because "no dependents affected"
+  is the answer that most changes how freely a person can act.
+normative: true
+links:
+- target: UR-0002
+  type: derives_from
+- target: SR-0024
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:e6eee3538ac8e579cb4a82d37ab2d69da92bd6bca840800d0088f9b5370fe8ea

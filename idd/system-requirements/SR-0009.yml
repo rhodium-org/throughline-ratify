@@ -1,6 +1,6 @@
 uid: SR-0009
 type: system_requirement
-status: ratified
+status: implemented
 title: Opening a project that cannot be ratified against fails with clear guidance,
   not a traceback
 text: When a project is missing the configuration tl-ratify needs to run its accountability

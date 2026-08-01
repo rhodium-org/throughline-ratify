@@ -1,6 +1,6 @@
 uid: SR-0005
 type: system_requirement
-status: ratified
+status: implemented
 title: Status changes are config-driven; no status literal is hardcoded
 text: All transitions route through set_status / schema.status_role and schema.allows_transition,
   so the project's [status.roles] and [transitions] govern every move.

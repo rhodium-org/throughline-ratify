@@ -1,6 +1,6 @@
 uid: SR-0014
 type: system_requirement
-status: ratified
+status: implemented
 title: A link can be removed from a local item in the cockpit, refused when removal
   would leave the item ungrounded
 text: With a link selected in the detail pane, the reviewer can remove it after confirmation.

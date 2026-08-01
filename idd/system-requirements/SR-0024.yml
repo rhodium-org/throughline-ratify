@@ -1,0 +1,34 @@
+uid: SR-0024
+type: system_requirement
+status: implemented
+title: An item made suspect returns to the worklist
+text: An item that has been made suspect shall appear in the default worklist, subject
+  only to the filter in force, whether or not it was ratified before. A past ratification
+  shall be treated as settled only while the item's status still stands on it; once
+  the item is suspect that sign-off no longer holds, and the item is awaiting a human
+  again. The cascade a rejection causes shall therefore be visible in the queue the
+  reviewer is already working through, without their having to widen the view.
+rationale: Rejecting an item reports that its dependents are now suspect, and then
+  hides the ones that matter most. The worklist skips any item that either holds
+  the ratified status or merely carries a ratification stamp; the stamp test exists
+  so an item that was ratified and has since moved on to implemented is not offered
+  for a ratification its status can no longer accept. A suspect item still carries
+  that old stamp, so it is filtered out — which means the previously-ratified dependents,
+  the only ones whose sign-off was ever real, are exactly the ones that vanish, while
+  dependents that were never ratified stay visible. Verified against the fixture
+  graph — rejecting a root cascaded suspicion to eight items and the one carrying
+  a stamp was absent from the default queue and present only under the wide view.
+  Suspicion that cannot be seen where the work is done is not much better than no
+  suspicion at all — the reviewer is told a number and then has to go looking for
+  what it referred to, which is the scrolling-log reading this cockpit exists to
+  replace.
+normative: true
+links:
+- target: UR-0001
+  type: derives_from
+- target: UR-0002
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:817ae860b39a82ddb1bdc3ddbbc306b667c4bc7ec2ec1abfac07a980dc3e8592

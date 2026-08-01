@@ -1,0 +1,41 @@
+uid: SR-0026
+type: system_requirement
+status: implemented
+title: The assistant holds no configuration of its own
+text: The assistant shall hold no configuration of its own — no settings file, no
+  item vocabulary, no link types, no notion of which statuses exist or what they
+  mean that it decides for itself. Everything governing what it shows and what it
+  may do shall be read from the project's own throughline.toml through throughline's
+  own loader, so the assistant and tl can never hold two different accounts of the
+  same project. Where the assistant needs a fact about the project it shall obtain
+  it by asking throughline, not by carrying an answer. A proposed behaviour that
+  could only work if the assistant carried configuration of its own shall be treated
+  as a design fault to be resolved rather than a setting to be added.
+rationale: The assistant is a view over a graph it does not own. Its whole safety
+  argument is that it cannot show a person something the validator would disagree
+  with, or offer a move the project does not permit, because it is reading the same
+  file the validator reads. Give it configuration of its own and that argument collapses
+  in the usual way — not loudly, but by drift, where the two accounts agree for months
+  and then differ on the one project where it matters. SR-0005 already forbids hardcoded
+  status literals; this states the general fact SR-0005 is a single instance of,
+  so the next instance is caught by the rule rather than by someone remembering.
+  This also settles a question that keeps returning, which is why there is no generated
+  agent brief here. A generated brief earns its authority by being derived from live
+  configuration that varies per project — throughline's brief is worth generating
+  because a project's types, link rules and transitions are genuinely its own, and
+  the brief and the validator read the same file so they cannot disagree. The assistant
+  has no such configuration. Anything it generated would either restate what tl context
+  already prints from the same throughline.toml, giving the project a second mouth
+  and somewhere for the two to differ, or be a hand-written description of the assistant
+  generated from nothing at all — a brief that rots, wearing the tone of one that
+  cannot. The absence is a consequence of what this tool is, not a gap in it.
+normative: true
+links:
+- target: UR-0002
+  type: derives_from
+- target: SR-0005
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:c700159245c18dc743730ee79bc23df94be54e4e27116e1630029e43004cbeda

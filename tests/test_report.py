@@ -197,7 +197,7 @@ def app(demo_project, monkeypatch):
     Every action below really mutates the fixture graph on disk."""
     from throughline_ratify import tui
 
-    monkeypatch.setattr(tui.App, "_confirm", lambda self, msg: True)
+    monkeypatch.setattr(tui.App, "_confirm", lambda self, msg, detail=None: True)
     monkeypatch.setattr(tui.App, "_prompt",
                         lambda self, msg, initial="": "superseded by FR-0001")
     session = core.open_session(demo_project)
@@ -237,6 +237,13 @@ def test_reratifying_records_the_route_core_actually_walked(app):
 
 
 def test_rejecting_records_the_reason_and_the_dependents_made_suspect(app):
+    """The account names the items the rejection really made suspect — and only those.
+
+    FR-0001 is reachable from INT-0001 and so appears in throughline's impact set, but
+    it sits at 'proposed', which the fixture's [transitions] give no route to suspect;
+    the cascade therefore leaves it alone. Recording it regardless would put an item in
+    the session summary, and into the commit pasted from it, as collateral of a
+    rejection that never touched it (SR-0025)."""
     app_obj, log = app
     _select(app_obj, "INT-0001")  # FR-0001/2/4/5/6/7 derive from it
     app_obj.do_reject()
@@ -244,7 +251,13 @@ def test_rejecting_records_the_reason_and_the_dependents_made_suspect(app):
     d = log.decisions[0]
     assert d.kind == report.REJECTED and d.uid == "INT-0001"
     assert d.reason == "superseded by FR-0001"
-    assert "FR-0001" in d.suspected
+    assert d.suspected, "a rejection with real dependents should record them"
+    assert "FR-0001" not in d.suspected
+
+    # every UID recorded is suspect on disk, and nothing suspect on disk is missing
+    session = core.open_session(app_obj.session.root)
+    suspect = session.suspect_status
+    assert {i.uid for i in session.project.items() if i.status == suspect} == set(d.suspected)
 
 
 def test_removing_a_link_records_it_as_a_link_removal(app):
@@ -271,7 +284,7 @@ def test_the_cockpit_runs_unchanged_without_a_log(demo_project, monkeypatch):
     # --summary is opt-in; every recording site must be inert when it is off.
     from throughline_ratify import tui
 
-    monkeypatch.setattr(tui.App, "_confirm", lambda self, msg: True)
+    monkeypatch.setattr(tui.App, "_confirm", lambda self, msg, detail=None: True)
     session = core.open_session(demo_project)
     app_obj = tui.App(None, session, "Ada Lovelace")
     _select(app_obj, "FR-0001")

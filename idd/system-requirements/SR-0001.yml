@@ -1,6 +1,6 @@
 uid: SR-0001
 type: system_requirement
-status: ratified
+status: implemented
 title: Queue lists local items that are neither ratified nor in a dead status
 text: The default worklist build_queue yields every consumer item whose status is
   neither the ratified role nor a dead status. Already-ratified items appear only

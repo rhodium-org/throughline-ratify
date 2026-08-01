@@ -98,6 +98,18 @@ def _hline(win, y: int, x: int, width: int, attr: int) -> None:
     _safe_addstr(win, y, x, " " * width, attr)
 
 
+def _wrap(text: str, width: int) -> list[str]:
+    """Break ``text`` into ``width``-wide lines, keeping every character.
+
+    Deliberately a hard wrap rather than a word wrap. Nothing may be dropped or
+    hidden (SR-0023), and for typed text the caret's position has to be derivable
+    from its offset alone — ``divmod(offset, width)`` only holds while every line
+    but the last is exactly ``width`` long. A word wrap would look tidier and put
+    the cursor in the wrong place."""
+    width = max(1, width)
+    return [text[i:i + width] for i in range(0, len(text), width)] or [""]
+
+
 # ------------------------------------------------------------------ app
 
 @dataclass
@@ -328,7 +340,21 @@ class App:
         if reason is None:
             self.flash = _Flash("reject cancelled", "dim")
             return
-        if not self._confirm(f"Reject {item.uid} and mark dependents suspect?"):
+        # Work out the blast radius *before* asking, so the question states what this
+        # rejection will actually do rather than what a rejection can do (SR-0025).
+        try:
+            pending = core.preview_reject(self.session, item.uid)
+        except core.RatifierError as exc:
+            self.flash = _Flash(str(exc), "err")
+            return
+        if pending:
+            detail = [
+                f"{len(pending)} dependent(s) become suspect:",
+                ", ".join(pending),
+            ]
+        else:
+            detail = ["No other item is affected."]
+        if not self._confirm(f"Reject {item.uid}?", detail):
             self.flash = _Flash("reject cancelled", "dim")
             return
         try:
@@ -626,27 +652,61 @@ class App:
             x += len(seg)
 
     # -- modal prompts ------------------------------------------------------
-    def _confirm(self, question: str) -> bool:
+    def _panel(self, lines: list[str], attr: int) -> int:
+        """Paint ``lines`` as a panel occupying the foot of the screen, growing upward
+        one line at a time, and return the row the first line landed on.
+
+        The view underneath is repainted first, so when the panel shrinks the space is
+        given straight back rather than leaving a stale line behind (SR-0023). The panel
+        never grows past the top of the screen; if the text will not fit, the *end* is
+        what stays visible, because in a prompt that is where the person is typing."""
+        self.draw()
         h, w = self.scr.getmaxyx()
-        y = h - 1
-        _hline(self.scr, y, 0, w, _attr("warn") | curses.A_REVERSE)
-        _safe_addstr(self.scr, y, 1, f"{question} [y/N] ", _attr("warn", bold=True) | curses.A_REVERSE)
+        rows = max(1, min(len(lines), h))
+        top = h - rows
+        for i, line in enumerate(lines[-rows:]):
+            y = top + i
+            _hline(self.scr, y, 0, w, attr)
+            _safe_addstr(self.scr, y, 0, line, attr | curses.A_BOLD)
+        return top
+
+    def _confirm(self, question: str, detail: list[str] | None = None) -> bool:
+        """Ask a yes/no question, optionally above lines spelling out what the action
+        has been computed to affect (SR-0025). The detail is shown as part of the same
+        panel so the consequence and the question are read together."""
+        attr = _attr("warn") | curses.A_REVERSE
+        h, w = self.scr.getmaxyx()
+        body = [f" {ln}" for d in (detail or []) for ln in _wrap(d, max(1, w - 2))]
+        self._panel([*body, f" {question} [y/N] "], attr)
         self.scr.noutrefresh()
         curses.doupdate()
         ch = self.scr.getch()
         return ch in (ord("y"), ord("Y"))
 
     def _prompt(self, label: str, initial: str = "") -> str | None:
-        h, w = self.scr.getmaxyx()
-        y = h - 1
+        """Take a line of typed text at the foot of the screen. The whole of what has
+        been entered stays visible: the text wraps at the terminal's width and the
+        prompt area grows upward a line at a time to hold it, shrinking again as the
+        text does, with the cursor at the insertion point (SR-0023)."""
         buf = list(initial)
+        attr = _attr("header") | curses.A_REVERSE
         curses.curs_set(1)
         try:
             while True:
-                _hline(self.scr, y, 0, w, _attr("header") | curses.A_REVERSE)
-                shown = (label + "".join(buf))[: w - 1]
-                _safe_addstr(self.scr, y, 0, shown, _attr("header", bold=True) | curses.A_REVERSE)
-                self.scr.move(y, min(len(label) + len(buf), w - 1))
+                # Re-read the size every pass: the terminal can be resized mid-entry,
+                # and the wrap has to follow it rather than the width we opened with.
+                h, w = self.scr.getmaxyx()
+                width = max(1, w - 1)
+                caret = len(label) + len(buf)
+                lines = _wrap(label + "".join(buf), width)
+                row, col = divmod(caret, width)
+                while row >= len(lines):      # caret sitting just past the last line
+                    lines.append("")
+                top = self._panel(lines, attr)
+                shown = min(len(lines), max(1, h))
+                cursor_y = top + row - (len(lines) - shown)
+                if 0 <= cursor_y < h:
+                    self.scr.move(cursor_y, min(col, w - 1))
                 self.scr.noutrefresh()
                 curses.doupdate()
                 ch = self.scr.getch()

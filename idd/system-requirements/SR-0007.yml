@@ -1,6 +1,6 @@
 uid: SR-0007
 type: system_requirement
-status: ratified
+status: implemented
 title: A full-screen curses cockpit with header, summary, list, detail and footer
 text: 'The TUI uses the whole terminal: a project header, a colour-coded concern
   summary, a scrollable worklist, a detail pane with grounding and links, and a keybinding

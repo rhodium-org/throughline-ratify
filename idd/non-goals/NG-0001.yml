@@ -1,0 +1,41 @@
+uid: NG-0001
+type: non_goal
+status: ratified
+title: No path to a ratification decision that does not pass through a person
+text: tl-ratify shall offer no way for a script, a pipeline or an AI agent to reach
+  a ratification decision — to ratify an item, to reject one, or to bring either
+  outcome about — without a person reading the item and choosing it. It shall not
+  be developed in that direction, and no argument from convenience, batch size or
+  automation reaches past this. The boundary is the decision, not the terminal. An
+  affordance that only reports — that prints what is queued, describes how the tool
+  works, or accounts for what a person already decided — takes no decision and does
+  not fall here; that it can be redirected, scripted or read by a machine does not
+  put it on the wrong side of this line, and such an affordance is judged on its
+  own merit like any other.
+rationale: Ratification is the one act in this toolchain that must not be reachable
+  without a human. Everything else throughline does can be automated safely, because
+  everything else is a claim that can be checked — grounding, transitions, document
+  rendering, the whole validator. A ratification cannot be checked; it is a person
+  saying they have read this and will answer for it. Reached any other way it is
+  not a weaker record, it is a false one, and a false accountability record is the
+  single failure the whole toolchain exists to prevent. So the risk is not that automating
+  it would be wrong in some particular case; it is that the record stops meaning
+  anything at all, everywhere, retrospectively. The boundary needs recording because
+  the mistake is easy and has now been made three times in one sitting — twice proposed
+  here and withdrawn, once raised as a question. Every time it was argued from the
+  family resemblance to throughline and throughline-compose, which are genuinely
+  agent-driven and genuinely need agent-facing surfaces. That resemblance is the
+  obvious thing about these three tools; that this one turns on an act a machine
+  must not perform is not. Written down as negative space — nothing derives from
+  it and nothing is checked against it — it saves the next reader from re-deriving
+  the argument, or making it a fourth time. A broader version of this boundary was
+  drafted and rejected, and the reason is worth keeping. It said tl-ratify was not
+  to be used at the terminal the way a command tool is. That indicted --list (SR-0008)
+  and --summary (SR-0021), which are ratified, useful, and take no decision, and
+  it would have ruled out future read-only affordances for a reason that does not
+  survive scrutiny. The line that holds is around the decision.
+normative: true
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:4199a7ed7aacbd6d126d9d6cae97c5e74319533d8e263024251c514319d3e5c3

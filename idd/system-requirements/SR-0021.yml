@@ -1,6 +1,6 @@
 uid: SR-0021
 type: system_requirement
-status: ratified
+status: implemented
 title: A session summary of every decision taken, ready to paste into a commit
 text: The assistant shall accept a `--summary` option taking an optional file path.
   When it is given, the assistant shall record every decision the ratifier takes

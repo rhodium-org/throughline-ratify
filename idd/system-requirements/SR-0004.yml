@@ -1,6 +1,6 @@
 uid: SR-0004
 type: system_requirement
-status: ratified
+status: implemented
 title: Reject invalidates via throughline and cascades suspect to dependents
 text: Rejection calls grounding.invalidate, moving the item to the invalidated role
   and every trusting dependent to suspect, then persists each touched local item.

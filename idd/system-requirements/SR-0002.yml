@@ -1,6 +1,6 @@
 uid: SR-0002
 type: system_requirement
-status: ratified
+status: implemented
 title: Each queued item carries a semantic concern driving colour and sort order
 text: Every row is classified proposed / ready / blocked / ungrounded / ambiguous;
   the concern selects its colour and icon and ranks it so the most actionable rows

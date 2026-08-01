@@ -1,6 +1,6 @@
 uid: SR-0010
 type: system_requirement
-status: ratified
+status: implemented
 title: The summary shows ratification progress and marks ratified items distinctly
   from ready ones
 text: The header summary carries a project-wide progress figure (items ratified out
