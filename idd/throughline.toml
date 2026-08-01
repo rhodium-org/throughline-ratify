@@ -2,14 +2,50 @@
 name = "throughline-ratify"
 format_version = 3
 
+# This cockpit is a client of throughline: it does not define what a ratification
+# record is, it writes one by calling throughline's own ratify (SR-0022). Until now
+# that dependency lived only in prose, so a clause could be cited in a rationale
+# while nothing checked the clause still said what the citation claimed. Composing
+# throughline's own graph as a source makes the dependency a fact the validator
+# holds: a requirement here may point at the upstream clause it tracks, that
+# reference is resolved against the pinned edition, and an obligation stated
+# upstream cannot quietly vanish from this side. The pin is a tag, so the wording
+# under a citation only ever moves when this line moves.
+#
+# The namespace is 'tl' — the name the tool already answers to, and the one a
+# reference is actually read under. A qualified reference is a thing people type
+# and read aloud, so 'tl:SR-0157' beats 'throughline:SR-0157'; the longer form also
+# reads as noise inside a project already called throughline-ratify. The namespace
+# is the importer's choice, not the source's, which is exactly what it is for.
+#
+# subdir is 'idd' because throughline keeps its own graph there, as this repo does.
+# Note that a moved ref is NOT refetched — bumping this needs the cached tree for
+# the old ref cleared, or the check silently passes against stale content.
+[[sources]]
+namespace = "tl"
+url = "https://github.com/rhodium-org/throughline"
+ref = "v1.8.0"
+subdir = "idd"
+
 # Intents are the delivery roots; every requirement must ground upward to one.
 # non_goal is a root too, but deliberately NOT a delivery root — a recorded
 # non-goal is negative space, so nothing derives from it and it is never flagged
 # unserved. It is passive: the tool never tries to detect items that 'violate' one.
+# The union is governed by THIS schema, so everything below must be a superset of
+# what the composed source uses internally as well as what this project uses
+# itself. Where a line exists only to accept the source, it says so — the point of
+# marking them is that they are not this project's own model and should not be
+# read as if they were.
 [grounding]
-root_types = ["intent", "non_goal"]
-delivery_roots = ["intent"]
-ground_link_types = ["derives_from", "refines"]
+# business_need is throughline's second root; nothing here is one.
+root_types = ["intent", "non_goal", "business_need"]
+delivery_roots = ["intent", "business_need"]
+# refines is ours; implements/verifies/mitigates are throughline's, and must count
+# as grounding here or its items would read as orphans in the union.
+ground_link_types = ["derives_from", "refines", "implements", "verifies", "mitigates"]
+# Links that withdraw footing without conferring grounding. Mirrored from the
+# source so a rejection cascades over the union exactly as it does upstream.
+suspect_link_types = ["assumes"]
 ai_origins = ["ai", "hybrid"]
 
 [types.intent]
@@ -20,27 +56,64 @@ attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
 [types.non_goal]
 attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
 
+# For the source only — this project states its why as intents, not needs.
+[types.business_need]
+attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
+
+# priority and verification are declared so the source's items are accepted; this
+# project's own items carry neither. Note what is deliberately NOT copied — the
+# source marks priority normative, and this does not. A normative attribute is part
+# of the content fingerprint, so mirroring the flag would restamp every item of
+# that type here and report all 29 of this project's own ratified items as drifted
+# on wording nobody had touched. It is not needed: throughline SR-0162 carries the
+# authoring graph's normative set with each borrowed item, so the source's stamps
+# stay valid without this graph having to adopt the source's view of what counts
+# as a requirement change.
 [types.user_requirement]
 attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
+attrs.priority = { type = "enum", values = ["must", "should", "could"] }
+attrs.verification = { type = "enum", values = ["test", "demonstration", "inspection", "analysis"] }
 
 [types.system_requirement]
 attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
+attrs.priority = { type = "enum", values = ["must", "should", "could"] }
+attrs.verification = { type = "enum", values = ["test", "demonstration", "inspection", "analysis"] }
+
+# For the source only — this project records no separate non-functional register.
+[types.nfr]
+attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
+attrs.priority = { type = "enum", values = ["must", "should", "could"] }
+attrs.verification = { type = "enum", values = ["test", "demonstration", "inspection", "analysis"] }
 
 [links]
-types = ["derives_from", "refines", "relates"]
+# derives_from, refines, relates are this project's. satisfies is the borrowed-
+# clause link — one of our requirements tracks a clause of the source. The rest
+# exist so the source's own links resolve.
+types = ["derives_from", "refines", "relates", "satisfies",
+         "implements", "verifies", "mitigates", "assumes"]
 
 [link_rules]
-derives_from = { from = ["user_requirement", "system_requirement"], to = ["intent", "user_requirement"] }
-refines      = { from = ["system_requirement"], to = ["system_requirement"] }
+derives_from = { from = ["user_requirement", "system_requirement", "business_need", "nfr"], to = ["intent", "user_requirement", "business_need"] }
+# nfr is in the 'to' set for the source only, which refines a requirement onto a
+# non-functional one; nothing here is an nfr.
+refines      = { from = ["system_requirement"], to = ["system_requirement", "nfr"] }
+# The traceability link, deliberately NOT a grounding link: a requirement here
+# still grounds through derives_from to one of this project's own intents, never
+# through the source. What satisfies records is that the two are talking about the
+# same obligation, so a reader can go and read the other half of it.
+satisfies    = { from = ["system_requirement"], to = ["system_requirement", "user_requirement", "nfr"] }
+implements   = { from = ["system_requirement", "nfr"], to = ["user_requirement"] }
 
 [status]
-values = ["proposed", "draft", "approved", "ratified", "implemented",
+# deferred is the source's; nothing here is parked.
+values = ["proposed", "draft", "deferred", "approved", "ratified", "implemented",
           "verified", "suspect", "rejected", "deleted"]
 
 [transitions]
-proposed    = ["draft", "approved", "ratified", "rejected", "deleted"]
-draft       = ["approved", "ratified", "rejected", "deleted"]
-approved    = ["ratified", "implemented", "suspect", "rejected", "deleted"]
+proposed    = ["draft", "approved", "ratified", "deferred", "rejected", "deleted"]
+draft       = ["approved", "ratified", "deferred", "rejected", "deleted"]
+deferred    = ["draft", "approved", "rejected", "deleted"]
+approved    = ["ratified", "implemented", "deferred", "suspect", "rejected", "deleted"]
 ratified    = ["implemented", "suspect", "rejected", "deleted"]
 implemented = ["verified", "suspect", "rejected", "deleted"]
 verified    = ["implemented", "suspect", "deleted"]

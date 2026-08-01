@@ -1,0 +1,51 @@
+uid: SR-0027
+type: system_requirement
+status: ratified
+title: The ratifier the cockpit offers is throughline's, not a copy of it
+text: Where no ratifier is named on the command line, the identity the assistant
+  offers shall be the one throughline itself offers, obtained by calling throughline
+  rather than by deciding it here, so a person opening the cockpit is offered the
+  same name the command line would offer them. The assistant shall keep its own choice
+  of nothing about who is offered — not the source of the identity, not the fallback
+  when none is configured — and where throughline offers none the assistant shall
+  surface that as it stands rather than substituting a guess of its own. An explicitly
+  supplied ratifier shall continue to override it outright. The documentation the
+  assistant itself prints for that option shall describe the identity actually offered,
+  and shall change with it in the same act, so the flag's own help cannot go on stating
+  a default the assistant no longer has.
+rationale: The cockpit decides the default ratifier by reading the operating-system
+  account name. throughline decided the same thing the same way until it stopped
+  — it now offers the identity the repository already signs its commits with, because
+  the account name is rarely how anyone identifies themselves and differs from the
+  name their commits carry (throughline SR-0156). The two implementations have therefore
+  already parted, and the same person on the same machine is now offered one name
+  at the command line and a different one in the cockpit. This is a consistency defect
+  and should be argued as one, not dressed up as an accountability breach. It is
+  not one — the offered name is shown in the confirmation for every single sign-off,
+  and the cockpit refuses to open at all without a terminal, so there is no route
+  by which it is written unseen. What makes it worth fixing anyway is that the confirmation
+  is confirm-or-cancel — a reviewer cannot correct the name in place, only quit and
+  start again naming one — so whatever is offered is what almost everyone will actually
+  sign under. An offer nobody can edit carries the weight of a decision. The cost
+  of the fork is already measurable elsewhere in this estate, where the same two
+  people appear under five spellings precisely because a default and a hand-typed
+  name were never the same string; a second default that disagrees with the first
+  can only add to that. The option's own help text is named here because it is the
+  third place this one concept is written down, after the assistant's code and throughline's.
+  A change that moved two of the three would leave the flag advertising a default
+  it no longer has, which is how a fork of one idea becomes three descriptions that
+  disagree. Deciding any of it here would also be the assistant holding a policy
+  of its own about who may sign, which SR-0026 says is a design fault to resolve
+  rather than a setting to keep.
+normative: true
+links:
+- target: UR-0002
+  type: derives_from
+- target: SR-0022
+  type: relates
+- target: SR-0026
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:2be2483f881caab16ea0e45371beb1a225706ef53f3d424d6533fa264a2eaadb

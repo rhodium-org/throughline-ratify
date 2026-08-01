@@ -25,12 +25,18 @@ ratified through this cockpit signed but unbound. One implementation, not two.
 """
 from __future__ import annotations
 
-import getpass
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
+from throughline.fingerprint import fingerprint
 from throughline.graph import Index
+# Who is offered, and what a stable identifier may look like, are throughline's
+# answers rather than ours (SR-0027, SR-0028). We import them; we do not restate
+# them, so the cockpit cannot drift from the command line.
+from throughline.identity import IdentityError
+from throughline.identity import default_ratifier as throughline_default_ratifier
+from throughline.identity import normalise_identifier as throughline_normalise_identifier
 from throughline.grounding import (
     GroundingError,
     invalidate,
@@ -86,6 +92,11 @@ class RatifierError(RuntimeError):
 # current status alone — tells us an item has already been signed off.
 RATIFIED_BY_ATTR = "ratified_by"
 
+# The companion attribute holding a fingerprint of the content that was accepted.
+# Comparing it with the content's fingerprint now is what tells a signature that
+# still covers its item from one the wording has moved out from under (SR-0030).
+RATIFIED_FINGERPRINT_ATTR = "ratified_fingerprint"
+
 
 # --------------------------------------------------------------------------- #
 # Semantic concerns — what colour/icon a row earns, and how it sorts.
@@ -96,13 +107,14 @@ RATIFIED_BY_ATTR = "ratified_by"
 CONCERNS: dict[str, tuple[str, int]] = {
     "proposed": ("\u25cf", 0),   # ● AI-proposed, awaiting a human — the core case
     "ready": ("\u25c9", 1),      # ◉ already human-approved, one move from ratified
-    "blocked": ("\u25cb", 2),    # ○ pending but not directly ratifiable yet
-    "ungrounded": ("\u26a0", 3),  # ⚠ reaches no root — must be linked before sign-off
-    "ambiguous": ("\u2691", 4),  # ⚑ flagged ambiguous — must be clarified first
-    "ratified": ("\u2713", 5),   # ✓ already signed off — done (only shown under --all)
+    "stale": ("\u21ba", 2),      # ↺ signed off, but the wording has moved since
+    "blocked": ("\u25cb", 3),    # ○ pending but not directly ratifiable yet
+    "ungrounded": ("\u26a0", 4),  # ⚠ reaches no root — must be linked before sign-off
+    "ambiguous": ("\u2691", 5),  # ⚑ flagged ambiguous — must be clarified first
+    "ratified": ("\u2713", 6),   # ✓ already signed off — done (only shown under --all)
     # Dead items — kept for the record, shown only under --all and never actionable.
-    "rejected": ("\u2717", 6),   # ✗ invalidated (rejected) — retained, not signed off
-    "deleted": ("\u2620", 7),    # ☠ tombstoned (soft-deleted) — retained for history
+    "rejected": ("\u2717", 7),   # ✗ invalidated (rejected) — retained, not signed off
+    "deleted": ("\u2620", 8),    # ☠ tombstoned (soft-deleted) — retained for history
 }
 
 # The orderings the queue can be sorted by (SR-0011). "concern" is the default
@@ -157,6 +169,13 @@ class QueueItem:
     # Why a dead (rejected) item was invalidated, if it recorded a reason. Empty
     # for live items and for tombstones with no reason.
     reason: str = ""
+    # A sign-off that still stands but no longer covers the item's content — the
+    # state throughline's check reports as ``ratified-stale`` (SR-0030). Ratifying
+    # again is what clears it, so such an item is actionable, not settled.
+    stale: bool = False
+    # Who took accountability, when the item carries a sign-off. Named on a stale
+    # row so the reviewer can see whose signature they are about to replace.
+    ratified_by: str = ""
 
     @property
     def icon(self) -> str:
@@ -309,8 +328,11 @@ def _compose_public_fallback(consumer, declared, root):  # pragma: no cover
 def build_queue(
     session: Session, *, show_all: bool = False, sort: str = "concern"
 ) -> list[QueueItem]:
-    """The ratification worklist: by default every local item that is neither already
-    ratified nor dead, ranked most-actionable first. ``show_all`` widens the view to
+    """The ratification worklist: by default every local item that is neither settled
+    nor dead, ranked most-actionable first. Settled means signed off *and* still
+    covering its own content — an item whose wording has changed since it was accepted
+    stays in the backlog, because clearing that is a job only its ratifier can do
+    (SR-0030). ``show_all`` widens the view to
     the whole local graph — already-ratified items *and* dead (rejected/tombstoned)
     items become visible too, so a reviewer can see what they invalidated instead of
     it silently vanishing. ``sort`` chooses the ordering — ``"concern"`` (default),
@@ -326,12 +348,15 @@ def build_queue(
     for item in session.project.items():
         is_dead = item.status in dead
         is_ratified = _is_ratified(session, item)
+        stale = is_ratified and not is_dead and _signature_stale(session, item)
         # The default queue is the actionable backlog: hide the settled outcomes
-        # (already ratified) and the dead. show_all keeps everything for review.
-        if not show_all and (is_dead or is_ratified):
+        # (signed off, and the signature still covers the content) and the dead.
+        # show_all keeps everything for review.
+        if not show_all and (is_dead or (is_ratified and not stale)):
             continue
 
-        rows.append(_evaluate(session, item, is_ratified, is_dead, depths.get(item.uid)))
+        rows.append(
+            _evaluate(session, item, is_ratified, is_dead, stale, depths.get(item.uid)))
 
     _sort_rows(rows, sort)
     return rows
@@ -353,6 +378,22 @@ def _is_ratified(session: Session, item: Item) -> bool:
         item.status == session.ratified_status
         or bool(item.attrs.get(RATIFIED_BY_ATTR))
     )
+
+
+def _signature_stale(session: Session, item: Item) -> bool:
+    """Whether the ratification recorded on ``item`` still covers what it signed —
+    the drift throughline's ``check`` reports as ``ratified-stale`` (tl:SR-0148).
+
+    The fingerprint is asked of throughline rather than computed here, for the reason
+    ratification itself is (SR-0022): a second answer to what counts as a content
+    change would drift from the validator's, and the cockpit would then disagree with
+    ``check`` about which items still need a human — the exact failure this closes.
+    A record written before the stamp existed carries none and cannot be judged, so
+    it is not stale; that silence is throughline's own and is kept here."""
+    stamp = item.attrs.get(RATIFIED_FINGERPRINT_ATTR)
+    if not stamp:
+        return False
+    return fingerprint(item, session.schema) != stamp
 
 
 def _dead_concern(schema, status: str) -> str:
@@ -405,7 +446,12 @@ def _grounding_depths(session: Session) -> dict[str, int]:
 def ratification_progress(session: Session) -> tuple[int, int]:
     """``(ratified, gradable)`` over the local, non-dead items — the figure a human
     watches climb as they sign off. Counts the whole project, not just the filtered
-    queue, so ratifying a row makes the number move even when it then leaves view."""
+    queue, so ratifying a row makes the number move even when it then leaves view.
+
+    An item whose content has moved since it was accepted is counted as outstanding,
+    not as ratified (SR-0030). Its signature no longer covers it, so counting it would
+    report full marks over work the validator is calling an error — and a reviewer
+    reading full marks stops looking."""
     schema = session.schema
     dead = schema.dead_statuses()
     ratified = gradable = 0
@@ -413,28 +459,38 @@ def ratification_progress(session: Session) -> tuple[int, int]:
         if item.status in dead:
             continue
         gradable += 1
-        if _is_ratified(session, item):
+        if _is_ratified(session, item) and not _signature_stale(session, item):
             ratified += 1
     return ratified, gradable
 
 
 def _evaluate(
-    session: Session, item: Item, is_ratified: bool, is_dead: bool, depth: int | None
+    session: Session, item: Item, is_ratified: bool, is_dead: bool, stale: bool,
+    depth: int | None
 ) -> QueueItem:
     schema = session.schema
     union_item = session.union.get(item.uid) or item
     grounded = schema.is_root(union_item) or reaches_root(session.index, schema, item.uid)
     ambiguous = bool(item.attrs.get("ambiguous"))
     directly = schema.allows_transition(item.status, session.ratified_status)
+    # Signed off, and the signature still covers the content. Only that settles an
+    # item; a stale one is offered again, which throughline's own ratify permits
+    # precisely because the content moved (SR-0030).
+    settled = is_ratified and not stale
     # A dead item is never actionable, whatever stamp it may still carry.
     ratifiable_now = (
-        directly and grounded and not ambiguous and not is_ratified and not is_dead
+        directly and grounded and not ambiguous and not settled and not is_dead
     )
 
     if is_dead:
         # Invalidated/tombstoned — surfaced only under show_all, for the record. This
         # takes precedence over any lingering ratified stamp: it is now dead.
         concern = _dead_concern(schema, item.status)
+    elif stale:
+        # Signed off, then rewritten. Its own concern, ranked above the states that
+        # must be fixed before anything can be signed off and never folded into
+        # "ratified" — that is the claim the drift contradicts.
+        concern = "stale"
     elif is_ratified:
         concern = "ratified"  # done — only appears under show_all
     elif ambiguous:
@@ -448,10 +504,18 @@ def _evaluate(
     else:
         concern = "ready"  # approved, one move from ratified
 
-    # A blocked item is grounded and unambiguous but cannot move straight to ratified
-    # — usually because it advanced past it without ever being signed off. Offer a
-    # re-ratify route only when this project's own transitions permit one.
-    reratify_path = _reratify_route(session, item) if concern == "blocked" else None
+    # Two states need a sign-off the item's current status cannot take directly: one
+    # that advanced past ratified without ever being signed off, and one that was
+    # signed off, has since been rewritten, and has also moved on. Both are carried
+    # by the same round trip through ratified, offered only where this project's own
+    # transitions permit one — what differs is what the reviewer is told they are
+    # doing (SR-0019 records a sign-off that never happened; SR-0030 replaces one
+    # that did).
+    reratify_path = (
+        _reratify_route(session, item)
+        if not ratifiable_now and concern in ("blocked", "stale")
+        else None
+    )
 
     return QueueItem(
         uid=item.uid,
@@ -468,6 +532,8 @@ def _evaluate(
         depth=depth,
         reratify_path=reratify_path,
         reason=str(item.attrs.get("invalidated_reason") or ""),
+        stale=stale,
+        ratified_by=str(item.attrs.get(RATIFIED_BY_ATTR) or ""),
     )
 
 
@@ -560,11 +626,18 @@ def _transition_path(
 
 
 def _reratify_route(session: Session, item: Item) -> list[str] | None:
-    """For an item that overshot ratification — grounded and unambiguous, but whose
-    current status can no longer move straight to ratified — the full status
-    itinerary that revisits ratified and returns to where it is now, computed purely
-    from the project's ``[transitions]``. ``None`` when the config offers no such
-    round-trip, in which case no re-ratify affordance is shown.
+    """For a grounded, unambiguous item whose current status can no longer move
+    straight to ratified, the full status itinerary that revisits ratified and returns
+    to where it is now, computed purely from the project's ``[transitions]``. ``None``
+    when the config offers no such round-trip, in which case no re-ratify affordance
+    is shown.
+
+    Two different situations need this same round trip — an item that advanced past
+    ratified without ever being signed off (SR-0019), and one that was signed off and
+    whose wording has since moved out from under the signature (SR-0030). The route
+    is the same either way because it is a fact about the project's transitions, not
+    about why the sign-off is owed; which of the two it is belongs to the wording the
+    reviewer is shown, not here.
 
     The itinerary is ``current → … → ratified → … → current``; persisting only its
     end state leaves the item exactly where it was but now carrying the ratification
@@ -589,14 +662,37 @@ def _reratify_route(session: Session, item: Item) -> list[str] | None:
 # Actions
 # --------------------------------------------------------------------------- #
 
-def default_ratifier() -> str:
+def default_ratifier(path: str | Path | None = None) -> str:
+    """The ratifier to offer when none was named — throughline's answer, not ours
+    (SR-0027).
+
+    This function used to read the operating-system account name. throughline did
+    the same until it stopped, and now offers the identity the repository already
+    signs its commits with (throughline SR-0156); the moment it moved, the same
+    person on the same machine was offered one name at the command line and another
+    here. Nothing about who is offered is decided in this module any more — not the
+    source of the identity, not the fallback where none is configured — so the two
+    cannot part again. It is only ever an offer: the reviewer sees it in the
+    confirmation for every sign-off, and an explicit ``--by`` overrides it outright."""
+    return throughline_default_ratifier(path)
+
+
+def normalise_identifier(raw: str | None) -> str | None:
+    """Settle the optional stable identifier for the ratifying human (SR-0028).
+
+    Whether ``github:octocat`` is well formed is throughline's judgement, not
+    ours — this asks it and translates its refusal into this tool's error type so
+    the caller can report it in the usual way. Nothing is invented, derived or
+    defaulted: an absent identifier stays absent, because a guessed identity is
+    worse than none at all. Called before the full-screen view opens so a refusal
+    reaches the terminal rather than a curses window."""
     try:
-        return getpass.getuser()
-    except Exception:  # pragma: no cover - unusual environments
-        return "unknown"
+        return throughline_normalise_identifier(raw)
+    except IdentityError as exc:
+        raise RatifierError(str(exc)) from exc
 
 
-def ratify_item(session: Session, uid: str, by: str) -> None:
+def ratify_item(session: Session, uid: str, by: str, by_id: str | None = None) -> None:
     """Take human accountability for ``uid``, grounding over the composed union.
 
     The sign-off itself is throughline's own :func:`throughline.grounding.ratify`
@@ -605,20 +701,29 @@ def ratify_item(session: Session, uid: str, by: str) -> None:
     record onto the consumer's own item. Nothing about who may be ratified, or
     what gets stamped, is decided here; a refusal it raises is surfaced as it
     stands. Only the consumer's register is written; a composed source stays
-    read-only."""
+    read-only.
+
+    ``by_id`` is the optional scheme-qualified identifier for that human (SR-0028).
+    It is carried, never invented — absent stays absent — and whether a supplied
+    one is well formed is throughline's judgement, surfaced as it stands."""
     if session.project.get(uid) is None:
         raise RatifierError(f"{uid} does not exist")
     try:
-        item = core_ratify(session.project, uid, by, index=session.index)
-    except GroundingError as exc:
+        item = core_ratify(session.project, uid, by, by_id=by_id, index=session.index)
+    except (GroundingError, IdentityError) as exc:
         raise RatifierError(str(exc)) from exc
     write_item(item, session.project.register_of(uid))
 
 
-def reratify_item(session: Session, uid: str, by: str) -> list[str]:
-    """Retrospectively record the ratification an item overshot, then restore its
-    current status — for a grounded, unambiguous item whose status advanced past
-    ratified without ever being signed off.
+def reratify_item(session: Session, uid: str, by: str,
+                  by_id: str | None = None) -> list[str]:
+    """Take a sign-off an item's own status cannot reach directly, then restore that
+    status — for a grounded, unambiguous item that has moved past ratified. It covers
+    both reasons a sign-off can be owed there: one never taken because the item
+    overshot ratification (SR-0019), and one taken but since outgrown by the wording
+    beneath it (SR-0030). The mechanics are identical; only what the caller tells the
+    reviewer differs, and telling them a signature was missing when it was merely
+    superseded would misdescribe the very record this tool exists to protect.
 
     Every hop is walked through throughline's own :func:`set_status` choke point, so
     each step is validated against the project's ``[transitions]`` exactly as the CLI
@@ -650,10 +755,10 @@ def reratify_item(session: Session, uid: str, by: str) -> list[str]:
             set_status(schema, item, to)
         # throughline moves it the last step and records who accepted what. Its
         # gates (ambiguous, ungrounded, unchanged-already-ratified) bite here.
-        core_ratify(session.project, uid, by, index=session.index)
+        core_ratify(session.project, uid, by, by_id=by_id, index=session.index)
         for to in route[pivot + 1:]:
             set_status(schema, item, to)
-    except GroundingError as exc:
+    except (GroundingError, IdentityError) as exc:
         # A refusal part-way along must not leave the in-memory item stranded at an
         # intermediate status the ratifier never chose. Nothing was written, so
         # restoring where it started makes the failure a true no-op.
@@ -674,7 +779,13 @@ def preview_reject(session: Session, uid: str) -> list[str]:
     its index, the suspect status and the dead set from the project's own
     ``[status.roles]``, the legality of the move from its ``[transitions]`` — so the
     prediction is made the same way the cascade is, and the assistant carries no
-    account of its own (SR-0026)."""
+    account of its own (SR-0026).
+
+    The traversal is narrowed by the project's own ``withdrawing_link_types`` — the
+    same set throughline's :func:`invalidate` walks — because suspicion follows the
+    links that carry justification, not every link that happens to point at the
+    item. The wider, unfiltered reachable set is a different question, and answering
+    it here would over-state the consequence the reviewer is being asked to accept."""
     project = session.project
     if project.get(uid) is None:
         raise RatifierError(f"{uid} does not exist")
@@ -685,7 +796,8 @@ def preview_reject(session: Session, uid: str) -> list[str]:
     dead = schema.dead_statuses()
     return [
         aid
-        for aid in sorted(Index.build(project).impact(uid))
+        for aid in sorted(Index.build(project).impact(
+            uid, schema.withdrawing_link_types()))
         if (dep := project.get(aid)) is not None
         and dep.status not in dead
         and schema.allows_transition(dep.status, suspect)

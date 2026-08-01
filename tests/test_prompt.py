@@ -156,3 +156,102 @@ def test_nothing_is_dropped_in_a_very_narrow_terminal(prompt):
     """No entered character is hidden or discarded because the terminal is narrow."""
     scr, got = prompt("abcdefghij", width=12)
     assert got == "abcdefghij"
+
+
+def test_the_confirmation_shows_every_part_of_the_record(demo_project, monkeypatch):
+    """SR-0028: the identity a sitting signs under, *in every part*, is visible in
+    the confirmation the reviewer answers.
+
+    The prompt is confirm-or-cancel — nothing can be corrected in place — so a part
+    of the accountability record omitted here would be a part the person accountable
+    for it never actually saw.
+    """
+    asked: list[str] = []
+    monkeypatch.setattr(tui.App, "_confirm",
+                        lambda self, msg, detail=None: asked.append(msg) or True)
+    session = core.open_session(demo_project)
+    app = tui.App(None, session, "Ada Lovelace", None, ratifier_id="github:ada")
+    app.show_all = True
+    app.refresh_queue()
+    app.sel = next(i for i, r in enumerate(app.rows) if r.uid == "FR-0001")
+    app.do_ratify()
+
+    assert asked, "the reviewer was asked"
+    assert "Ada Lovelace" in asked[0]
+    assert "github:ada" in asked[0]
+    # and what was shown is what was written
+    item = core.open_session(demo_project).project.get("FR-0001")
+    assert item.attrs.get("ratified_by") == "Ada Lovelace"
+    assert item.attrs.get("ratified_id") == "github:ada"
+
+
+def test_the_confirmation_says_only_the_name_when_there_is_no_identifier(
+    demo_project, monkeypatch,
+):
+    """An absent identifier stays absent, and the question stays honest about it —
+    no empty brackets, no invented placeholder."""
+    asked: list[str] = []
+    monkeypatch.setattr(tui.App, "_confirm",
+                        lambda self, msg, detail=None: asked.append(msg) or True)
+    session = core.open_session(demo_project)
+    app = tui.App(None, session, "Ada Lovelace", None)
+    app.show_all = True
+    app.refresh_queue()
+    app.sel = next(i for i, r in enumerate(app.rows) if r.uid == "FR-0001")
+    app.do_ratify()
+
+    assert asked[0] == "Ratify FR-0001 as Ada Lovelace?"
+
+
+def test_a_stale_item_is_never_offered_as_though_nobody_had_signed_it(
+    demo_project, monkeypatch,
+):
+    """SR-0030: FR-0010 was ratified by alice and rewritten since. The question has to
+    say so — a second signature is being taken over changed wording, and alice's is
+    the one being replaced. "Ratify FR-0010?" understates both halves."""
+    asked: list[str] = []
+    monkeypatch.setattr(tui.App, "_confirm",
+                        lambda self, msg, detail=None: asked.append(msg) or True)
+    session = core.open_session(demo_project)
+    app = tui.App(None, session, "Ada Lovelace", None)
+    app.sel = next(i for i, r in enumerate(app.rows) if r.uid == "FR-0010")
+    app.do_ratify()
+
+    assert asked[0] == (
+        "FR-0010 was ratified by alice, and its wording has changed since. "
+        "Accept the new wording as Ada Lovelace?"
+    )
+
+
+def test_a_stale_overshoot_is_not_told_it_was_never_ratified(demo_project, monkeypatch):
+    """FR-0011 reaches the same round trip an unsigned overshoot does, but saying it
+    "was never ratified" would deny a signature that exists — a false statement about
+    the one record this tool is for."""
+    asked: list[str] = []
+    monkeypatch.setattr(tui.App, "_confirm",
+                        lambda self, msg, detail=None: asked.append(msg) or True)
+    session = core.open_session(demo_project)
+    app = tui.App(None, session, "Ada Lovelace", None)
+    app.sel = next(i for i, r in enumerate(app.rows) if r.uid == "FR-0011")
+    app.do_ratify()
+
+    assert "was never ratified" not in asked[0]
+    assert "ratified by alice" in asked[0]
+    assert "its wording has changed since" in asked[0]
+    # the route it will travel is still named, as it is for an unsigned overshoot
+    assert "implemented → suspect → ratified → implemented" in asked[0]
+
+
+def test_an_unsigned_overshoot_still_reads_as_a_missed_signature(demo_project,
+                                                                 monkeypatch):
+    """The other half of the distinction: FR-0007 really was never signed off, and
+    that wording must survive the arrival of the stale case."""
+    asked: list[str] = []
+    monkeypatch.setattr(tui.App, "_confirm",
+                        lambda self, msg, detail=None: asked.append(msg) or True)
+    session = core.open_session(demo_project)
+    app = tui.App(None, session, "Ada Lovelace", None)
+    app.sel = next(i for i, r in enumerate(app.rows) if r.uid == "FR-0007")
+    app.do_ratify()
+
+    assert asked[0].startswith("FR-0007 is at 'implemented' and was never ratified.")

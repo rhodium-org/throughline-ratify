@@ -97,7 +97,7 @@ themselves remain the only source of truth.
 | --- | --- |
 | `j` / `↓`, `k` / `↑` | move |
 | `g` / `G`, PgUp / PgDn | jump / page |
-| `r` / `Enter` | ratify the selected item (with confirm); on an item that overshot ratification, record the missed sign-off via a route the project's transitions permit |
+| `r` / `Enter` | ratify the selected item (with confirm); on a stale one, accept the wording that has changed since it was signed; on an item that overshot ratification, record the missed sign-off. Where the item's status cannot reach ratified directly, a route the project's transitions permit carries it there and back |
 | `x` | reject (invalidate) the selected item, cascading suspect to dependents |
 | `a` | toggle the wide view — also show already-ratified and dead (rejected/tombstoned) items |
 | `/` | filter by uid or title |
@@ -113,6 +113,7 @@ Every row is classified by the one thing you most need to know about it:
 | --- | --- | --- |
 | ● | proposed | AI-proposed, awaiting a human's accountability |
 | ◉ | ready | already approved, one move from ratified |
+| ↺ | stale | signed off, but the wording has changed since — the signature no longer covers it |
 | ○ | blocked | pending, but not directly ratifiable from its status |
 | ⚠ | ungrounded | reaches no root — link it upward before sign-off |
 | ⚑ | ambiguous | flagged ambiguous — clarify it first |
@@ -143,12 +144,18 @@ govern every move.
 python -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"
 pytest -q
-tl -C idd check --strict   # this repo is itself throughline-managed
+tl-compose -C idd check --strict   # this repo is itself throughline-managed
 ```
 
 This project practises what it automates: its own requirements live in
 [`idd/`](https://github.com/rhodium-org/throughline-ratify/tree/main/idd) as a throughline graph, and CI gates every change on
-`tl check --strict`.
+`tl-compose check --strict`.
+
+The gate is the composition-aware one because this graph adopts throughline's own
+graph as a pinned source. A requirement here that tracks an upstream clause points
+straight at it — `satisfies: tl:SR-0157` — so the citation is resolved
+against a pinned edition of throughline's requirements rather than restated in a
+rationale field that nothing validates.
 
 ## Licence
 

@@ -38,6 +38,9 @@ def _init_colours() -> None:
         "sel": (curses.COLOR_BLACK, curses.COLOR_CYAN),
         "proposed": (curses.COLOR_YELLOW, bg),
         "ready": (curses.COLOR_GREEN, bg),
+        # Yellow, like "proposed": both are items a human still has to sign. Only
+        # "proposed" is drawn bold, and the glyph and label carry the rest.
+        "stale": (curses.COLOR_YELLOW, bg),
         "blocked": (curses.COLOR_CYAN, bg),
         "ungrounded": (curses.COLOR_RED, bg),
         "ambiguous": (curses.COLOR_RED, bg),
@@ -68,6 +71,7 @@ def _attr(name: str, *, bold: bool = False) -> int:
 _CONCERN_LABEL = {
     "proposed": "proposed",
     "ready": "ready",
+    "stale": "stale",
     "blocked": "blocked",
     "ungrounded": "ungrounded",
     "ambiguous": "ambiguous",
@@ -119,10 +123,15 @@ class _Flash:
 
 
 class App:
-    def __init__(self, stdscr, session: Session, ratifier: str, log=None):
+    def __init__(self, stdscr, session: Session, ratifier: str, log=None,
+                 ratifier_id: str | None = None):
         self.scr = stdscr
         self.session = session
         self.ratifier = ratifier
+        # The optional stable identifier recorded beside the name (SR-0028).
+        # Settled before this view opened and shown in every confirmation: no part
+        # of the accountability record is written that the reviewer was not shown.
+        self.ratifier_id = ratifier_id
         # The sitting's running account (SR-0021). None when --summary was not
         # asked for; every recording site is guarded, so the UI is unchanged.
         self.log = log
@@ -287,45 +296,90 @@ class App:
         if item is None:
             return
         if not item.ratifiable_now:
-            # An item that overshot ratification without ever being signed off can be
-            # put right via a route the project's own transitions permit — offer that
-            # instead of a dead-end "cannot move to ratified" message.
+            # An item whose sign-off is owed somewhere its status cannot reach — it
+            # overshot ratification, or it was signed and has since been rewritten —
+            # can still be put right via a route the project's own transitions permit.
+            # Offer that instead of a dead-end "cannot move to ratified" message.
             if item.reratify_path:
                 self._do_reratify(item)
             else:
                 self.flash = _Flash(self._why_blocked(item), "warn")
             return
-        if not self._confirm(f"Ratify {item.uid} as {self.ratifier}?"):
+        if not self._confirm(self._ratify_question(item)):
             self.flash = _Flash("ratify cancelled", "dim")
             return
         try:
-            core.ratify_item(self.session, item.uid, self.ratifier)
+            core.ratify_item(self.session, item.uid, self.ratifier,
+                             by_id=self.ratifier_id)
             if self.log is not None:
-                self.log.ratified(item.uid, item.title)
+                if item.stale:
+                    self.log.resigned(item.uid, item.title, item.ratified_by)
+                else:
+                    self.log.ratified(item.uid, item.title)
             self.refresh_queue()
-            self.flash = _Flash(f"\u2713 {item.uid} ratified by {self.ratifier}", "ok")
+            verb = "re-signed" if item.stale else "ratified"
+            self.flash = _Flash(f"\u2713 {item.uid} {verb} by {self.ratifier}", "ok")
         except core.RatifierError as exc:
             self.flash = _Flash(str(exc), "err")
 
+    def _ratify_question(self, item: QueueItem) -> str:
+        """What the reviewer is actually being asked to do (SR-0025, SR-0030).
+
+        A stale item has been accepted once already, so "Ratify it?" understates the
+        act: what is being taken is a second signature over wording the first no
+        longer covers, and the first signature — possibly somebody else's — is
+        replaced by it. Naming whose it was is what makes the question answerable."""
+        if item.stale:
+            who = item.ratified_by or "a human"
+            return (f"{item.uid} was ratified by {who}, and its wording has changed "
+                    f"since. Accept the new wording as {self._signature()}?")
+        return f"Ratify {item.uid} as {self._signature()}?"
+
+    def _signature(self) -> str:
+        """The identity this sitting signs under, written out in full (SR-0028).
+
+        Both parts where there are two, exactly as they will be recorded. The
+        reviewer answers confirm-or-cancel and cannot edit in place, so anything
+        omitted here would be a part of the accountability record that the person
+        accountable for it never actually saw."""
+        if self.ratifier_id:
+            return f"{self.ratifier} <{self.ratifier_id}>"
+        return self.ratifier
+
     def _do_reratify(self, item: QueueItem) -> None:
-        """Record a missed ratification on an overshot item. The route is the one
-        core computed from this project's ``[transitions]`` — we only present it and
-        confirm; nothing about which statuses are traversed is decided here."""
+        """Take a sign-off the item's own status cannot reach directly. The route is
+        the one core computed from this project's ``[transitions]`` — we only present
+        it and confirm; nothing about which statuses are traversed is decided here.
+
+        Two situations arrive here and are asked, flashed and reported differently
+        (SR-0030): an item that overshot ratification without ever being signed off,
+        and one that was signed off and has since been rewritten. Telling the second
+        it "was never ratified" would deny a signature that exists."""
         route = " \u2192 ".join(item.reratify_path or [])
-        if not self._confirm(
-            f"{item.uid} is at '{item.status}' and was never ratified. "
-            f"Record sign-off via {route}?"
-        ):
+        if item.stale:
+            who = item.ratified_by or "a human"
+            question = (f"{item.uid} was ratified by {who}, and its wording has "
+                        f"changed since. Accept the new wording as "
+                        f"{self._signature()} via {route}?")
+        else:
+            question = (f"{item.uid} is at '{item.status}' and was never ratified. "
+                        f"Record sign-off as {self._signature()} via {route}?")
+        if not self._confirm(question):
             self.flash = _Flash("re-ratify cancelled", "dim")
             return
         try:
-            walked = core.reratify_item(self.session, item.uid, self.ratifier)
+            walked = core.reratify_item(self.session, item.uid, self.ratifier,
+                                        by_id=self.ratifier_id)
             if self.log is not None:
-                self.log.reratified(item.uid, item.title, walked)
+                if item.stale:
+                    self.log.resigned(item.uid, item.title, item.ratified_by, walked)
+                else:
+                    self.log.reratified(item.uid, item.title, walked)
             self.refresh_queue()
             walked_route = " \u2192 ".join(walked)
+            verb = "re-signed" if item.stale else "ratified"
             self.flash = _Flash(
-                f"\u2713 {item.uid} ratified by {self.ratifier} "
+                f"\u2713 {item.uid} {verb} by {self.ratifier} "
                 f"(via {walked_route})",
                 "ok",
             )
@@ -385,6 +439,10 @@ class App:
             return f"{item.uid} is flagged ambiguous — clarify it before ratifying"
         if not item.grounded:
             return f"{item.uid} reaches no root — link it upward before ratifying"
+        if item.stale:
+            return (f"{item.uid}'s signature no longer covers its wording, and this "
+                    f"project's transitions offer no route back through ratified "
+                    f"from '{item.status}'")
         return f"{item.uid} cannot move straight to ratified from '{item.status}'"
 
     # -- drawing ------------------------------------------------------------
@@ -444,7 +502,7 @@ class App:
         x = 1
         _safe_addstr(self.scr, 1, x, "queue:", _attr("dim"))
         x += 7
-        concerns = ["proposed", "ready", "blocked", "ungrounded", "ambiguous"]
+        concerns = ["proposed", "ready", "stale", "blocked", "ungrounded", "ambiguous"]
         if self.show_all:
             # Also account for the settled outcomes the wide view reveals.
             concerns += ["ratified", "rejected", "deleted"]
@@ -567,6 +625,22 @@ class App:
             add(line, _attr("rejected"))
         elif item.concern == "deleted":
             add(f"  \u2620 tombstoned (status '{item.status}')", _attr("deleted"))
+        elif item.stale:
+            # Ahead of both the ratified line and the ratifiable-now one: a stale item
+            # is signed off *and* ratifiable, and either of those alone would state
+            # half of it. What the reviewer needs is the whole of it — there is a
+            # signature, it is somebody's, and it no longer covers what is below.
+            who = item.ratified_by or "a human"
+            add(f"  \u21ba ratified by {who} \u2014 the wording has changed since",
+                _attr("stale", bold=True))
+            if item.ratifiable_now:
+                add(f"  \u21ba press r to accept the new wording as {self._signature()}",
+                    _attr("key"))
+            elif item.reratify_path:
+                route = " \u2192 ".join(item.reratify_path)
+                add(f"  \u21ba press r to accept it via {route}", _attr("key"))
+            else:
+                add(f"  \u2717 {self._why_blocked(item)}", _attr("warn"))
         elif item.concern == "ratified":
             add("  \u2713 already ratified", _attr("ok"))
         elif item.ratifiable_now:
@@ -730,9 +804,12 @@ class App:
             "  k / \u2191        move up",
             "  g / G        jump to top / bottom",
             "  PgUp/PgDn    page",
-            "  r / Enter    ratify the selected item; on a blocked item that",
-            "               overshot ratification, record the missed sign-off",
-            "               via a route the project's transitions permit",
+            "  r / Enter    ratify the selected item; on a stale one, accept the",
+            "               wording that has changed since it was signed; on a",
+            "               blocked item that overshot ratification, record the",
+            "               missed sign-off. Where the item's status cannot reach",
+            "               ratified directly, a route the project's transitions",
+            "               permit carries it there and back",
             "  x            reject (invalidate) the selected item",
             "  a            toggle the wide view: also show already-ratified",
             "               and dead (rejected/tombstoned) items",
@@ -752,6 +829,8 @@ class App:
             "concerns:",
             "  \u25cf proposed    awaiting a human's accountability",
             "  \u25c9 ready       approved, one move from ratified",
+            "  \u21ba stale       signed off, but the wording has changed since \u2014",
+            "               the signature no longer covers it",
             "  \u25cb blocked     pending but not directly ratifiable",
             "  \u26a0 ungrounded  reaches no root \u2014 link it first",
             "  \u2691 ambiguous   flagged ambiguous \u2014 clarify first",
@@ -773,14 +852,19 @@ class App:
         self.scr.getch()
 
 
-def run(session: Session, ratifier: str, log=None) -> None:
+def run(session: Session, ratifier: str, log=None,
+        ratifier_id: str | None = None) -> None:
     """Open the cockpit. ``log`` is an optional
     :class:`throughline_ratify.report.DecisionLog`; when given, every decision the
     ratifier takes is appended to it as it is persisted, so the caller can render
-    the sitting's account once curses has closed (SR-0021)."""
+    the sitting's account once curses has closed (SR-0021).
+
+    ``ratifier`` and ``ratifier_id`` together are the identity this sitting signs
+    under. Both are settled by the caller before this function is reached, so the
+    full-screen view never decides any part of the record it displays (SR-0028)."""
     def _main(stdscr):
         _init_colours()
-        App(stdscr, session, ratifier, log).run()
+        App(stdscr, session, ratifier, log, ratifier_id=ratifier_id).run()
 
     try:
         # curses.wrapper restores the terminal in its finally before re-raising,

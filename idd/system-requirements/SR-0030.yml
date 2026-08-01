@@ -1,0 +1,50 @@
+uid: SR-0030
+type: system_requirement
+status: ratified
+title: A ratification the content has outgrown returns to the worklist as its own
+  concern
+text: An item whose recorded ratification fingerprint no longer matches its content
+  shall appear in the default worklist under a concern of its own, distinct both
+  from an item nobody has signed off and from one whose signature still stands, presented
+  as a signature that no longer covers the wording beneath it and naming the person
+  who gave it. It shall not be counted as ratified where the assistant reports progress.
+  The action offered shall be ratification through throughline's own ratify, by the
+  route the project's transitions permit where the status cannot move straight there,
+  and both the confirmation and the session summary shall say a signature was replaced
+  rather than that a missed one was recorded. Whether an item is in this state shall
+  be settled by asking throughline, never by computing a fingerprint here.
+rationale: throughline reports a stale ratification because the words a human accepted
+  have since been rewritten, and only a person can clear it by accepting the new
+  wording or reverting it (tl:SR-0148). That is a job exactly one kind of user can
+  do, and this is the tool built for them — yet it was the one place the job was
+  invisible. Before this requirement, `tl-compose check --strict` reported SR-0028
+  stale while `tl-ratify --list --all` showed it as `✓ ratified` and the progress
+  figure read 37/37. A cockpit that reports full marks while the validator reports
+  an error is worse than one that reports nothing, because the reviewer stops looking.
+  It is deliberately not the case SR-0019 answers, where an item advanced past ratified
+  without ever being signed off and the route through ratified records a sign-off
+  that never happened; here the sign-off did happen and a second is being taken over
+  changed wording. Saying 'never ratified' of an item somebody did ratify would be
+  a false statement about the accountability record, and counting it as ratified
+  in the progress figure would be the same falsehood in a number. Nor is it SR-0024,
+  where a suspect item's sign-off has already stopped holding for a reason of its
+  own. The comparison is delegated to throughline for the reason SR-0022 gives for
+  ratification itself — a second implementation of what counts as a content change
+  would drift from the validator's, and the cockpit would then disagree with `check`
+  about which items need a human.
+normative: true
+links:
+- target: UR-0001
+  type: derives_from
+- target: SR-0019
+  type: relates
+- target: SR-0022
+  type: relates
+- target: SR-0024
+  type: relates
+- target: tl:SR-0148
+  type: satisfies
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:e6be3c41ea042eb68ba12c931a9c0749b27c6aa5cc3354d14ad16b2388dabc9f

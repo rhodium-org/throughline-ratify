@@ -39,8 +39,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--version", action="version", version=_version_string())
     p.add_argument("-C", "--path", default=".", help="project root or a path within it (default: .)")
+    # The described default is throughline's, not a sentence maintained here (SR-0027).
+    # This help string is the third place the one concept is written down, after this
+    # tool's code and throughline's; naming the offer rather than restating its source
+    # is what stops the flag advertising a default the assistant no longer has.
     p.add_argument("--by", default=None,
-                   help="the ratifier recorded on sign-off (default: the current user)")
+                   help="the ratifier recorded on sign-off (default: the identity "
+                        "throughline offers — the one this repository signs with)")
+    p.add_argument("--by-id", default=None, metavar="SCHEME:VALUE",
+                   help="optional stable identifier for that human, e.g. "
+                        "github:octocat or email:ada@example.com (SR-0028)")
     p.add_argument("--list", action="store_true",
                    help="print the ratification worklist and exit (no TUI)")
     p.add_argument("--all", action="store_true",
@@ -73,7 +81,13 @@ def _print_list(session: core.Session, show_all: bool, sort: str) -> int:
     header = "item(s) shown" if show_all else "item(s) pending ratification"
     print(f"{len(rows)} {header} (sort: {sort}):\n")
     for r in rows:
-        mark = "ratify-ready" if r.ratifiable_now else r.concern
+        # A stale row is ratifiable, but printing it as ratify-ready would hide the
+        # one thing that distinguishes it — a signature already given, over wording
+        # that has since changed (SR-0030). The concern is the more informative word.
+        if r.stale:
+            mark = "stale"
+        else:
+            mark = "ratify-ready" if r.ratifiable_now else r.concern
         print(f"  {r.icon} {r.uid:<14} [{r.status:<10}] {mark:<12} {r.title}")
     return 0
 
@@ -106,11 +120,21 @@ def main(argv: list[str] | None = None) -> int:
 
     from . import tui  # deferred: only import curses when we actually open the UI
 
-    ratifier = args.by or core.default_ratifier()
+    # The whole identity is settled here, before curses opens (SR-0027, SR-0028).
+    # The name offered is throughline's, obtained by asking it about this project
+    # rather than by deciding it here; a malformed identifier is throughline's to
+    # judge, and refusing now means the refusal is legible instead of arriving
+    # behind a full-screen view.
+    ratifier = args.by or core.default_ratifier(args.path)
+    try:
+        ratifier_id = core.normalise_identifier(args.by_id)
+    except core.RatifierError as exc:
+        print(f"tl-ratify: {exc}", file=sys.stderr)
+        return 2
     # The log carries exactly the name the sitting signs off under — the report
     # never names a ratifier of its own choosing.
     log = report.DecisionLog(ratifier) if args.summary is not None else None
-    tui.run(session, ratifier, log)
+    tui.run(session, ratifier, log, ratifier_id=ratifier_id)
 
     # Rendered only now, with curses closed, so the output is redirectable and
     # pasteable rather than merely readable inside the full-screen view.

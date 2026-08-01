@@ -39,9 +39,14 @@ classifiers = [
 # throughline-compose re-exports the throughline core it composes over, so this
 # single pin gives us both the union engine and the model/grounding APIs.
 # ratify's prebuilt-index parameter — how we ground over the composed union while
-# writing only to our own registers (SR-0022) — needs throughline>=1.4.0, which
-# compose>=0.4.4 requires, so pin the floor there and it flows in transitively.
-dependencies = ["throughline-compose>=0.4.4"]
+# writing only to our own registers (SR-0022) — needs throughline>=1.4.0.
+# throughline.identity, which decides both who is offered by default (SR-0027) and
+# what a stable identifier may look like (SR-0028), arrived in throughline>=1.8.0;
+# compose>=0.8.0 requires it. The fingerprint that survives composition unchanged —
+# so this graph need not mirror throughline's normative flags to adopt it as a
+# source (SR-0029) — needs throughline>=1.9.0, which compose>=0.9.0 requires, so
+# pinning the floor there flows both in transitively.
+dependencies = ["throughline-compose>=0.9.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]

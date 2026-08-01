@@ -1,0 +1,42 @@
+uid: SR-0029
+type: system_requirement
+status: ratified
+title: This graph composes throughline's own, so a clause it depends on is a reference,
+  not a quotation
+text: This project's requirements graph shall adopt throughline's own graph as a
+  composed source, pinned to an edition, so that a requirement here which tracks
+  an upstream clause may point at that clause and have the reference resolved by
+  the validator. The gate this repository runs shall be the composition-aware one,
+  since a bare check cannot resolve such a reference and would report it as a broken
+  link. Where the schema of this graph is widened only to admit the source's vocabulary,
+  that shall be marked as such, so a reader can tell this project's own model from
+  what it accepts on the source's behalf. This project shall never write to the source,
+  and shall never ratify a borrowed item.
+rationale: This cockpit does not define what a ratification record is; it writes
+  one by calling throughline's own ratify (SR-0022). That dependency was real but
+  lived only in prose — several requirements here cite an upstream clause in a rationale
+  field, which no validator reads, so the clause could be reworded, narrowed or withdrawn
+  upstream and nothing on this side would notice. SR-0028 is the case in point, and
+  its own history is the argument. Its obligation was lost once already by a mechanical
+  accident, and a citation that survives only as prose is the same failure with a
+  slower fuse. Composing the source makes the citation a fact the validator holds,
+  resolved against a pinned edition, so the wording under a citation moves only when
+  the pin moves and moving the pin is a reviewable act. The pin is also the cost,
+  and it is the right cost — this project now has to notice when throughline moves,
+  which is precisely the thing it was previously able to ignore. Marking the schema
+  lines that exist only for the source matters because the union is governed by this
+  project's schema; without the marking, a reader would take throughline's business
+  needs and non-functional requirements for part of this project's model, when nothing
+  here is either.
+normative: true
+links:
+- target: UR-0002
+  type: derives_from
+- target: SR-0028
+  type: relates
+- target: SR-0022
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:4ef12c8d5ce198023015bb79b6be16a8299e8a8122e7239c02b8da1d993bc760

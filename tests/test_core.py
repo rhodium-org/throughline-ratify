@@ -27,8 +27,10 @@ def test_queue_excludes_ratified_and_roots_by_default(demo_project):
     assert "FR-0005" not in rows
     assert "INT-0001" not in rows
     assert "RISK-0001" not in rows
-    # FR-0007 is 'blocked' (overshot, never signed off) so it IS pending
-    assert set(rows) == {"FR-0001", "FR-0002", "FR-0003", "FR-0004", "FR-0007"}
+    # FR-0007 is 'blocked' (overshot, never signed off) so it IS pending, and so are
+    # FR-0010/FR-0011, whose signatures no longer cover their content (SR-0030).
+    assert set(rows) == {"FR-0001", "FR-0002", "FR-0003", "FR-0004", "FR-0007",
+                         "FR-0010", "FR-0011"}
 
 
 def test_show_all_includes_ratified(demo_project):
@@ -86,9 +88,10 @@ def test_ratified_items_get_their_own_concern(demo_project):
 
 def test_ratification_progress_counts_whole_project(demo_project):
     session = core.open_session(demo_project)
-    # non-dead items: 2 roots + FR-0001..0007 = 9; ratified: 2 roots + FR-0005 +
-    # FR-0006 (ratified-then-implemented, counted via its stamp) = 4
-    assert core.ratification_progress(session) == (4, 9)
+    # non-dead items: 2 roots + FR-0001..0007 + FR-0010..0011 = 11; ratified: 2 roots
+    # + FR-0005 + FR-0006 (ratified-then-implemented, counted via its stamp) = 4.
+    # FR-0010/FR-0011 carry a stamp but a stale one, so they count as outstanding.
+    assert core.ratification_progress(session) == (4, 11)
 
 
 def test_ratified_then_advanced_item_is_done_not_pending(demo_project):
@@ -137,6 +140,129 @@ def test_reratify_records_signoff_and_restores_status(demo_project):
 def _fingerprint_of(project, uid: str) -> str:
     from throughline.fingerprint import fingerprint
     return fingerprint(project.get(uid), project.schema)
+
+
+# --------------------------------------------------------------------------- #
+# A signature the content has outgrown (SR-0030).
+# --------------------------------------------------------------------------- #
+
+def test_a_stale_signature_returns_the_item_to_the_worklist(demo_project):
+    """The reported gap: throughline's check calls a stale ratification an error, and
+    the tool built for the only person who can clear it showed the item as '✓ ratified'
+    and left it out of the backlog entirely."""
+    session = core.open_session(demo_project)
+    row = _by_uid(core.build_queue(session))["FR-0010"]   # default queue, not --all
+    assert row.stale
+    assert row.concern == "stale"                          # never conflated with ratified
+    assert row.ratified_by == "alice"                      # whose signature is being replaced
+    assert row.ratifiable_now                              # 'ratified' may always move to itself
+    assert row.reratify_path is None                       # nothing to walk
+
+
+def test_a_stale_item_counts_as_outstanding_not_as_ratified(demo_project):
+    """A cockpit reporting full marks over an item the validator is erroring on is
+    worse than one reporting nothing, because the reviewer stops looking."""
+    session = core.open_session(demo_project)
+    done, total = core.ratification_progress(session)
+    core.ratify_item(session, "FR-0010", by="bob")         # accept the new wording
+    assert core.ratification_progress(session) == (done + 1, total)
+
+
+def test_a_stale_item_that_also_overshot_carries_the_reratify_route(demo_project):
+    """FR-0011 was signed off, rewritten since, *and* advanced to 'implemented'. The
+    round trip through ratified is the same one an overshoot uses — the difference is
+    what the reviewer is told, not how it gets there."""
+    session = core.open_session(demo_project)
+    row = _by_uid(core.build_queue(session))["FR-0011"]
+    assert row.concern == "stale" and row.stale
+    assert not row.ratifiable_now
+    assert row.reratify_path == ["implemented", "suspect", "ratified", "implemented"]
+
+
+def test_re_signing_a_stale_item_rebinds_it_and_clears_the_concern(demo_project):
+    session = core.open_session(demo_project)
+    core.ratify_item(session, "FR-0010", by="bob")
+
+    fresh = core.open_session(demo_project)
+    item = fresh.project.get("FR-0010")
+    assert item.attrs["ratified_by"] == "bob"              # alice's signature replaced
+    assert item.attrs["ratified_fingerprint"] == _fingerprint_of(fresh.project, "FR-0010")
+    assert "FR-0010" not in _by_uid(core.build_queue(fresh))
+    assert _by_uid(core.build_queue(fresh, show_all=True))["FR-0010"].concern == "ratified"
+
+
+def test_re_signing_a_stale_overshoot_restores_its_status(demo_project):
+    session = core.open_session(demo_project)
+    route = core.reratify_item(session, "FR-0011", by="bob")
+    assert route == ["implemented", "suspect", "ratified", "implemented"]
+
+    fresh = core.open_session(demo_project)
+    item = fresh.project.get("FR-0011")
+    assert item.status == "implemented"                    # exactly where it started
+    assert item.attrs["ratified_fingerprint"] == _fingerprint_of(fresh.project, "FR-0011")
+    assert "FR-0011" not in _by_uid(core.build_queue(fresh))
+
+
+def test_staleness_is_judged_by_throughlines_own_fingerprint(demo_project):
+    """Not by a rule of ours. A second answer to what counts as a content change would
+    drift from the validator's, and the cockpit would then disagree with check about
+    which items still need a human — so this drives a real edit, not a planted stamp."""
+    session = core.open_session(demo_project)
+    core.ratify_item(session, "FR-0001", by="alice")
+    assert "FR-0001" not in _by_uid(core.build_queue(core.open_session(demo_project)))
+
+    path = demo_project / "requirements" / "FR-0001.yml"
+    path.write_text(
+        path.read_text(encoding="utf-8").replace(
+            "text: Body of FR-0001.", "text: Body of FR-0001, rewritten."),
+        encoding="utf-8",
+    )
+
+    row = _by_uid(core.build_queue(core.open_session(demo_project)))["FR-0001"]
+    assert row.concern == "stale" and row.ratified_by == "alice"
+
+
+def test_the_stale_rows_are_exactly_what_throughline_calls_ratified_stale(demo_project):
+    """The agreement itself, asserted directly: the cockpit's stale rows and check's
+    ratified-stale findings are the same set of items."""
+    from throughline.validate import validate
+
+    session = core.open_session(demo_project)
+    flagged = {f.uid for f in validate(session.project, strict=True)
+               if f.rule == "ratified-stale"}
+    shown = {r.uid for r in core.build_queue(session, show_all=True) if r.stale}
+    assert flagged == shown == {"FR-0010", "FR-0011"}
+
+
+def test_a_signature_written_before_fingerprints_existed_is_not_stale(demo_project):
+    """FR-0006 carries a ratifier but no stamp — the whole back catalogue does. It
+    cannot be judged, so it is left settled rather than accused."""
+    session = core.open_session(demo_project)
+    row = _by_uid(core.build_queue(session, show_all=True))["FR-0006"]
+    assert not row.stale
+    assert row.concern == "ratified"
+
+
+def test_a_dead_item_is_dead_whatever_its_stamp_says(demo_project):
+    """Staleness must not resurrect an invalidated item into the actionable backlog."""
+    session = core.open_session(demo_project)
+    core.reject_item(session, "FR-0010", reason="superseded")
+
+    fresh = core.open_session(demo_project)
+    assert "FR-0010" not in _by_uid(core.build_queue(fresh))
+    row = _by_uid(core.build_queue(fresh, show_all=True))["FR-0010"]
+    assert row.concern == "rejected"
+    assert not row.stale and not row.ratifiable_now
+
+
+def test_stale_sorts_below_the_unsigned_backlog_but_above_what_must_be_fixed(
+    demo_project,
+):
+    session = core.open_session(demo_project)
+    order = [r.uid for r in core.build_queue(session)]
+    assert order.index("FR-0002") < order.index("FR-0010")   # ready(1) < stale(2)
+    assert order.index("FR-0010") < order.index("FR-0007")   # stale(2) < blocked(3)
+    assert order.index("FR-0007") < order.index("FR-0003")   # blocked(3) < ungrounded(4)
 
 
 def test_ratifying_binds_the_signature_to_the_content_signed(demo_project):
@@ -281,7 +407,7 @@ def test_concern_classification(demo_project):
 def test_queue_sorted_most_actionable_first(demo_project):
     session = core.open_session(demo_project)
     order = [r.uid for r in core.build_queue(session)]
-    # proposed(0) < ready(1) < ungrounded(3) < ambiguous(4)
+    # proposed(0) < ready(1) < ungrounded(4) < ambiguous(5)
     assert order.index("FR-0001") < order.index("FR-0002")
     assert order.index("FR-0002") < order.index("FR-0003")
     assert order.index("FR-0003") < order.index("FR-0004")
@@ -378,6 +504,59 @@ def test_remove_link_rejects_bad_index(demo_project):
 
 def test_default_ratifier_is_nonempty(demo_project):
     assert core.default_ratifier()
+
+
+def test_the_offered_ratifier_is_throughlines_answer_not_ours(demo_project,
+                                                              monkeypatch):
+    """SR-0027: the identity offered where none was named is obtained by asking
+    throughline, so the cockpit and the command line cannot offer different names
+    to the same person on the same machine. Nothing about who is offered — not the
+    source, not the fallback — is decided in this module."""
+    import throughline.identity as identity
+    seen = {}
+
+    def _fake(path=None):
+        seen["path"] = path
+        return "Ada Lovelace"
+
+    monkeypatch.setattr(identity, "default_ratifier", _fake)
+    monkeypatch.setattr(core, "throughline_default_ratifier", _fake)
+    assert core.default_ratifier(demo_project) == "Ada Lovelace"
+    # The project is passed on, because the identity a repository signs with is a
+    # property of that repository rather than of the machine.
+    assert seen["path"] == demo_project
+
+
+def test_a_stable_identifier_is_recorded_beside_the_name(demo_project):
+    """SR-0028: a ratification taken in the cockpit carries the same record as the
+    same ratification taken at the command line — the identifier in its own field,
+    never conflated with the name."""
+    session = core.open_session(demo_project)
+    core.ratify_item(session, "FR-0001", by="Ada Lovelace", by_id="github:ada")
+
+    fresh = core.open_session(demo_project)
+    item = fresh.project.get("FR-0001")
+    assert item.attrs.get("ratified_by") == "Ada Lovelace"
+    assert item.attrs.get("ratified_id") == "github:ada"
+
+
+def test_an_absent_identifier_stays_absent(demo_project):
+    """Never invented, derived or defaulted — a guessed identity is worse than
+    none, so the field simply is not written (SR-0028)."""
+    session = core.open_session(demo_project)
+    core.ratify_item(session, "FR-0001", by="Ada Lovelace")
+
+    fresh = core.open_session(demo_project)
+    assert "ratified_id" not in fresh.project.get("FR-0001").attrs
+
+
+def test_a_malformed_identifier_is_refused_in_throughlines_words(demo_project):
+    """Well-formedness is throughline's judgement, surfaced as it stands rather
+    than re-argued here (SR-0028)."""
+    assert core.normalise_identifier(None) is None
+    assert core.normalise_identifier("email:ada@example.com") == "email:ada@example.com"
+    with pytest.raises(core.RatifierError):
+        core.normalise_identifier("ada@example.com")  # no scheme
 
 
 def test_open_session_without_status_roles_errors_cleanly(tmp_path):

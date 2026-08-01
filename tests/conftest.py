@@ -109,6 +109,19 @@ _ITEMS = [
     ("FR-0009", "requirements", "FR", "Requirements", "requirement", "deleted",
      "Tombstoned requirement",
      "links:\n- target: INT-0001\n  type: derives_from\n"),
+    # STALE: ratified, and stamped with a fingerprint that does not match the content
+    # below it — the state throughline's check reports as ratified-stale. It sits at
+    # 'ratified', which may always move to itself, so it is directly ratifiable again.
+    ("FR-0010", "requirements", "FR", "Requirements", "requirement", "ratified",
+     "Rewritten since it was signed",
+     f"attrs:\n  ratified_by: alice\n  ratified_fingerprint: sha256:{'0' * 64}\n"
+     "links:\n- target: INT-0001\n  type: derives_from\n"),
+    # STALE *and* overshot: signed off, rewritten since, and advanced to 'implemented'
+    # — so the re-signature has to travel the same round trip FR-0007's missed one does.
+    ("FR-0011", "requirements", "FR", "Requirements", "requirement", "implemented",
+     "Rewritten since it was signed, and shipped",
+     f"attrs:\n  ratified_by: alice\n  ratified_fingerprint: sha256:{'0' * 64}\n"
+     "links:\n- target: INT-0001\n  type: derives_from\n"),
 ]
 
 

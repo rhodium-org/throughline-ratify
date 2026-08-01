@@ -290,3 +290,39 @@ def test_the_cockpit_runs_unchanged_without_a_log(demo_project, monkeypatch):
     _select(app_obj, "FR-0001")
     app_obj.do_ratify()
     assert core.open_session(demo_project).project.get("FR-0001").attrs["ratified_by"]
+
+
+def test_a_re_signature_is_not_reported_as_a_missing_one(app):
+    """SR-0030: FR-0010 was ratified by alice and rewritten since. The account has to
+    distinguish that from FR-0007's case — "re-ratified" is the record of a sign-off
+    that never happened, and reporting this as that would say nobody had accepted an
+    item somebody had."""
+    app_obj, log = app
+    _select(app_obj, "FR-0010")
+    app_obj.do_ratify()
+
+    d = log.decisions[0]
+    assert d.kind == report.RESIGNED and d.uid == "FR-0010"
+    assert d.superseded == "alice"
+    assert d.route == ()          # signed where it stood; nothing was walked
+
+
+def test_a_re_signature_that_had_to_travel_records_the_route(app):
+    app_obj, log = app
+    _select(app_obj, "FR-0011")   # stale *and* advanced past ratified
+    app_obj.do_ratify()
+
+    d = log.decisions[0]
+    assert d.kind == report.RESIGNED
+    assert d.route == ("implemented", "suspect", "ratified", "implemented")
+
+
+def test_the_report_says_whose_signature_was_replaced():
+    log = report.DecisionLog("Ada Lovelace")
+    log.resigned("FR-0010", "Rewritten since it was signed", "alice",
+                 ["implemented", "suspect", "ratified", "implemented"])
+    out = _rendered(log)
+    assert "1. re-signed    FR-0010" in out
+    assert "content changed since alice ratified it" in out
+    assert "route walked: implemented -> suspect -> ratified -> implemented" in out
+    assert "Tally: 1 re-signed" in out

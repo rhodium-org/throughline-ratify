@@ -33,5 +33,9 @@ jobs:
         run: pytest -q
 
       - name: Self-host gate (this repo's own requirements must stay grounded)
-        # `tl` ships with throughline, pulled in transitively via throughline-compose.
-        run: tl -C idd check --strict --quiet
+        # tl-compose, not bare tl (SR-0029). This graph adopts throughline's own as
+        # a pinned source so a requirement here can point at the upstream clause it
+        # tracks; bare `tl` cannot resolve a namespace-qualified reference and would
+        # report that citation as a broken link. The source is fetched from git, so
+        # this step needs network access.
+        run: tl-compose -C idd check --strict --quiet

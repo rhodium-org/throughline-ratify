@@ -35,6 +35,12 @@ from textwrap import wrap
 # prints, so they read as the ratifier's own account of what they did.
 RATIFIED = "ratified"
 RERATIFIED = "re-ratified"
+# Distinct from RERATIFIED on purpose (SR-0030). "re-ratified" is the account of a
+# sign-off that was never taken and has now been recorded; this is the account of one
+# that was taken, over wording that has since changed, and has now been given again.
+# Reporting the second as the first would say of an item that nobody had accepted it,
+# when somebody had — a false statement about the very record the report exists for.
+RESIGNED = "re-signed"
 REJECTED = "rejected"
 LINK_REMOVED = "link removed"
 
@@ -55,10 +61,13 @@ class Decision:
     kind: str
     uid: str
     title: str
-    # re-ratification only: the status itinerary the assistant walked to record a
-    # sign-off the item had overshot. Named in the report so the ratifier can see
-    # what was moved on their behalf.
+    # re-ratification and re-signing only: the status itinerary the assistant walked
+    # to reach ratified and come back. Named in the report so the ratifier can see
+    # what was moved on their behalf. Empty when the item could be signed where it
+    # stood and nothing had to be walked.
     route: tuple[str, ...] = ()
+    # re-signing only: who had signed the wording that has since been replaced.
+    superseded: str = ""
     # rejection only: the reason given, and the dependents suspicion cascaded to.
     reason: str = ""
     suspected: tuple[str, ...] = ()
@@ -92,6 +101,13 @@ class DecisionLog:
     def reratified(self, uid: str, title: str, route: list[str]) -> None:
         self.decisions.append(Decision(RERATIFIED, uid, title, route=tuple(route)))
 
+    def resigned(self, uid: str, title: str, superseded: str = "",
+                 route: list[str] | None = None) -> None:
+        self.decisions.append(
+            Decision(RESIGNED, uid, title, route=tuple(route or ()),
+                     superseded=superseded)
+        )
+
     def rejected(self, uid: str, title: str, reason: str, suspected: list[str]) -> None:
         self.decisions.append(
             Decision(REJECTED, uid, title, reason=reason, suspected=tuple(suspected))
@@ -121,7 +137,7 @@ class DecisionLog:
 
     def tally(self) -> list[tuple[str, int]]:
         """``(kind, count)`` in a fixed order, omitting kinds that did not occur."""
-        counts = {k: 0 for k in (RATIFIED, RERATIFIED, REJECTED, LINK_REMOVED)}
+        counts = {k: 0 for k in (RATIFIED, RERATIFIED, RESIGNED, REJECTED, LINK_REMOVED)}
         for d in self.decisions:
             counts[d.kind] = counts.get(d.kind, 0) + 1
         return [(k, n) for k, n in counts.items() if n]
@@ -140,8 +156,11 @@ def _entry(n: int, d: Decision) -> list[str]:
     """One decision, as the block of lines the report prints for it."""
     head = f"  {n}. {d.kind:<12} {d.uid}"
     out = [head, *_wrapped(d.title, "     ")]
-    if d.kind == RERATIFIED and d.route:
+    if d.kind in (RERATIFIED, RESIGNED) and d.route:
         out += _wrapped("route walked: " + " -> ".join(d.route), "     ")
+    if d.kind == RESIGNED:
+        out += _wrapped(
+            f"content changed since {d.superseded or 'a human'} ratified it", "     ")
     if d.kind == REJECTED:
         out += _wrapped(f"reason: {d.reason or '(none given)'}", "     ")
         if d.suspected:

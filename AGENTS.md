@@ -90,9 +90,19 @@ names; the project's `[status.roles]` and `[transitions]` govern every move.
 python -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"       # pulls throughline-compose (and throughline) along too
 pytest -q
-tl -C idd check --strict      # this repo's own requirements graph — keep it green
+tl-compose -C idd check --strict   # this repo's own requirements graph — keep it green
 ```
+
+**Use `tl-compose`, not bare `tl`, on this repo's graph.** It adopts throughline's
+own graph as a pinned source, so a requirement here can point at the upstream
+clause it tracks (`satisfies: tl:SR-0157`) and have that reference
+resolved rather than merely asserted in a rationale (SR-0029). Bare `tl` fails the
+moment it meets a namespace-qualified reference it cannot resolve. The union is
+governed by *this* project's schema, so `idd/throughline.toml` declares some types,
+links and statuses only to accept the source's items; those lines are marked as
+such — they are not this project's own model.
 
 Changes here follow the same IDD discipline this tool serves: ground the change in
 an `idd/` item (create + get it ratified if new — you can dogfood `tl-ratify`
-itself), cite the UID in your commit, and keep `tl -C idd check --strict` green.
+itself), cite the UID in your commit, and keep `tl-compose -C idd check --strict`
+green.
