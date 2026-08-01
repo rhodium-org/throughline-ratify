@@ -11,40 +11,40 @@ text: The assistant shall accept a stable identifier for the ratifying human und
   sitting signs under, in every part, shall be settled before the full-screen view
   opens and shall be visible in the confirmation the reviewer answers, so no part
   of the record is written that the reviewer was not shown. The upstream clause this
-  tracks, tl:SR-0157, shall be cited as a composed source rather than quoted,
-  so the obligation is resolved against a pinned edition of throughline's own graph
+  tracks, tl:SR-0157, shall be cited as a composed source rather than quoted, so
+  the obligation is resolved against a pinned edition of throughline's own graph
   and cannot be restated here in words that drift from it. More generally, where
   throughline widens what an accountability record may carry, the assistant shall
   widen with it rather than wait for this requirement to name the new field.
 rationale: throughline records an optional scheme-qualified identifier beside the
   ratifier's name — in its own field, never conflated with the name — because a name
-  is not stable, people are renamed, and two people share one (tl:SR-0157).
-  The assistant has no way to supply one, so as things stand a ratification taken
-  in this cockpit carries strictly less than the same ratification taken by typing
-  the command. That is backwards. This tool exists because ratification is the one
-  act in the whole toolchain a validator cannot check, and it is the tool built for
-  the person performing it; the record it produces should be the most complete one
-  available, not the least. The option is named here, in the title and in the text,
-  on purpose. An earlier draft of this requirement deliberately avoided naming it,
-  on the reasoning that a requirement naming one field must be rewritten each time
-  the record grows. That reasoning was wrong in a way worth recording — the requirement
-  was ratified while its text was empty, and because neither the title nor anything
-  else named the capability, the obligation to support --by-id disappeared entirely
-  and the graph still passed. A requirement should degrade to something rather than
-  to nothing. The concrete capability is therefore stated first and the general obligation
-  second, so the general clause extends the requirement without being the only thing
-  holding it up. SR-0022 already settles that the record itself is written by throughline's
+  is not stable, people are renamed, and two people share one (tl:SR-0157). The assistant
+  has no way to supply one, so as things stand a ratification taken in this cockpit
+  carries strictly less than the same ratification taken by typing the command. That
+  is backwards. This tool exists because ratification is the one act in the whole
+  toolchain a validator cannot check, and it is the tool built for the person performing
+  it; the record it produces should be the most complete one available, not the least.
+  The option is named here, in the title and in the text, on purpose. An earlier
+  draft of this requirement deliberately avoided naming it, on the reasoning that
+  a requirement naming one field must be rewritten each time the record grows. That
+  reasoning was wrong in a way worth recording — the requirement was ratified while
+  its text was empty, and because neither the title nor anything else named the capability,
+  the obligation to support --by-id disappeared entirely and the graph still passed.
+  A requirement should degrade to something rather than to nothing. The concrete
+  capability is therefore stated first and the general obligation second, so the
+  general clause extends the requirement without being the only thing holding it
+  up. SR-0022 already settles that the record itself is written by throughline's
   ratify rather than a copy of it, and this extends the same answer — the assistant
   carries the identifier to that call and decides nothing about it. Requiring it
   to appear in the confirmation is what keeps the addition honest, since a part of
   the record shown to no one would be the first part a reviewer never actually saw.
-  Citing tl:SR-0157 by composition rather than by quotation is the other
-  half of that lesson. A rationale that merely names an upstream clause is prose
-  no validator reads, so the clause could be withdrawn or rewritten upstream and
-  nothing here would notice; composing throughline's own graph as a source turns
-  the citation into a reference that must resolve against a pinned edition. Where
-  a wording that this requirement leans on moves, the pin has to move, and moving
-  the pin is a reviewable act rather than a silent one.
+  Citing tl:SR-0157 by composition rather than by quotation is the other half of
+  that lesson. A rationale that merely names an upstream clause is prose no validator
+  reads, so the clause could be withdrawn or rewritten upstream and nothing here
+  would notice; composing throughline's own graph as a source turns the citation
+  into a reference that must resolve against a pinned edition. Where a wording that
+  this requirement leans on moves, the pin has to move, and moving the pin is a reviewable
+  act rather than a silent one.
 normative: true
 links:
 - target: UR-0002
@@ -58,4 +58,4 @@ links:
 attrs:
   origin: ai
   ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:55c1b22ae7a5ea19851e8e5f9f528fa7e51cb4a8d9e64edce4f9e32b59b0016a
+  ratified_fingerprint: sha256:edacf0f595d22bde8572d7fbface706199f2b0dd2df8adbc205587af4da2ea54
