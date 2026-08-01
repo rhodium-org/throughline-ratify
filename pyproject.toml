@@ -49,7 +49,10 @@ classifiers = [
 # pinning the floor there flows all three in transitively. Below it, all 204
 # borrowed items report ratified-stale: without the authored set, a borrowed
 # item is fingerprinted under this graph's normative flags rather than its own.
-dependencies = ["throughline-compose>=0.9.0"]
+# throughline.version.distribution_version, which the header and --version both read
+# so a working tree is not shown as the release it derives from (SR-0031), needs
+# throughline>=1.10.0, which compose>=0.10.0 requires.
+dependencies = ["throughline-compose>=0.10.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]

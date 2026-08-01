@@ -500,12 +500,21 @@ class App:
         # this exists to end. The project name is recoverable elsewhere; the identity
         # of the running build is not.
         avail = max(0, w - len(right))
-        for left in (f" throughline-ratify {__version__} \u2502 {self.session.project_name}",
-                     f" throughline-ratify {__version__}",
-                     f" tl-ratify {__version__}",
-                     f" {__version__}"):
+        rungs = (f" throughline-ratify {__version__} \u2502 {self.session.project_name}",
+                 f" throughline-ratify {__version__}",
+                 f" tl-ratify {__version__}",
+                 f" {__version__}")
+        for left in rungs:
             if len(left) <= avail:
                 break
+        else:
+            # Every rung is still too wide, so the only thing left to shed is the
+            # right-hand segment. It goes before the version is allowed to truncate:
+            # a half-printed version is worse than an absent one, because it reads as
+            # a real value. Composed-ness and the source count are recoverable from
+            # the view itself; which build is rendering it is not.
+            left = rungs[-1]
+            right = ""
         _safe_addstr(self.scr, 0, 0, left, _attr("header", bold=True))
         _safe_addstr(self.scr, 0, max(0, w - len(right)), right, _attr("header", bold=True))
 

@@ -13,19 +13,17 @@ from __future__ import annotations
 
 import argparse
 import sys
-from importlib.metadata import PackageNotFoundError, version as _pkg_version
+
+from throughline.version import distribution_version as _v
 
 from . import core, report
 
 
-def _v(name: str) -> str:
-    try:
-        return _pkg_version(name)
-    except PackageNotFoundError:  # pragma: no cover - source tree
-        return "0.0.0+unknown"
-
-
 def _version_string() -> str:
+    # All three read through throughline's own helper, so a working tree is named as
+    # one rather than reporting the release it derives from (SR-0031). This cockpit
+    # shows a verdict rather than computing one, so the build behind each layer is
+    # part of what a reviewer needs in order to trust what is on the screen.
     return (
         f"tl-ratify {_v('throughline-ratify')} "
         f"(throughline-compose {_v('throughline-compose')}, throughline {_v('throughline')})"

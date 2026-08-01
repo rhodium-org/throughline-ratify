@@ -285,7 +285,9 @@ def test_the_header_version_is_the_imported_packages_own(monkeypatch):
     version written down twice is a claim nothing checks (SR-0031)."""
     from importlib.metadata import version as _dist_version
 
-    assert tui.__version__ == _dist_version("throughline-ratify")
+    # The base version is always the distribution's own; a working tree adds a marker
+    # to it (SR-0031) and never substitutes a different number.
+    assert tui.__version__.split("+")[0] == _dist_version("throughline-ratify")
 
 
 def test_a_narrow_header_keeps_the_version(demo_project, monkeypatch):
@@ -300,3 +302,25 @@ def test_a_narrow_header_keeps_the_version(demo_project, monkeypatch):
     app._draw_header(30)
 
     assert tui.__version__ in scr.rows[0]
+
+
+def test_a_very_narrow_header_sheds_the_right_segment_before_the_version(
+    demo_project, monkeypatch
+):
+    """The version is the last thing to go, and it is never half-printed.
+
+    The editable marker made the string longer, which exposed that the ladder only
+    ever shed the left side while `local project` took its width unconditionally —
+    so the version truncated instead. A half-printed version reads as a real value,
+    which is worse than an absent one (SR-0031)."""
+    monkeypatch.setattr(tui, "_attr", lambda name, bold=False: 0)
+    monkeypatch.setattr(tui, "_hline", lambda *a, **k: None)
+    monkeypatch.setattr(tui, "__version__", "9.9.9.dev0+editable")
+    session = core.open_session(demo_project)
+    scr = FakeScreen(24, 22, [])
+    app = tui.App(scr, session, "Ada Lovelace", None)
+
+    app._draw_header(22)
+
+    assert "9.9.9.dev0+editable" in scr.rows[0]
+    assert "local project" not in scr.rows[0]
