@@ -14,21 +14,7 @@ It is the case that separates the two modes.
 """
 from __future__ import annotations
 
-import pytest
-from throughline.schema import Schema
-
 from throughline_ratify import core
-
-# The cockpit's own change is backward compatible — it reads the setting through
-# `getattr(..., True)`, so an older throughline simply keeps the advancing
-# behaviour. These tests are not, because they assert what the setting does. The
-# dependency pin cannot yet require a throughline that has it, so they stand down
-# rather than fail against one that does not. Delete this guard, and raise the pin,
-# once a release carrying SR-0172 is out.
-pytestmark = pytest.mark.skipif(
-    not hasattr(Schema, "ratify_moves_status"),
-    reason="needs a throughline implementing SR-0172 ([ratify] moves_status)",
-)
 
 
 def _by_uid(rows):
