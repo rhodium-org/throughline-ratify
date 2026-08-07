@@ -88,22 +88,6 @@ prints the brief generated from this project's live configuration — and read
 invent a `--by` name. A fabricated ratifier is a false accountability record, which
 is the one thing this tool exists to prevent.
 
-## Sign your commits (DCO)
-
-Every commit offered to this project carries a [Developer Certificate of
-Origin](https://developercertificate.org) sign-off — the lightweight alternative to
-a CLA. By signing off you assert you have the right to submit the work under the
-project's licence. It's one flag:
-
-```bash
-git commit -s -m "Your message (SR-0034)"
-```
-
-Forgot it? Recover with `git commit --amend -s` for the last commit, or
-`git rebase --signoff <base>` for a branch, then force-push. Note that GitHub's
-web editor does not add the trailer, so an edit made in the browser will need
-amending locally.
-
 ## Where to start
 
 - Issues labelled `good first issue` or `help wanted`.
