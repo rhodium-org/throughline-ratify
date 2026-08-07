@@ -1,0 +1,16 @@
+uid: UR-0009
+type: user_requirement
+status: ratified
+title: A vulnerability can be reported without first disclosing it
+text: A person who believes they have found a security defect shall find a stated
+  private route for reporting it, and shall know what response to expect. The public
+  issue tracker shall not be the only channel, so reporting a defect responsibly
+  never requires publishing it first.
+normative: true
+links:
+- target: INT-0003
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:648612688a877e52b142373515e50342d1befdbbbfab52951f70455f43e6a3f2

@@ -1,0 +1,17 @@
+uid: UR-0008
+type: user_requirement
+status: ratified
+title: A newcomer can set up, check and offer a change without asking
+text: A person who has never worked on this repository shall find, in the repository
+  itself, what they need to get a working development environment, run the tests
+  and the requirements gate, and understand the discipline a change here is held
+  to — including the sign-off UR-0006 requires. None of it shall depend on asking
+  a maintainer or reading the source to infer it.
+normative: true
+links:
+- target: INT-0003
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:952712695c9bd539ab5fa960ba6c59a84381929a46d814bd18c79534285ca0bd
