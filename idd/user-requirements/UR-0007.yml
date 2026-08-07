@@ -1,0 +1,17 @@
+uid: UR-0007
+type: user_requirement
+status: ratified
+title: Know that a reload is running, not that the tool has hung
+text: Reloading the graph from disk (R) can take long enough that the cockpit looks
+  frozen. While a reload is running the cockpit shall show the reviewer that it is
+  working, so they wait for it rather than assume the tool has stopped responding.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+- target: UR-0004
+  type: relates
+attrs:
+  origin: human
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:cfe3180061b7227b1456158b92f5fc28b3922756f89a555f0f3163b2c65603d6

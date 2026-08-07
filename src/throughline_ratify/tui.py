@@ -149,6 +149,9 @@ class App:
         self._detail_scroll = 0        # first visible detail line
         self._link_lines: dict[int, int] = {}  # link index -> line in _detail_lines
         self.flash = _Flash()
+        # What the cockpit is doing while it cannot answer the keyboard (SR-0033).
+        # Empty whenever it is idle, which is every moment a key can be pressed.
+        self.busy = ""
         self.refresh_queue()
 
     # -- data ---------------------------------------------------------------
@@ -167,8 +170,23 @@ class App:
         return None
 
     def reload_from_disk(self) -> None:
-        self.session = core.open_session(self.session.root)
-        self.refresh_queue()
+        """Re-read the graph, saying so while the read blocks (SR-0033).
+
+        ``open_session`` is synchronous and can take seconds — on a composed project
+        it resolves every source before it returns — and curses paints nothing on its
+        own, so the only moment the cockpit can say it is working is *before* it
+        starts. A flash set afterwards reports a reload that has already finished,
+        which is why the wait used to look like a hang. Painted here it stands for
+        the whole of the read, and the ``finally`` clears it even when the read
+        raises, so a failure never leaves the footer claiming work is under way."""
+        self.busy = "reloading from disk…"
+        self.flash = _Flash()
+        try:
+            self.draw()
+            self.session = core.open_session(self.session.root)
+            self.refresh_queue()
+        finally:
+            self.busy = ""
         self.flash = _Flash("reloaded from disk", "ok")
 
     # -- main loop ----------------------------------------------------------
@@ -725,6 +743,12 @@ class App:
 
     def _draw_footer(self, y: int, w: int) -> None:
         _hline(self.scr, y, 0, w, _attr("footer"))
+        if self.busy:
+            # Outranks both the flash and the key legend: while this is set the keys
+            # are not being read, so offering them would be a lie (SR-0033).
+            _safe_addstr(self.scr, y, 0, " " + self.busy, _attr("warn", bold=True)
+                         | curses.A_REVERSE)
+            return
         if self.flash.text:
             _safe_addstr(self.scr, y, 0, " " + self.flash.text, _attr(self.flash.kind, bold=True)
                          | curses.A_REVERSE)
