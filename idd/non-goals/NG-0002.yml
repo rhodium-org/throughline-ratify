@@ -1,0 +1,18 @@
+uid: NG-0002
+type: non_goal
+status: ratified
+title: No contribution barrier a willing contributor cannot clear from where they
+  are
+text: This project shall not adopt a contribution gate that a person of good will
+  cannot satisfy from the interface they are contributing from. A per-commit ceremony
+  a browser cannot produce — a trailer, a signature, a form — turns away the drive-by
+  correction the project most wants and stops nobody it should, because anyone acting
+  in bad faith can perform the ceremony perfectly. This is recorded negative space
+  and not a rule about any one mechanism. Measure a proposed gate against what it
+  costs the contribution it will refuse, not only against what it is meant to prevent,
+  and say in the item who bears that cost.
+normative: true
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:3d7292b81fb2779af351b1c33d07ac2a4db7124c1a1a819f13615188c1da7355
