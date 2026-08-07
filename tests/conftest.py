@@ -152,3 +152,16 @@ def _write_project(root: Path) -> Path:
 @pytest.fixture
 def demo_project(tmp_path: Path) -> Path:
     return _write_project(tmp_path / "project")
+
+
+@pytest.fixture
+def in_place_project(tmp_path: Path) -> Path:
+    """The same graph in a project that has declared ratification does not move an
+    item (throughline SR-0172) — the shape a delivery graph has, where status tracks
+    progress and a sign-off is orthogonal to it."""
+    root = _write_project(tmp_path / "in-place")
+    cfg = root / "throughline.toml"
+    cfg.write_text(
+        cfg.read_text() + "\n[ratify]\nmoves_status = false\n", encoding="utf-8"
+    )
+    return root

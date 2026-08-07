@@ -374,6 +374,13 @@ def _is_ratified(session: Session, item: Item) -> bool:
     not filtered out of it by the very stamp the cascade called into question."""
     if session.suspect_status is not None and item.status == session.suspect_status:
         return False
+    # Where ratification does not advance the item (throughline SR-0172), the status
+    # carries no claim about sign-off — the ratified role is typically bound to an
+    # ordinary workflow state there, and reading it as a signature would mark every
+    # item passing through that state as signed by nobody. The stamp is the only
+    # witness, which is exactly what that setting makes it.
+    if not getattr(session.schema, "ratify_moves_status", True):
+        return bool(item.attrs.get(RATIFIED_BY_ATTR))
     return (
         item.status == session.ratified_status
         or bool(item.attrs.get(RATIFIED_BY_ATTR))
@@ -472,7 +479,18 @@ def _evaluate(
     union_item = session.union.get(item.uid) or item
     grounded = schema.is_root(union_item) or reaches_root(session.index, schema, item.uid)
     ambiguous = bool(item.attrs.get("ambiguous"))
-    directly = schema.allows_transition(item.status, session.ratified_status)
+    # Whether a sign-off can be taken from where the item already stands. Where
+    # ratification advances the item, that is a transition question. Where the
+    # project has declared it does not (throughline SR-0172), no transition is
+    # involved — every status can take one directly, and the round trip below is
+    # never offered, because walking a route there would fabricate exactly the
+    # history that setting exists to avoid. Deciding it any other way would also
+    # re-take, here, the judgement SR-0022 leaves to throughline.
+    directly = (
+        schema.allows_transition(item.status, session.ratified_status)
+        if getattr(schema, "ratify_moves_status", True)
+        else True
+    )
     # Signed off, and the signature still covers the content. Only that settles an
     # item; a stale one is offered again, which throughline's own ratify permits
     # precisely because the content moved (SR-0030).
