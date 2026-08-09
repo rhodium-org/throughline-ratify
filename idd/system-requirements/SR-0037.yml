@@ -1,0 +1,37 @@
+uid: SR-0037
+type: system_requirement
+status: ratified
+title: A rejection reports the dependents it could not flag
+text: When a rejection cascades suspicion, the cockpit shall report not only the
+  dependents it marked suspect but also those whose configured lifecycle offered
+  no route to the suspect status, naming them and the move that was refused. A dependent
+  that is already retired shall not be reported as refused, since nothing was withheld
+  from an item that has already gone.
+rationale: An item whose footing has been withdrawn but which carries no flag is
+  exactly the drift suspicion exists to surface, and it is the one outcome of a rejection
+  the cockpit never mentioned. Until throughline SR-0173 it could not have — invalidate()
+  returned its whole blast radius while having marked only part of it, so the only
+  way to report what a rejection had done was to compare each dependent's status
+  either side of the call. That comparison answers whether an item changed and cannot
+  answer why it did not; a dependent whose lifecycle declares no route to suspect
+  and one that was already retired look identical to it, so the reviewer was given
+  a smaller number and no hint that anything had been refused. The reviewer is the
+  right person to receive it. They are accountable for the rejection, they are the
+  one who can correct a lifecycle that strands items short of suspicion or handle
+  the stranded item by hand, and they are in front of the tool at the moment the
+  refusal is discovered; deferring it to a later check would report the same fact
+  to someone with less standing to act on it. Who pays — a rejection that refuses
+  nothing reads exactly as it does today, and one that refuses something costs the
+  reviewer a single further line.
+normative: true
+links:
+- target: UR-0002
+  type: derives_from
+- target: SR-0025
+  type: relates
+- target: tl:SR-0173
+  type: satisfies
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:021c50059c82151cac05f1ffb4d29b8085ee25f06600296f41c80bebf234438c

@@ -52,7 +52,9 @@ classifiers = [
 # throughline.version.distribution_version, which the header and --version both read
 # so a working tree is not shown as the release it derives from (SR-0031), needs
 # throughline>=1.10.0, which compose>=0.10.0 requires.
-dependencies = ["throughline-compose>=0.10.0", "throughline>=1.12.0"]
+# grounding.Invalidation.marked/.refused, which the reject path reads to report what
+# a cascade actually did and what it could not (SR-0037), first ships in 1.13.0.
+dependencies = ["throughline-compose>=0.10.0", "throughline>=1.13.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
