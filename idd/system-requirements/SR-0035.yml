@@ -1,0 +1,18 @@
+uid: SR-0035
+type: system_requirement
+status: implemented
+title: SECURITY.md names a private reporting route and what it covers
+text: A SECURITY.md at the repository root shall direct a reporter to GitHub's private
+  vulnerability reporting rather than a public issue, state which versions are supported,
+  and set the expectation of acknowledgement, of a window to fix before disclosure,
+  and of credit. It shall say what is worth reporting for a tool of this kind — including
+  any route by which the cockpit records a ratification a person did not take, which
+  is this project's own worst failure and not an obvious one from outside.
+normative: true
+links:
+- target: UR-0009
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:258c73e1f136c4f1d896d74c8449bef65118cd47300d48aeb1beae62af3ff897

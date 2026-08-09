@@ -1,0 +1,15 @@
+uid: INT-0003
+type: intent
+status: ratified
+title: Contributable
+text: As an open-source project, throughline-ratify should let an outside contributor
+  understand how to contribute, how to report a vulnerability privately, and what
+  conduct is expected, and should have each contribution arrive carrying an explicit,
+  recorded grant of the rights under which it is offered — so that a contribution
+  can be accepted without a later, unanswerable question about the terms on which
+  it was given.
+normative: true
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:4ce2342bba7ed42e119c796848396cebe236f4ae51ebe1ffd62722c7c4a5f45a

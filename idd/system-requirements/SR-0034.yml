@@ -1,0 +1,21 @@
+uid: SR-0034
+type: system_requirement
+status: implemented
+title: CONTRIBUTING.md carries the whole path from clone to pull request
+text: A CONTRIBUTING.md at the repository root shall state how to install the package
+  for development, how to run the tests, and how to run this repository's own requirements
+  gate — naming tl-compose rather than bare tl, because the graph composes a source
+  and bare tl cannot resolve it. It shall state that a change is grounded in an idd/
+  item before it is built and that the item's UID is cited in the commit, and shall
+  record the terms a contribution is offered under. Where the contributor is also
+  working on throughline or throughline-compose it shall point at the chained editable
+  install, because a cockpit running against a published validator reports figures
+  that disagree with the gate and is indistinguishable from a real defect.
+normative: true
+links:
+- target: UR-0008
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:8a6897b4d5075eb8f726f205e95114ebf44dfb1aa02b423e192ca49c987648c0

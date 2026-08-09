@@ -88,9 +88,12 @@ satisfies    = { from = ["system_requirement"], to = ["system_requirement", "use
 values = ["proposed", "draft", "approved", "ratified", "implemented",
           "verified", "suspect", "rejected", "deleted"]
 
+# 'proposed' and 'draft' reach 'suspect' because that is where the least settled
+# items sit: without the route, withdrawing their footing would leave them carrying
+# no record of it (tl:SR-0175).
 [transitions]
-proposed    = ["draft", "approved", "ratified", "rejected", "deleted"]
-draft       = ["approved", "ratified", "rejected", "deleted"]
+proposed    = ["draft", "approved", "ratified", "suspect", "rejected", "deleted"]
+draft       = ["approved", "ratified", "suspect", "rejected", "deleted"]
 approved    = ["ratified", "implemented", "suspect", "rejected", "deleted"]
 ratified    = ["implemented", "suspect", "rejected", "deleted"]
 implemented = ["verified", "suspect", "rejected", "deleted"]
