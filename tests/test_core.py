@@ -638,6 +638,36 @@ def test_preview_reject_excludes_dependents_that_cannot_become_suspect(demo_proj
     assert "FR-0001" not in core.preview_reject(session, "INT-0001"), "but untouched"
 
 
+# --------------------------------------------------------------------------- #
+# SR-0037 — a rejection reports the dependents it could not flag
+# --------------------------------------------------------------------------- #
+
+def test_reject_names_the_dependents_it_could_not_flag(demo_project):
+    """FR-0001 is reachable from INT-0001 but sits at 'proposed', which this project's
+    [transitions] give no route to suspect. Its footing goes and nothing on it records
+    that, which is precisely the drift the cockpit exists to surface — so the rejection
+    names it and the move that was refused, rather than quietly returning a shorter
+    list of successes."""
+    session = core.open_session(demo_project)
+    outcome = core.reject_item(session, "INT-0001", "superseded")
+
+    assert "FR-0001" not in outcome, "it was not flagged, so it is not reported as flagged"
+    refused = {r.uid: (r.frm, r.to) for r in outcome.refused}
+    assert refused.get("FR-0001") == ("proposed", session.suspect_status)
+
+
+def test_reject_does_not_report_an_already_dead_dependent_as_refused(demo_project):
+    """Nothing was withheld from an item that has already gone, so it is neither
+    flagged nor refused. Reporting it would send the reviewer after a non-problem."""
+    session = core.open_session(demo_project)
+    core.reject_item(session, "FR-0001", "not needed")
+
+    session = core.open_session(demo_project)
+    outcome = core.reject_item(session, "INT-0001", "superseded")
+    assert "FR-0001" not in outcome
+    assert "FR-0001" not in {r.uid for r in outcome.refused}
+
+
 def test_preview_reject_is_read_only(demo_project):
     """It is called before the human has answered, so it must change nothing."""
     session = core.open_session(demo_project)

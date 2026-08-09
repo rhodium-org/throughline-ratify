@@ -431,11 +431,22 @@ class App:
             self.flash = _Flash("reject cancelled", "dim")
             return
         try:
-            affected = core.reject_item(self.session, item.uid, reason)
+            outcome = core.reject_item(self.session, item.uid, reason)
             if self.log is not None:
-                self.log.rejected(item.uid, item.title, reason, list(affected))
+                self.log.rejected(item.uid, item.title, reason, list(outcome),
+                                  outcome.refused)
             self.refresh_queue()
-            extra = f", {len(affected)} dependent(s) now suspect" if affected else ""
+            said = []
+            if outcome:
+                said.append(f"{len(outcome)} dependent(s) now suspect")
+            # A dependent the lifecycle would not let us flag is named here rather
+            # than dropped: its footing is gone and nothing on it says so (SR-0037).
+            if outcome.refused:
+                said.append(
+                    f"{len(outcome.refused)} left unflagged: "
+                    + ", ".join(r.uid for r in outcome.refused)
+                )
+            extra = f", {'; '.join(said)}" if said else ""
             self.flash = _Flash(f"\u2717 {item.uid} rejected{extra}", "warn")
         except core.RatifierError as exc:
             self.flash = _Flash(str(exc), "err")

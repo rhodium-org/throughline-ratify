@@ -39,6 +39,7 @@ from throughline.identity import default_ratifier as throughline_default_ratifie
 from throughline.identity import normalise_identifier as throughline_normalise_identifier
 from throughline.grounding import (
     GroundingError,
+    Refusal,
     invalidate,
     reaches_root,
     set_status,
@@ -822,36 +823,44 @@ def preview_reject(session: Session, uid: str) -> list[str]:
     ]
 
 
-def reject_item(session: Session, uid: str, reason: str = "") -> list[str]:
+class Rejection(list):
+    """What a rejection did: the UIDs it made suspect, and the ones it could not.
+
+    It *is* the list of newly-suspect UIDs, so a caller that reads the return as that
+    list is unaffected (SR-0025). ``refused`` carries the dependents whose configured
+    lifecycle declared no route to the suspect status, each with the move that was
+    refused, so a reviewer can be told about footing that was withdrawn without
+    anything being flagged (SR-0037)."""
+
+    def __init__(self, marked: list[str], refused: list[Refusal]):
+        super().__init__(marked)
+        self.refused = refused
+
+
+def reject_item(session: Session, uid: str, reason: str = "") -> Rejection:
     """Reject (invalidate) ``uid`` and cascade suspicion to its dependents, then
     persist every touched local item.
 
-    Returns the UIDs that were *actually* made suspect, observed by comparing each
-    dependent's status either side of the call — not the impact set throughline
-    returns, which is everything reachable and includes dependents left untouched
-    because they were already dead or could not legally become suspect. What is
-    reported afterwards, and what the session summary records, is then a fact about
-    what happened rather than a claim about what might have (SR-0025)."""
+    Returns the UIDs that were *actually* made suspect — throughline reports them
+    itself (tl:SR-0173), separately from the impact set, which is everything reachable
+    and includes dependents left untouched because they were already dead or could not
+    legally become suspect. What is reported afterwards, and what the session summary
+    records, is then a fact about what happened rather than a claim about what might
+    have (SR-0025). The refusals ride along on the result rather than being dropped,
+    because a dependent left unflagged is the drift the cockpit exists to show
+    (SR-0037)."""
     project = session.project
     if project.get(uid) is None:
         raise RatifierError(f"{uid} does not exist")
-    # Snapshot first: an item that was *already* suspect would otherwise be counted
-    # as newly suspected, reporting a consequence this rejection did not have.
-    before = {i.uid: i.status for i in project.items()}
     try:
-        reachable = invalidate(project, uid, reason)
+        outcome = invalidate(project, uid, reason)
     except GroundingError as exc:
         raise RatifierError(str(exc)) from exc
 
-    affected = [
-        aid
-        for aid in reachable
-        if (dep := project.get(aid)) is not None and dep.status != before.get(aid)
-    ]
     write_item(project.get(uid), project.register_of(uid))
-    for aid in affected:
+    for aid in outcome.marked:
         write_item(project.get(aid), project.register_of(aid))
-    return affected
+    return Rejection(outcome.marked, outcome.refused)
 
 
 def remove_link(session: Session, uid: str, index: int) -> LinkView:

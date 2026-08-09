@@ -26,6 +26,7 @@ or a pipe under any locale.
 from __future__ import annotations
 
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -71,6 +72,10 @@ class Decision:
     # rejection only: the reason given, and the dependents suspicion cascaded to.
     reason: str = ""
     suspected: tuple[str, ...] = ()
+    # rejection only: the dependents suspicion could *not* reach, as (uid, from, to).
+    # Recorded because footing withdrawn without a flag is drift, and a record that
+    # named only the successes would hide it (SR-0037).
+    refused: tuple[tuple[str, str, str], ...] = ()
     # link removal only.
     link_type: str = ""
     link_ref: str = ""
@@ -108,9 +113,11 @@ class DecisionLog:
                      superseded=superseded)
         )
 
-    def rejected(self, uid: str, title: str, reason: str, suspected: list[str]) -> None:
+    def rejected(self, uid: str, title: str, reason: str, suspected: list[str],
+                 refused: Sequence[tuple[str, str, str]] = ()) -> None:
         self.decisions.append(
-            Decision(REJECTED, uid, title, reason=reason, suspected=tuple(suspected))
+            Decision(REJECTED, uid, title, reason=reason, suspected=tuple(suspected),
+                     refused=tuple(tuple(r) for r in refused))
         )
 
     def link_removed(
@@ -166,6 +173,12 @@ def _entry(n: int, d: Decision) -> list[str]:
         if d.suspected:
             out += _wrapped(
                 "dependents made suspect: " + ", ".join(d.suspected), "     "
+            )
+        if d.refused:
+            out += _wrapped(
+                "left unflagged, no route to suspect: "
+                + ", ".join(f"{uid} ({frm} -> {to})" for uid, frm, to in d.refused),
+                "     ",
             )
     if d.kind == LINK_REMOVED:
         kind = "grounding link" if d.grounding else "link"

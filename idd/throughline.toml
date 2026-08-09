@@ -24,7 +24,7 @@ format_version = 3
 [[sources]]
 namespace = "tl"
 url = "https://github.com/rhodium-org/throughline"
-ref = "v1.10.0"
+ref = "v1.13.2"
 subdir = "idd"
 
 # Everything below is THIS project's own model, and nothing else is in it.
@@ -90,7 +90,8 @@ values = ["proposed", "draft", "approved", "ratified", "implemented",
 
 # 'proposed' and 'draft' reach 'suspect' because that is where the least settled
 # items sit: without the route, withdrawing their footing would leave them carrying
-# no record of it (tl:SR-0175).
+# no record of it. These two are judged because local items actually hold them, not
+# merely because the status vocabulary names them (tl:SR-0177).
 [transitions]
 proposed    = ["draft", "approved", "ratified", "suspect", "rejected", "deleted"]
 draft       = ["approved", "ratified", "suspect", "rejected", "deleted"]
