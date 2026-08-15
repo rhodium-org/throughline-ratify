@@ -40,6 +40,13 @@ jobs:
         # this step needs network access.
         run: tl-compose -C idd check --strict --quiet
 
+      - name: Published spec is current (SR-0042)
+        # idd/docs/spec.md is rendered from the graph, so an item edited without
+        # regenerating it leaves the document quietly wrong. The completeness half —
+        # a live normative item that no document names — is reported by the strict
+        # check above, which `[docs] paths` is what switches on.
+        run: tl-compose -C idd docs --check
+
   # The very round-trip that gates publication, run on every change too, so a break
   # is found at the commit that caused it and not after the release (SR-0041).
   sdist-suite:

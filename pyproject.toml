@@ -54,7 +54,17 @@ classifiers = [
 # throughline>=1.10.0, which compose>=0.10.0 requires.
 # grounding.Invalidation.marked/.refused, which the reject path reads to report what
 # a cascade actually did and what it could not (SR-0037), first ships in 1.13.0.
-dependencies = ["throughline-compose>=0.10.0", "throughline>=1.13.0"]
+# Publication coverage over a composed graph — this repo's own `[docs] paths` making
+# an unpublished item a check failure rather than nothing at all (SR-0042) — needs
+# compose>=0.13.0, the release in which the union path began handing the published
+# set to the validator. Below it the graph still loads and checks; the coverage half
+# of the gate is simply silent, which is the defect SR-0042 exists to close.
+# That floor carries throughline's with it: compose 0.13.0 itself requires >=1.13.2,
+# so the pair (compose==0.13.0, throughline==1.13.0) is unsatisfiable and the
+# declared-minimum resolution SR-0038 installs would not resolve at all. 1.13.2 is
+# therefore the honest floor here — not a version this package reaches for directly,
+# but the lowest one its own declared minimum of compose can be installed against.
+dependencies = ["throughline-compose>=0.13.0", "throughline>=1.13.2"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]

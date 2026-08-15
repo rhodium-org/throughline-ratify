@@ -66,7 +66,21 @@ source, so a requirement here can point at the upstream clause it tracks
 asserted. Bare `tl` fails the moment it meets a namespace-qualified reference it
 cannot resolve.
 
-Both the tests and the gate run in CI on every pull request.
+The graph is also published as a document — [`idd/docs/spec.md`](idd/docs/spec.md),
+the readable form of everything this tool is built to. It is generated, so an item
+you add or edit means regenerating it:
+
+```bash
+tl-compose -C idd docs           # rewrite the document from the graph
+tl-compose -C idd docs --check    # what CI runs: fails if it has fallen behind
+```
+
+Don't hand-edit the blocks between `tl:item` markers; the headings and prose
+around them are yours to write. Adding an item without publishing it is caught by
+the strict check above, not by `docs --check` — an absent item makes the document
+incomplete rather than stale.
+
+Both the tests and the gates run in CI on every pull request.
 
 ## Making changes
 

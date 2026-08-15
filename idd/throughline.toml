@@ -39,6 +39,16 @@ subdir = "idd"
 # permissive — able to accept a borrowed item the source's own graph would reject.
 # Nothing here is widened for the source now, so nothing here needs marking as
 # such: read every line below as this project's own model, because it is.
+# Published documents (SR-0042): `tl-compose docs` renders these in place from the
+# composed graph and `docs --check` gates their freshness. Configuring this is also
+# what makes publication coverage judged at all — with it set, a live normative item
+# of this project's own that no document names is reported by `check --strict`. That
+# second half needs throughline-compose >= 0.13.0, which is where the union path
+# began handing the published set to the validator; before it, this line bought
+# freshness alone and the coverage rule stayed silent.
+[docs]
+paths = ["docs/*.md"]
+
 [grounding]
 root_types = ["intent", "non_goal"]
 # non_goal is a root too, but deliberately NOT a delivery root — a recorded
