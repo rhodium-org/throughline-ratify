@@ -54,11 +54,21 @@ classifiers = [
 # throughline>=1.10.0, which compose>=0.10.0 requires.
 # grounding.Invalidation.marked/.refused, which the reject path reads to report what
 # a cascade actually did and what it could not (SR-0037), first ships in 1.13.0.
-# Publication coverage over a composed graph — this repo's own `[docs] paths` making
-# an unpublished item a check failure rather than nothing at all (SR-0042) — needs
-# compose>=0.13.0, the release in which the union path began handing the published
-# set to the validator. Below it the graph still loads and checks; the coverage half
-# of the gate is simply silent, which is the defect SR-0042 exists to close.
+#
+# Every clause above names an API this package calls. compose>=0.13.0 is the one
+# that does not, and it is here deliberately, because this block says more than
+# which functions the cockpit imports. `pipx install throughline-ratify` is how the
+# estate hands someone the whole toolchain — the README and AGENTS.md both say so —
+# and ratify sits on top of both packages, so what it declares is the *edition* of
+# that toolchain it delivers, not only the symbols it reaches for. 0.13.0 is the
+# release in which `tl-compose check` began handing the set of published documents
+# to the validator; below it, a project that has configured `[docs] paths` is told
+# nothing whatsoever about publication coverage and cannot tell that apart from
+# being fully published (compose SR-0038). Shipping someone a cockpit for taking
+# accountability over requirements alongside a checker that quietly does not check
+# is not a saving worth making, and this repo's own gate (SR-0042) rests on the
+# same release.
+#
 # That floor carries throughline's with it: compose 0.13.0 itself requires >=1.13.2,
 # so the pair (compose==0.13.0, throughline==1.13.0) is unsatisfiable and the
 # declared-minimum resolution SR-0038 installs would not resolve at all. 1.13.2 is
