@@ -1,0 +1,17 @@
+uid: UR-0011
+type: user_requirement
+status: ratified
+title: The published distribution passes the suite it ships
+text: A person who installs throughline-ratify from a package index shall be able
+  to run the test suite that distribution ships and have it pass, so the package
+  they are vetting visibly upholds the discipline this cockpit exists to enforce
+  rather than presenting errors the moment it is examined. The published artifact
+  shall not ship a test suite it cannot itself run green.
+normative: true
+links:
+- target: INT-0002
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:f3b938bcf8b8cd4dae3b8e1d1b97014a5a3304f0a4efdabdb2fb8d3e093a2c67
