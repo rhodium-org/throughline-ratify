@@ -1,0 +1,5 @@
+# setuptools' default sdist file set ships modules matching test*.py but not the
+# shared conftest that defines their fixtures, so the shipped suite errored at
+# collection (fixture 'demo_project' not found, and its siblings). Ship it so the
+# suite runs green from the sdist (SR-0040).
+include tests/conftest.py

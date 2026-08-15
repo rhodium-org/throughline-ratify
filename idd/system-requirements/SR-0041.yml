@@ -1,0 +1,38 @@
+uid: SR-0041
+type: system_requirement
+status: ratified
+title: The gate that guards the published distribution runs against the artifact,
+  before it ships
+text: Continuous integration shall run the shipped test suite once more from the
+  built source distribution installed into a clean environment, so that what is verified
+  is the artifact a user receives rather than the working tree it was built from.
+  That run shall execute on every change and shall gate publication, so no release
+  reaches the index carrying a suite it cannot pass. A fixture or helper the suite
+  needs but the distribution omits shall therefore fail the build, not the reader
+  who runs it.
+rationale: 'UR-0011 makes its claim about the distribution a user installs, and a
+  checkout run cannot test it: tests/conftest.py reaches the sdist only because MANIFEST.in
+  names it (SR-0040), and pytest run from the source tree passes whether or not that
+  line survives. That is why the defect SR-0040 records reached the index rather
+  than being caught — the unit job was green on every push throughout, on a suite
+  whose shipped counterpart could not collect. Gating the release rather than observing
+  after it follows the same reasoning: a check that runs after the upload names a
+  defect the reader can no longer avoid. The scheduled run SR-0038 requires is not
+  a substitute, because it resolves the declared dependency range against a checkout
+  and would not have seen this. A test asserting that MANIFEST.in contains the conftest
+  line was considered and rejected, because it pins the present remedy rather than
+  the obligation and would pass while a newly added helper went unshipped.'
+normative: true
+links:
+- target: UR-0011
+  type: derives_from
+- target: SR-0040
+  type: relates
+- target: SR-0038
+  type: relates
+attrs:
+  priority: should
+  verification: test
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:85f5b629a70fdf26973f1f1cadb4556a6b9ad26107f487f7539c0e57629d220a

@@ -39,3 +39,8 @@ jobs:
         # report that citation as a broken link. The source is fetched from git, so
         # this step needs network access.
         run: tl-compose -C idd check --strict --quiet
+
+  # The very round-trip that gates publication, run on every change too, so a break
+  # is found at the commit that caused it and not after the release (SR-0041).
+  sdist-suite:
+    uses: ./.github/workflows/sdist-suite.yml

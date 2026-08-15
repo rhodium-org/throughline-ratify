@@ -1,0 +1,34 @@
+uid: SR-0040
+type: system_requirement
+status: ratified
+title: Shipped test fixtures travel in the published sdist
+text: The published source distribution shall include every fixture the shipped test
+  suite needs in order to run — in particular the shared conftest that defines the
+  hermetic fixture graph the CLI and core tests are written against — so that running
+  the shipped suite from the sdist passes rather than erroring at collection with
+  a missing fixture. Because setuptools' default sdist file set ships modules matching
+  test-star but not conftest, the project shall declare the inclusion explicitly
+  through a MANIFEST directive rather than relying on that default.
+rationale: The published 0.4.0 sdist ships all seven test modules but not tests/conftest.py,
+  so the shipped suite gives 47 passed and 103 errors — every one of them a fixture
+  that conftest defines (demo_project and its siblings) not found at collection or
+  setup. Confirmed identical against throughline 1.13.2 and 1.14.0, so this is a
+  packaging defect of this repository's own rather than drift from a validator release.
+  The conftest is self-contained — it writes its fixture graph into tmp_path per
+  test, and needs no network and no committed data — so shipping that one file is
+  the whole remedy. throughline-compose met the same defect in its published 0.3.0
+  and repaired it the same way, which is what identified it here.
+normative: true
+links:
+- target: UR-0011
+  type: derives_from
+- target: SR-0017
+  type: relates
+- target: tl:SR-0135
+  type: satisfies
+attrs:
+  priority: should
+  verification: test
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:28c82c45a02f574ebe957bb3992121263ecd1afe453dadde348ee70893f309ca
