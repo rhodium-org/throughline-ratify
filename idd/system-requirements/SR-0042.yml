@@ -1,0 +1,33 @@
+uid: SR-0042
+type: system_requirement
+status: ratified
+title: The graph is published as a document, and CI gates it fresh and complete
+text: The repository shall configure the documents its requirements are published
+  into, and shall carry a generated specification document rendering every live normative
+  item in its own graph together with the traceability between them. Continuous integration
+  shall run the freshness check on every change, so a document that no longer matches
+  the graph fails the build; and because configuring published documents is what
+  makes publication coverage judged at all, the existing strict graph check shall
+  thereby report a live normative item that no document names.
+rationale: |-
+  `tl-compose -C idd docs --check` has been the stated gate for this repository since its contributing guide was written, and it has always passed. It passed because there was nothing to check: no `[docs] paths` were configured and no document existed, so the command had no work to do and exited zero. A gate that cannot fail is worse than no gate, because the project believes it is covered — and this repository, of all of them, is the cockpit a human uses to take accountability for requirements.
+
+  Two obligations, not one. Configuring the paths gives freshness. It also switches on core's publication-coverage rule, which is the half with teeth: adding an item and forgetting to publish it becomes a strict-check failure rather than a silent omission. The two are named together because either alone leaves a hole — an empty document is always fresh, and a complete document is worthless if it may be stale.
+
+  Upstream first. That coverage rule was itself inert under `tl-compose check`, which never handed the published set to the validator, so configuring paths here would have bought freshness and nothing else. The fix belongs upstream and was made there (throughline-compose SR-0038), which is why this requirement can state coverage as a consequence of configuration rather than restate the rule.
+
+  Freshness runs on every change rather than only at release, for the same reason the sdist suite does (SR-0041): a document that went stale is then found at the commit that staled it, by the person still holding the context to fix it.
+normative: true
+links:
+- target: UR-0012
+  type: derives_from
+- target: SR-0041
+  type: relates
+- target: SR-0034
+  type: relates
+attrs:
+  priority: should
+  verification: test
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:64738c2e1a103e9950a1e70d307eacb3b5272b5180d4a856c3d2298be4d54bec

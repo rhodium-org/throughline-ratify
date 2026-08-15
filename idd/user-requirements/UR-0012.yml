@@ -1,0 +1,27 @@
+uid: UR-0012
+type: user_requirement
+status: ratified
+title: The requirements this tool is built to can be read, and read whole
+text: 'A person who wants to know what throughline-ratify is required to do shall
+  find those requirements rendered as a document in the repository, generated from
+  the graph rather than written beside it. The document shall be provably current
+  — no item shall be able to change without the document being out of date — and
+  provably whole: a live normative requirement absent from it shall be a defect the
+  repository''s own gate reports, not something a reader can only discover by reading
+  the register files.'
+rationale: |-
+  This repository is self-hosting: it is a tool for working a requirements graph, and it keeps its own under `idd/`. A reader who wants to know what it is required to do has, today, only the register files — a directory of YAML, one item per file, with the traceability between them readable only by walking links by hand. The graph is authored; it is not published.
+
+  Generated, not written beside. A hand-written specification is a second copy of the requirements that drifts from the first, and the drift is silent because nothing compares them. Rendering from the graph makes the document a view, and `docs --check` makes staleness a build failure rather than something a reader discovers by disbelieving it.
+
+  Whole, not merely fresh. Freshness alone is satisfied by a document that publishes nothing: it is never stale, because there is nothing in it to go stale. That is the weaker half, and on its own it is a gate that cannot fail. The obligation that gives the document its value is coverage — every live normative item must reach the reader — which is what makes adding an item without publishing it an error someone is told about.
+normative: true
+links:
+- target: INT-0003
+  type: derives_from
+attrs:
+  priority: should
+  verification: demonstration
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:bc07cec67d2f4cf88b6bcb97ad355eb32d42ccaa1c9d8f70d0573f9039118872

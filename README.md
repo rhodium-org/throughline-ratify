@@ -145,10 +145,12 @@ python -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"
 pytest -q
 tl-compose -C idd check --strict   # this repo is itself throughline-managed
+tl-compose -C idd docs --check     # its published spec must match that graph
 ```
 
 This project practises what it automates: its own requirements live in
-[`idd/`](https://github.com/rhodium-org/throughline-ratify/tree/main/idd) as a throughline graph, and CI gates every change on
+[`idd/`](https://github.com/rhodium-org/throughline-ratify/tree/main/idd) as a throughline graph, published as
+[`idd/docs/spec.md`](https://github.com/rhodium-org/throughline-ratify/blob/main/idd/docs/spec.md), and CI gates every change on
 `tl-compose check --strict`.
 
 The gate is the composition-aware one because this graph adopts throughline's own

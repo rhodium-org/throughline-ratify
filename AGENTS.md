@@ -91,6 +91,7 @@ python -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"       # pulls throughline-compose (and throughline) along too
 pytest -q
 tl-compose -C idd check --strict   # this repo's own requirements graph — keep it green
+tl-compose -C idd docs --check     # its published spec (idd/docs/spec.md) — regenerate with `docs`
 ```
 
 **Use `tl-compose`, not bare `tl`, on this repo's graph.** It adopts throughline's
@@ -136,4 +137,6 @@ carries that recipe and the two traps in `pipx inject` that fail silently.
 Changes here follow the same IDD discipline this tool serves: ground the change in
 an `idd/` item (create + get it ratified if new — you can dogfood `tl-ratify`
 itself), cite the UID in your commit, and keep `tl-compose -C idd check --strict`
-green.
+and `tl-compose -C idd docs --check` green — the second is not a formality here,
+because `[docs] paths` is configured, so a new item that never reaches
+`idd/docs/spec.md` fails the first.
