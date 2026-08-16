@@ -69,12 +69,25 @@ classifiers = [
 # is not a saving worth making, and this repo's own gate (SR-0042) rests on the
 # same release.
 #
-# That floor carries throughline's with it: compose 0.13.0 itself requires >=1.13.2,
-# so the pair (compose==0.13.0, throughline==1.13.0) is unsatisfiable and the
-# declared-minimum resolution SR-0038 installs would not resolve at all. 1.13.2 is
-# therefore the honest floor here — not a version this package reaches for directly,
-# but the lowest one its own declared minimum of compose can be installed against.
-dependencies = ["throughline-compose>=0.13.0", "throughline>=1.13.2"]
+# That floor carries throughline's with it: a floor of compose is only honest at the
+# lowest throughline it can itself be installed against, or the declared-minimum
+# resolution SR-0038 installs would not resolve at all. So the two move as one.
+#
+# They move to compose>=0.14.0 / throughline>=2.0.0 because on 2026-08-16 the pair
+# became coupled in the other direction too, and the previous floors admitted a
+# combination that does not work (SR-0043). throughline 2.0.0 stopped providing
+# `tl:sourced` — a directive core could never render, because mirroring a borrowed
+# clause needs the composed sources and only compose holds them — and opened a
+# registry for a front end to provide one instead; compose 0.14.0 is the release
+# that registers it there. Neither half is any use without the other. The floors as
+# they stood named 0.13.0 and 1.13.2, both ends of that range resolve to a working
+# pair, and (compose==0.13.0, throughline==2.0.0) sits in the interior where nothing
+# looked. pip installs it without complaint and then `tl-compose` does not start at
+# all — `--version` included — dying on `ImportError: cannot import name
+# '_render_item'`, while `tl-ratify` still runs. An upper bound on compose 0.13.0
+# would be the narrower fix and is not available, that release being already on the
+# index as published, so the floor is what moves.
+dependencies = ["throughline-compose>=0.14.0", "throughline>=2.0.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]

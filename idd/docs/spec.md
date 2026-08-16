@@ -684,6 +684,19 @@ What the software must do to meet them.
 **priority**: should · **verification**: test · **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:64738c2e1a103e9950a1e70d307eacb3b5272b5180d4a856c3d2298be4d54bec
 <!-- tl:end -->
 
+<!-- tl:item SR-0043 -->
+**SR-0043 — The declared dependency range admits no combination that cannot run** — `system_requirement`, status `ratified`
+
+> The floors this package declares shall admit no resolution of its dependencies that the cockpit cannot run. Where two declared dependencies are a paired edition — one of them requiring a floor of the other — raising either floor raises the other with it, so that every point the declared range permits is a toolchain that works together.
+
+*Rationale:* Two floors declared independently describe a rectangle, and this repository assumed its corners were all valid. They are not. `throughline-compose>=0.13.0` and `throughline>=1.13.2` were each true of a working pair when written, and on 2026-08-16 throughline 2.0.0 removed `tl:sourced` from core so compose could register it instead — making compose 0.14.0 the first release that renders it and 2.0.0 the first core that permits registration. The declared range still admitted compose 0.13.0 alongside core 2.0.0, and pip installs that pair without complaint. Verified, not assumed: on that pair `tl-compose` does not start at all. Every invocation, `--version` included, dies importing a private name core no longer exports — `ImportError: cannot import name '_render_item' from 'throughline.inject'` — so the failure is a Python traceback naming an internal symbol rather than anything a user can act on. `tl-ratify --list` still runs, which is the sharp end of it: the package the person installed appears to work while the checker this repository tells them to drive the graph with is dead. SR-0038 does not catch this and was never going to. It resolves the range at its two ends, and both ends are sound — the floor pair works, the current pair works, and the broken region sits in the interior where nothing looks. A range is not proved by its extremes when its members are coupled. Who pays: consumers. `pipx install throughline-ratify` is how the estate hands someone the whole toolchain (INT-0002), and a resolver may choose any point the metadata permits. What it costs them is a toolchain that installs cleanly and is then half-dead, with an error that points at throughline's internals instead of at the install. Maintainers pay too, in a floor that must be raised on someone else's release rather than only on their own API needs — the cost of declaring an edition instead of a symbol list, and deliberate. Rejected: locking the versions, which SR-0038 already rejected for trading this failure for a staleness nothing observes. Rejected: an upper bound on the older dependency, which cannot be applied retrospectively to a release already on the index and so does not fix the case that prompted this.
+
+*Derives from:* INT-0002
+*Relates:* SR-0038
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:24f0b78eccd3050208b2b04abcadc02e2dee233e2b0940f3ba42d84be0e52b69
+<!-- tl:end -->
+
 
 ## Traceability
 
