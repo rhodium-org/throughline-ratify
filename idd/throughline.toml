@@ -24,7 +24,7 @@ format_version = 3
 [[sources]]
 namespace = "tl"
 url = "https://github.com/rhodium-org/throughline"
-ref = "v1.14.0"
+ref = "v2.0.0"
 subdir = "idd"
 
 # Everything below is THIS project's own model, and nothing else is in it.
