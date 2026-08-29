@@ -1,6 +1,6 @@
 uid: SR-0044
 type: system_requirement
-status: proposed
+status: ratified
 title: An item's paragraph breaks survive into the detail pane
 text: The detail pane shall render an item's text and rationale with the paragraph
   breaks their author wrote. A blank line between paragraphs in the stored field
@@ -24,3 +24,5 @@ links:
   type: relates
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:03793b161e7d453961f7313f59b1d963425a7054f98a4218c8c0336cf6c3c6f9
