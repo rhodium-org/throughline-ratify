@@ -11,6 +11,7 @@ off) so the eye lands on the actionable rows first.
 from __future__ import annotations
 
 import curses
+import re
 import textwrap
 from dataclasses import dataclass
 
@@ -101,6 +102,18 @@ def _safe_addstr(win, y: int, x: int, text: str, attr: int = 0) -> None:
 
 def _hline(win, y: int, x: int, width: int, attr: int) -> None:
     _safe_addstr(win, y, x, " " * width, attr)
+
+
+_PARA_BREAK = re.compile(r"\n[ \t]*\n\s*")
+
+
+def _paragraphs(text: str) -> list[str]:
+    """Split a stored field on blank lines, so each paragraph can be wrapped alone.
+
+    A field carrying no blank line is one paragraph, and an empty field is still one
+    (empty) paragraph, so a caller always has something to draw."""
+    paras = [p.strip() for p in _PARA_BREAK.split(text.strip())]
+    return [p for p in paras if p] or [""]
 
 
 def _wrap(text: str, width: int) -> list[str]:
@@ -658,8 +671,13 @@ class App:
             out.append((text, attr))
 
         def wrap(text: str, attr: int, indent: str = "  ") -> None:
-            for seg in textwrap.wrap(text, max(10, width - len(indent))) or [""]:
-                add(indent + seg, attr)
+            # Paragraph by paragraph, because textwrap.wrap replaces whitespace and
+            # would otherwise draw an author's short paragraphs as one block (SR-0044).
+            for i, para in enumerate(_paragraphs(text)):
+                if i:
+                    add()
+                for seg in textwrap.wrap(para, max(10, width - len(indent))) or [""]:
+                    add(indent + seg, attr)
 
         head = f"{item.icon} {item.uid}"
         add(head, _attr(item.concern, bold=True))

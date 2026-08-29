@@ -697,6 +697,19 @@ What the software must do to meet them.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:24f0b78eccd3050208b2b04abcadc02e2dee233e2b0940f3ba42d84be0e52b69
 <!-- tl:end -->
 
+<!-- tl:item SR-0044 -->
+**SR-0044 — An item's paragraph breaks survive into the detail pane** — `system_requirement`, status `proposed`
+
+> The detail pane shall render an item's text and rationale with the paragraph breaks their author wrote. A blank line between paragraphs in the stored field shall appear as a blank line on screen. Each paragraph shall be word-wrapped to the pane's width on its own, so that no paragraph runs into the one after it. This holds wherever the pane draws a stored field, including the text of an expanded link target.
+
+*Rationale:* The pane wrapped each field with `textwrap.wrap`, which replaces whitespace by default. Every newline in the field became a space. A field written as four short paragraphs was drawn as one unbroken block, with a double space standing where each blank line had been. Seen on 2026-08-29 reading throughline-compose SR-0043 through the cockpit. This pane is the one screen where a person reads an item in order to take accountability for it, so it is the place where readability matters most. A long block of prose is harder to read than the paragraphs the author wrote, and the reviewer has no way to tell that the item on disk is not what is on screen. It also argues against the writing standard the project asks authors to meet. An author who breaks a rationale into short paragraphs gets no benefit from doing so, and a reviewer reading the result sees dense prose. The conclusion invited by the evidence is that the text needs simplifying further, when the text is already plain and the display is at fault. Scope. The requirement covers the detail pane only. The session report rendered by `--summary` wraps titles, routes and rejection reasons, which are single-line fields, and its output is meant to be pasted into a commit message, where a blank line inside an entry would end the message body. It stays as it is.
+
+*Derives from:* UR-0004
+*Relates:* SR-0007
+
+**origin**: ai
+<!-- tl:end -->
+
 
 ## Traceability
 
@@ -709,7 +722,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0001 | See every item awaiting my ratification, most-actionable first | SR-0001, SR-0002, SR-0008, SR-0009, SR-0011, SR-0024, SR-0030 |
 | UR-0002 | Ratify or reject an item without leaving the full-screen view | SR-0003, SR-0004, SR-0005, SR-0012, SR-0013, SR-0014, SR-0022, SR-0023, SR-0025, SR-0026, SR-0027, SR-0028, SR-0029, SR-0037 |
 | UR-0003 | On a composed project, items grounded through a source are ratifiable | SR-0006 |
-| UR-0004 | Read the interface like htop, not a scrolling log | SR-0007, SR-0010, SR-0031 |
+| UR-0004 | Read the interface like htop, not a scrolling log | SR-0007, SR-0010, SR-0031, SR-0044 |
 | UR-0005 | Leave a ratification session with a written record of what I decided | SR-0021 |
 | UR-0006 | A contribution states the terms under which it is offered | — |
 | UR-0007 | Know that a reload is running, not that the tool has hung | SR-0033 |
