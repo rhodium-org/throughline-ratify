@@ -1,0 +1,28 @@
+uid: SR-0044
+type: system_requirement
+status: ratified
+title: An item's paragraph breaks survive into the detail pane
+text: The detail pane shall render an item's text and rationale with the paragraph
+  breaks their author wrote. A blank line between paragraphs in the stored field
+  shall appear as a blank line on screen. Each paragraph shall be word-wrapped to
+  the pane's width on its own, so that no paragraph runs into the one after it. This
+  holds wherever the pane draws a stored field, including the text of an expanded
+  link target.
+rationale: |-
+  The pane wrapped each field with `textwrap.wrap`, which replaces whitespace by default. Every newline in the field became a space. A field written as four short paragraphs was drawn as one unbroken block, with a double space standing where each blank line had been. Seen on 2026-08-29 reading throughline-compose SR-0043 through the cockpit.
+
+  This pane is the one screen where a person reads an item in order to take accountability for it, so it is the place where readability matters most. A long block of prose is harder to read than the paragraphs the author wrote, and the reviewer has no way to tell that the item on disk is not what is on screen.
+
+  It also argues against the writing standard the project asks authors to meet. An author who breaks a rationale into short paragraphs gets no benefit from doing so, and a reviewer reading the result sees dense prose. The conclusion invited by the evidence is that the text needs simplifying further, when the text is already plain and the display is at fault.
+
+  Scope. The requirement covers the detail pane only. The session report rendered by `--summary` wraps titles, routes and rejection reasons, which are single-line fields, and its output is meant to be pasted into a commit message, where a blank line inside an entry would end the message body. It stays as it is.
+normative: true
+links:
+- target: UR-0004
+  type: derives_from
+- target: SR-0007
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:03793b161e7d453961f7313f59b1d963425a7054f98a4218c8c0336cf6c3c6f9
