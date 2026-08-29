@@ -698,7 +698,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0044 -->
-**SR-0044 — An item's paragraph breaks survive into the detail pane** — `system_requirement`, status `proposed`
+**SR-0044 — An item's paragraph breaks survive into the detail pane** — `system_requirement`, status `ratified`
 
 > The detail pane shall render an item's text and rationale with the paragraph breaks their author wrote. A blank line between paragraphs in the stored field shall appear as a blank line on screen. Each paragraph shall be word-wrapped to the pane's width on its own, so that no paragraph runs into the one after it. This holds wherever the pane draws a stored field, including the text of an expanded link target.
 
@@ -707,7 +707,7 @@ What the software must do to meet them.
 *Derives from:* UR-0004
 *Relates:* SR-0007
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:03793b161e7d453961f7313f59b1d963425a7054f98a4218c8c0336cf6c3c6f9
 <!-- tl:end -->
 
 
