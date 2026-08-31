@@ -928,8 +928,8 @@ class App:
         self.scr.getch()
 
 
-_PICKER_TOP = 4          # first list row, below the header and the count line
-_PICKER_CHROME = 5       # rows the list may not use: everything above it, plus the footer
+_PICKER_TOP = 4                    # first list row, below the header and the count line
+_PICKER_CHROME = _PICKER_TOP + 1   # the rows above the list, plus the footer
 
 
 def _picker_status(candidate: core.Candidate) -> str:
@@ -939,7 +939,7 @@ def _picker_status(candidate: core.Candidate) -> str:
     none of, and stays a row like any other (SR-0051)."""
     if candidate.error:
         return candidate.error
-    if candidate.gradable is None:
+    if not candidate.described:
         return ""
     return f"\u2713 {candidate.ratified}/{candidate.gradable} ratified"
 
@@ -992,11 +992,6 @@ class _Picker:
         if held is not None:
             self.pos = self.candidates.index(held)
 
-    def height(self, h: int) -> int:
-        """How many rows the list has on a screen ``h`` tall. Never below one, so
-        the highlighted row is drawn even where nothing else fits."""
-        return max(1, h - _PICKER_CHROME)
-
     def draw(self) -> None:
         self.scr.erase()
         h, w = self.scr.getmaxyx()
@@ -1016,7 +1011,9 @@ class _Picker:
         curses.doupdate()
 
     def _draw_list(self, h: int, w: int) -> None:
-        height = self.height(h)
+        # Never below one row, so the highlighted candidate is drawn even on a
+        # screen where nothing else fits.
+        height = max(1, h - _PICKER_CHROME)
         # Keep the highlight inside the drawn window. Without this the list was
         # cut off at the foot of the screen while the highlight went on past it,
         # so a reviewer could open a graph whose name they had never seen
