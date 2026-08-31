@@ -723,19 +723,19 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0045 -->
-**SR-0045 — Project resolution searches beneath the given path before it searches above it** — `system_requirement`, status `ratified`
+**SR-0045 — Project resolution searches beneath the given path before it searches above it** — `system_requirement`, status `implemented`
 
-> When tl-ratify resolves which project to open, it shall first search the path it was given (the -C value, defaulting to the current directory) for directories that hold a throughline.toml, including that path itself. Finding exactly one graph, it shall open that graph. Finding none, it shall fall back to the present behaviour and walk upward to the nearest enclosing graph, so that running the tool from inside a project continues to work. Finding more than one, it shall not choose on the reviewer's behalf; it shall offer the candidates for selection, interactively where it can prompt and by refusal where it cannot.
+> When tl-ratify resolves which project to open, it shall first consider the path it was given (the -C value, defaulting to the current directory). A path that is itself a graph shall settle the question: that graph shall be opened, and no search shall be made beneath it. Otherwise it shall search beneath that path for directories that hold a throughline.toml. Finding exactly one graph, it shall open that graph. Finding none, it shall fall back to the present behaviour and walk upward to the nearest enclosing graph, so that running the tool from inside a project continues to work. Finding more than one, it shall not choose on the reviewer's behalf; it shall offer the candidates for selection, interactively where it can prompt and by refusal where it cannot.
 
-*Rationale:* Resolution answers the question "which project am I inside" by walking upward from the given path. That is the right question when the reviewer is already inside a graph and the wrong one when they have pointed the tool at a tree that contains several, which is the ordinary shape of a repository that composes an anchor graph with per-component graphs. Searching downward first and upward only on an empty result keeps every present invocation working — from inside a graph the downward search finds that same graph and returns one — while making the multi-graph case reachable at all. Rejected — searching upward first and downward only on failure, which would silently open the enclosing graph and never offer the others whenever a repository happens to carry a throughline.toml at its root. The cost falls on a reviewer whose path encloses graphs they did not mean to include; they meet a choice where they previously met a direct open. SR-0046 narrows what may appear in that choice to keep it small.
+*Rationale:* Resolution answers the question "which project am I inside" by walking upward from the given path. That is the right question when the reviewer is already inside a graph and the wrong one when they have pointed the tool at a tree that contains several, which is the ordinary shape of a repository that composes an anchor graph with per-component graphs. Searching downward first and upward only on an empty result keeps every present invocation working — from inside a graph the downward search finds that same graph and returns one — while making the multi-graph case reachable at all. Rejected — searching upward first and downward only on failure, which would silently open the enclosing graph and never offer the others whenever a repository happens to carry a throughline.toml at its root. The cost falls on a reviewer whose path encloses graphs they did not mean to include; they meet a choice where they previously met a direct open. SR-0046 narrows what may appear in that choice to keep it small. A path that is itself a graph is decisive for three reasons. A candidate the reviewer has just picked is re-opened by its own path, and a path that only started a search would ask about that same candidate again. A graph that happens to vendor another beneath it would become a question its own reviewer never had. And the downward search asks the version control system which directories it ignores (SR-0046), which starts a process — so naming a graph directly must reach it without one, per SR-0039.
 
 *Derives from:* UR-0013
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:6afa91ffa0cfb2dc2a12195186a17b2e180260450efd74a9674a75493e7c63dc
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:3b478949ea668bef30282e4e0eab56221fb72a8c545a69258daea961a93b4d07
 <!-- tl:end -->
 
 <!-- tl:item SR-0046 -->
-**SR-0046 — Only a graph the reviewer could ratify against counts as a candidate** — `system_requirement`, status `ratified`
+**SR-0046 — Only a graph the reviewer could ratify against counts as a candidate** — `system_requirement`, status `implemented`
 
 > The downward search shall offer only graphs that are the project's own. It shall not descend into a directory the repository's version control ignores, a dot-directory, or a Python virtual environment. It shall not offer a graph that an enclosing candidate declares as a source, because a source is reached through its consumer and is never written to. The depth of the search shall be bounded by a fixed limit held in the code, so that pointing the tool at a large tree cannot stall it; that limit shall not become a setting, per SR-0026.
 
@@ -747,7 +747,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0047 -->
-**SR-0047 — An ambiguous path that cannot be prompted fails with the commands that resolve it** — `system_requirement`, status `ratified`
+**SR-0047 — An ambiguous path that cannot be prompted fails with the commands that resolve it** — `system_requirement`, status `implemented`
 
 > Where more than one graph is found and tl-ratify cannot prompt, because --list was given or stdout is not a terminal, it shall open none of them and shall guess none of them. It shall print one line for each candidate, naming the project and its path relative to the path given, alongside the tl-ratify -C invocation that selects it, then exit with status 2. It shall print no Python traceback, matching SR-0009.
 
@@ -759,7 +759,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0048 -->
-**SR-0048 — The reviewer picks the graph from a list, and only the picked graph is opened** — `system_requirement`, status `ratified`
+**SR-0048 — The reviewer picks the graph from a list, and only the picked graph is opened** — `system_requirement`, status `implemented`
 
 > Where more than one graph is found and tl-ratify is running interactively on a terminal, it shall show a selection screen before the worklist. The screen shall list each candidate in a stable order, naming the project and its path relative to the path given. The reviewer shall move and choose using the keys the cockpit already binds, and shall be able to leave without choosing, which restores the terminal and exits taking no decision, as SR-0016 requires of an interrupt. Only the chosen graph shall be loaded and composed; tl-ratify shall not read or resolve the sources of a graph the reviewer did not pick.
 

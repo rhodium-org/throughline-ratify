@@ -1,6 +1,6 @@
 uid: SR-0047
 type: system_requirement
-status: ratified
+status: implemented
 title: An ambiguous path that cannot be prompted fails with the commands that resolve
   it
 text: Where more than one graph is found and tl-ratify cannot prompt, because --list

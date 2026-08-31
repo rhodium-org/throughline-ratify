@@ -90,6 +90,19 @@ def _print_list(session: core.Session, show_all: bool, sort: str) -> int:
     return 0
 
 
+def _refuse_ambiguous(exc: core.AmbiguousProjectError) -> None:
+    """Name every candidate and the command that selects it (SR-0047).
+
+    The remedy is printed rather than described, because the reader of this
+    message is the one who has to act on it and a message that only says a
+    remedy exists has left them where it found them.
+    """
+    print(f"tl-ratify: {exc}", file=sys.stderr)
+    width = max(len(c.name) for c in exc.candidates)
+    for c in exc.candidates:
+        print(f"  {c.name:<{width}}  {c.rel:<20}  tl-ratify -C {c.rel}", file=sys.stderr)
+
+
 def main(argv: list[str] | None = None) -> int:
     from throughline.cli import force_utf8_io
     force_utf8_io()
@@ -102,8 +115,26 @@ def main(argv: list[str] | None = None) -> int:
               "decisions, so there is nothing to summarise", file=sys.stderr)
         return 2
 
+    interactive = not args.list and sys.stdout.isatty()
     try:
         session = core.open_session(args.path)
+    except core.AmbiguousProjectError as exc:
+        # Which graph to open is the reviewer's to say (SR-0045). Where they cannot
+        # be asked, refusing is the only honest answer — every rule for picking one
+        # silently is wrong somewhere, and under --list the worklist for the wrong
+        # project reads exactly like the right one (SR-0047).
+        if not interactive:
+            _refuse_ambiguous(exc)
+            return 2
+        from . import tui
+        chosen = tui.choose_project(exc.candidates)
+        if chosen is None:
+            return 0
+        try:
+            session = core.open_root(chosen.root)
+        except core.RatifierError as err:
+            print(f"tl-ratify: {err}", file=sys.stderr)
+            return 2
     except core.RatifierError as exc:
         print(f"tl-ratify: {exc}", file=sys.stderr)
         return 2
@@ -123,7 +154,9 @@ def main(argv: list[str] | None = None) -> int:
     # rather than by deciding it here; a malformed identifier is throughline's to
     # judge, and refusing now means the refusal is legible instead of arriving
     # behind a full-screen view.
-    ratifier = args.by or core.default_ratifier(args.path)
+    # Asked of the graph that was opened rather than the path that was typed, so a
+    # picked candidate is the project whose identity is offered (SR-0045).
+    ratifier = args.by or core.default_ratifier(session.root)
     try:
         ratifier_id = core.normalise_identifier(args.by_id)
     except core.RatifierError as exc:

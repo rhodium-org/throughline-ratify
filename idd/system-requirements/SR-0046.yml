@@ -1,6 +1,6 @@
 uid: SR-0046
 type: system_requirement
-status: ratified
+status: implemented
 title: Only a graph the reviewer could ratify against counts as a candidate
 text: The downward search shall offer only graphs that are the project's own. It
   shall not descend into a directory the repository's version control ignores, a

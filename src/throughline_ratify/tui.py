@@ -928,6 +928,83 @@ class App:
         self.scr.getch()
 
 
+class _Picker:
+    """The screen that asks which graph to open (SR-0048).
+
+    It lists what discovery found and nothing more. Decorating a row with the
+    graph's pending count would mean composing every candidate, and composing
+    resolves declared sources — for a remote source, over the network — so the
+    screen would fetch on behalf of projects the reviewer never asked for and
+    would fail whole because one unrelated graph's origin was unreachable. The
+    counts would be useful; that is the price they cost.
+    """
+
+    def __init__(self, stdscr, candidates: list[core.Candidate]) -> None:
+        self.scr = stdscr
+        self.candidates = candidates
+        self.pos = 0
+
+    def choose(self) -> core.Candidate | None:
+        curses.curs_set(0)
+        while True:
+            self.draw()
+            ch = self.scr.getch()
+            if ch in (curses.KEY_DOWN, ord("j")):
+                self.pos = min(self.pos + 1, len(self.candidates) - 1)
+            elif ch in (curses.KEY_UP, ord("k")):
+                self.pos = max(self.pos - 1, 0)
+            elif ch in (curses.KEY_ENTER, 10, 13, ord(" ")):
+                return self.candidates[self.pos]
+            elif ch in (ord("q"), 27):
+                # Leaving without choosing is as ordinary as quitting the
+                # worklist: this screen is where a reviewer learns they pointed
+                # the tool at the wrong tree.
+                return None
+
+    def draw(self) -> None:
+        self.scr.erase()
+        h, w = self.scr.getmaxyx()
+        _hline(self.scr, 0, 0, w, _attr("header", bold=True))
+        _safe_addstr(self.scr, 0, 0, f" tl-ratify {__version__} \u2502 choose a project",
+                     _attr("header", bold=True))
+        _safe_addstr(self.scr, 2, 1,
+                     f"{len(self.candidates)} throughline projects lie beneath the path "
+                     "you gave.", _attr("dim"))
+
+        width = max(len(c.name) for c in self.candidates)
+        for i, c in enumerate(self.candidates):
+            y = 4 + i
+            if y >= h - 1:
+                break
+            selected = i == self.pos
+            attr = _attr("sel") if selected else 0
+            if selected:
+                _hline(self.scr, y, 0, w, _attr("sel"))
+            marker = "\u25b8" if selected else " "
+            _safe_addstr(self.scr, y, 1, f"{marker} {c.name:<{width}}  {c.rel}", attr)
+
+        _hline(self.scr, h - 1, 0, w, _attr("header"))
+        _safe_addstr(self.scr, h - 1, 0,
+                     " \u2191\u2193/jk move \u2502 enter open \u2502 q leave without opening",
+                     _attr("header"))
+        self.scr.noutrefresh()
+        curses.doupdate()
+
+
+def choose_project(candidates: list[core.Candidate]) -> core.Candidate | None:
+    """Ask which of ``candidates`` to open, returning ``None`` if the reviewer
+    leaves without choosing. Ctrl-C is the quit key here as it is in the cockpit
+    (SR-0016) — the terminal is restored and no decision is taken."""
+    def _main(stdscr):
+        _init_colours()
+        return _Picker(stdscr, candidates).choose()
+
+    try:
+        return curses.wrapper(_main)
+    except KeyboardInterrupt:
+        return None
+
+
 def run(session: Session, ratifier: str, log=None,
         ratifier_id: str | None = None) -> None:
     """Open the cockpit. ``log`` is an optional
