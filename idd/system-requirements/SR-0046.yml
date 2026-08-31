@@ -1,0 +1,32 @@
+uid: SR-0046
+type: system_requirement
+status: ratified
+title: Only a graph the reviewer could ratify against counts as a candidate
+text: The downward search shall offer only graphs that are the project's own. It
+  shall not descend into a directory the repository's version control ignores, a
+  dot-directory, or a Python virtual environment. It shall not offer a graph that
+  an enclosing candidate declares as a source, because a source is reached through
+  its consumer and is never written to. The depth of the search shall be bounded
+  by a fixed limit held in the code, so that pointing the tool at a large tree cannot
+  stall it; that limit shall not become a setting, per SR-0026.
+rationale: A bare directory walk finds test fixtures, vendored checkouts and the
+  cache a composed source resolves into, so the reviewer would be asked to choose
+  between graphs most of which they can neither ratify against nor write to. The
+  exclusions are drawn on one line — a graph the reviewer's own project owns, against
+  a graph that arrived from somewhere else. The source rule follows the tool's write
+  model rather than a guess about layout; tl-ratify only ever writes to its consumer
+  register, so a declared source offered as a peer would present a graph on which
+  every decision is refused. Rejected — excluding any nested graph outright, which
+  is easier to implement but would hide a legitimate sub-project that no enclosing
+  graph declares. The depth bound is a fixed constant rather than a flag because
+  SR-0026 forbids the assistant carrying configuration; a reviewer who needs a graph
+  deeper than the bound can still point -C at it directly. The cost falls on whoever
+  keeps a real graph inside an ignored directory, who must name it explicitly.
+normative: true
+links:
+- target: SR-0045
+  type: refines
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:f3b0960b23a85e196dc41db7ce068feb0ae7a50c98497215c7333379bb8a9148

@@ -1,0 +1,34 @@
+uid: SR-0045
+type: system_requirement
+status: ratified
+title: Project resolution searches beneath the given path before it searches above
+  it
+text: When tl-ratify resolves which project to open, it shall first search the path
+  it was given (the -C value, defaulting to the current directory) for directories
+  that hold a throughline.toml, including that path itself. Finding exactly one graph,
+  it shall open that graph. Finding none, it shall fall back to the present behaviour
+  and walk upward to the nearest enclosing graph, so that running the tool from inside
+  a project continues to work. Finding more than one, it shall not choose on the
+  reviewer's behalf; it shall offer the candidates for selection, interactively where
+  it can prompt and by refusal where it cannot.
+rationale: Resolution answers the question "which project am I inside" by walking
+  upward from the given path. That is the right question when the reviewer is already
+  inside a graph and the wrong one when they have pointed the tool at a tree that
+  contains several, which is the ordinary shape of a repository that composes an
+  anchor graph with per-component graphs. Searching downward first and upward only
+  on an empty result keeps every present invocation working — from inside a graph
+  the downward search finds that same graph and returns one — while making the multi-graph
+  case reachable at all. Rejected — searching upward first and downward only on failure,
+  which would silently open the enclosing graph and never offer the others whenever
+  a repository happens to carry a throughline.toml at its root. The cost falls on
+  a reviewer whose path encloses graphs they did not mean to include; they meet a
+  choice where they previously met a direct open. SR-0046 narrows what may appear
+  in that choice to keep it small.
+normative: true
+links:
+- target: UR-0013
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:6afa91ffa0cfb2dc2a12195186a17b2e180260450efd74a9674a75493e7c63dc

@@ -1,0 +1,29 @@
+uid: SR-0047
+type: system_requirement
+status: ratified
+title: An ambiguous path that cannot be prompted fails with the commands that resolve
+  it
+text: Where more than one graph is found and tl-ratify cannot prompt, because --list
+  was given or stdout is not a terminal, it shall open none of them and shall guess
+  none of them. It shall print one line for each candidate, naming the project and
+  its path relative to the path given, alongside the tl-ratify -C invocation that
+  selects it, then exit with status 2. It shall print no Python traceback, matching
+  SR-0009.
+rationale: The alternative to refusing is picking one, and every rule for picking
+  one is wrong somewhere — first alphabetically, nearest, largest. A script that
+  got the wrong graph would carry on and report a worklist for a project nobody asked
+  about, and in --list that output is indistinguishable from the right answer. Refusing
+  is legible, and the refusal is only useful if it carries the remedy, so it prints
+  the command that resolves it rather than describing that one exists. Exit status
+  2 and the no-traceback rule follow SR-0009, so an ambiguous path fails exactly
+  as a project that cannot be ratified against already does. The cost falls on anyone
+  scripting tl-ratify against a multi-graph repository, who must name the graph in
+  their -C argument once; the same script against a single-graph repository is untouched.
+normative: true
+links:
+- target: UR-0013
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:8347415a9055bd8476e2e43a16dca3423da4555373e7b4705849dba090794d98
