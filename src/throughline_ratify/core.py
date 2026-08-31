@@ -26,7 +26,7 @@ ratified through this cockpit signed but unbound. One implementation, not two.
 from __future__ import annotations
 
 import subprocess
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Callable
@@ -263,14 +263,33 @@ _MAX_SEARCH_DEPTH = 5
 class Candidate:
     """A graph found beneath the path the reviewer gave (SR-0045).
 
-    Carries only what the choice needs — enough to name the graph and to open it.
-    Nothing here loads the project's items or resolves its sources; SR-0048 keeps
-    that work for the one graph the reviewer picks.
+    Discovery fills the first three fields, which name the graph and locate it.
+    The rest are filled by :func:`describe_candidates` from the graph's own
+    registers, so a row can say how far it has been signed off (SR-0050).
+    Nothing here resolves a candidate's declared sources: SR-0048 keeps that for
+    the one graph the reviewer picks.
     """
 
     root: Path
     name: str
     rel: str    # display path, relative to the path searched
+    ratified: int | None = None   # signed off, of the gradable local items
+    gradable: int | None = None   # local items that can be signed off
+    modified: float = 0.0         # newest mtime among its own item files
+    error: str | None = None      # why it could not be read, if it could not
+
+    @property
+    def described(self) -> bool:
+        return self.gradable is not None or self.error is not None
+
+    @property
+    def outstanding(self) -> int:
+        """Items still awaiting a signature. A graph that could not be read sorts
+        as though nothing were outstanding rather than as though everything were,
+        so a broken graph does not crowd out the work (SR-0051)."""
+        if self.gradable is None or self.ratified is None:
+            return 0
+        return self.gradable - self.ratified
 
 
 class AmbiguousProjectError(RatifierError):
@@ -411,6 +430,90 @@ def _relative_label(root: Path, base: Path) -> str:
         return str(root)
 
 
+# The orders the selection screen offers, in the order the sort key cycles them.
+# Fixed in code rather than configurable, for the reason _MAX_SEARCH_DEPTH is
+# (SR-0026): a project able to name its own would decide which of a reviewer's
+# graphs they saw first, and the assistant would then hold an account of the
+# project that tl does not share.
+PICKER_SORTS = ("path", "outstanding", "recent")
+
+
+def _latest_change(project: Project) -> float:
+    """The newest modification time among the graph's own item files.
+
+    Read from the filesystem rather than from version control: asking git would
+    start a process per candidate, and SR-0039 keeps this module free of those.
+    A file that cannot be stat'd simply has no timestamp to offer, and is passed
+    over: recency is a convenience, and one dangling symlink must not cost a graph
+    the timestamps of every other file in the same register.
+    """
+    newest = 0.0
+    for register in project.registers.values():
+        for item_file in register.path.glob("*.yml"):
+            try:
+                newest = max(newest, item_file.stat().st_mtime)
+            except OSError:
+                continue
+    return newest
+
+
+def describe_candidates(
+    candidates: list[Candidate],
+    on_progress: Callable[[int, int, Candidate], None] | None = None,
+) -> list[Candidate]:
+    """Read each candidate's own registers so its row can say how far it has been
+    signed off (SR-0050).
+
+    Each graph is read on its own and a failure is kept on its own row (SR-0051):
+    this screen exists because the reviewer does not yet know which graph they
+    want, so one unreadable project must not withhold the rest. ``on_progress`` is
+    called before each candidate is read with ``(index, total, candidate)``, which
+    is how the caller shows the work happening without this module knowing what a
+    terminal is (SR-0039).
+
+    The figure is the one :func:`ratification_progress` computes for the cockpit's
+    own header, from the same items, so the screen and the cockpit cannot give two
+    accounts of one number. Sources are never resolved here — SR-0048 keeps that
+    for the graph the reviewer picks.
+    """
+    described: list[Candidate] = []
+    total = len(candidates)
+    for i, candidate in enumerate(candidates):
+        if on_progress is not None:
+            on_progress(i, total, candidate)
+        try:
+            session = _open(candidate.root, compose=False)
+        except RatifierError as exc:
+            # The row already names the path, so the root _open prefixes for the
+            # benefit of a caller that has nothing else to locate the graph by is
+            # only noise here.
+            reason = _first_line(str(exc)).removeprefix(f"{candidate.root}: ")
+            described.append(replace(candidate, error=reason))
+            continue
+        ratified, gradable = ratification_progress(session)
+        described.append(replace(
+            candidate, ratified=ratified, gradable=gradable,
+            modified=_latest_change(session.project)))
+    return described
+
+
+def _first_line(message: str) -> str:
+    """The opening line of a failure, for a row that has one line to say it in."""
+    return message.strip().splitlines()[0] if message.strip() else "could not be read"
+
+
+def sort_candidates(candidates: list[Candidate], sort: str) -> list[Candidate]:
+    """``candidates`` in the order ``sort`` names (SR-0052), leaving the argument
+    alone. Every order falls back to the path, so the list is fully determined and
+    does not shuffle between two graphs that tie."""
+    by_path = sorted(candidates, key=lambda c: c.rel)
+    if sort == "outstanding":
+        return sorted(by_path, key=lambda c: -c.outstanding)
+    if sort == "recent":
+        return sorted(by_path, key=lambda c: -c.modified)
+    return by_path
+
+
 def resolve_root(path: str | Path) -> Path:
     """Which graph ``path`` means (SR-0045).
 
@@ -448,10 +551,27 @@ def open_session(path: str | Path) -> Session:
 
 def open_root(root: Path) -> Session:
     """Open the graph rooted at ``root``, which is already decided."""
+    return _open(root, compose=True)
+
+
+def _open(root: Path, compose: bool) -> Session:
+    """Load ``root``, composing its declared sources only when ``compose``.
+
+    An uncomposed session is the graph's own account of itself: its ``union`` is
+    the consumer, so anything grounding-related read from it would be wrong for a
+    project that declares sources. It exists for :func:`describe_candidates`,
+    which asks only what needs no union, and it never leaves this module.
+    """
     try:
         consumer = load_project(root)
     except ProjectError as exc:
         raise RatifierError(str(exc)) from exc
+    except Exception as exc:  # noqa: BLE001 — see below
+        # A project directory is arbitrary user data, so a malformed item file
+        # surfaces as the YAML parser's own error rather than as a ProjectError.
+        # Either way the reviewer needs the reason and not a traceback printed
+        # over a terminal curses has just restored (SR-0016, SR-0051).
+        raise RatifierError(f"{root}: {exc}") from exc
 
     try:
         schema = consumer.schema
@@ -464,7 +584,7 @@ def open_root(root: Path) -> Session:
             "(run `tl migrate` to backfill roles on an older project)."
         ) from exc
 
-    union, sources = _compose_if_declared(consumer, root)
+    union, sources = _compose_if_declared(consumer, root) if compose else (consumer, [])
     return Session(
         root=root,
         project=consumer,

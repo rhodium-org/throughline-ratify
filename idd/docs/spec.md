@@ -211,6 +211,18 @@ What a person working with the tool must be able to do.
 **origin**: hybrid · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:c12ac4004c7f3406c7a65618e0b6f0a504affc84950acb8b9d0fca368c6799bf
 <!-- tl:end -->
 
+<!-- tl:item UR-0014 -->
+**UR-0014 — Tell me enough about each graph to choose between them** — `user_requirement`, status `implemented`
+
+> As a reviewer whose path holds more than one graph, I want each candidate on the selection screen to show how much of it is waiting for my signature, and I want to change the order the candidates are listed in, so that I can open the graph that needs me instead of reading paths and guessing.
+
+*Rationale:* The selection screen added by UR-0013 lists each candidate's project name and its path, and nothing else. That is enough to tell the graphs apart and not enough to choose between them. A reviewer opens tl-ratify to clear a backlog, so the fact that decides which graph to open is how much of each one is waiting for them, and that is the one fact the screen does not show. Who pays: the reviewer, who waits while every candidate is read before the screen appears, including the graphs they will not pick. The cost is bounded by reading each candidate's own registers from disk. Their declared sources are not resolved, so no graph is fetched over the network on behalf of a reviewer who never asked for it, which is what SR-0048 protects and what it continues to protect. Rejected: composing each candidate so the screen can show the exact ratify-ready count the worklist would show. That resolves declared sources, over the network for a remote one, for projects the reviewer never asked for, and one unreachable origin would take down the whole screen. The figure shown is therefore the project's own ratification progress, which is the same figure the cockpit header shows once the graph is open, so the screen and the cockpit cannot give two accounts of one number. Rejected: leaving the ordering fixed and adding a filter box instead. Ordering is what answers "which of these needs me most", and a filter answers "where is the one I already had in mind" — which is the question the reviewer who knows the path would have used -C for.
+
+*Derives from:* INT-0001
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:4d8a7e1e07eafda04c8fc12161c9567cba596c2cee9145438adc442009d5843b
+<!-- tl:end -->
+
 
 ## System requirements
 
@@ -761,13 +773,61 @@ What the software must do to meet them.
 <!-- tl:item SR-0048 -->
 **SR-0048 — The reviewer picks the graph from a list, and only the picked graph is opened** — `system_requirement`, status `implemented`
 
-> Where more than one graph is found and tl-ratify is running interactively on a terminal, it shall show a selection screen before the worklist. The screen shall list each candidate in a stable order, naming the project and its path relative to the path given. The reviewer shall move and choose using the keys the cockpit already binds, and shall be able to leave without choosing, which restores the terminal and exits taking no decision, as SR-0016 requires of an interrupt. Only the chosen graph shall be loaded and composed; tl-ratify shall not read or resolve the sources of a graph the reviewer did not pick.
+> Where more than one graph is found and tl-ratify is running interactively on a terminal, it shall show a selection screen before the worklist. The screen shall list each candidate in a stable order, naming the project and its path relative to the path given. The reviewer shall move and choose using the keys the cockpit already binds, and shall be able to leave without choosing, which restores the terminal and exits taking no decision, as SR-0016 requires of an interrupt. Only the chosen graph shall be composed; tl-ratify shall not resolve the declared sources of a graph the reviewer did not pick. A candidate's own registers may be read in order to describe it on the screen.
 
-*Rationale:* The selection screen belongs in the cockpit rather than in a plain prompt before curses opens, because the reviewer is about to spend the sitting in the cockpit and a second interaction model to learn first is friction with nothing behind it. Leaving without choosing has to be as ordinary as quitting the worklist, since a reviewer who pointed the tool at the wrong tree learns that from this screen. The lazy-open rule is the load-bearing part. Composing a graph resolves its declared sources, which for a remote source means the network, so eagerly opening every candidate in order to decorate the list with item counts would make the screen slow, would fail when an unrelated graph's source is unreachable, and would fetch on behalf of a reviewer who never asked for that project. The counts would be genuinely useful, and they are given up for that reason. This screen takes no ratification decision and so does not approach NG-0001; it chooses what to read, not what to sign. The cost falls on the reviewer, who reaches the worklist one keystroke later than before, and only when the path they gave was ambiguous.
+*Rationale:* The selection screen belongs in the cockpit rather than in a plain prompt before curses opens, because the reviewer is about to spend the sitting in the cockpit and a second interaction model to learn first is friction with nothing behind it. Leaving without choosing has to be as ordinary as quitting the worklist, since a reviewer who pointed the tool at the wrong tree learns that from this screen. The lazy-compose rule is the load-bearing part. Composing a graph resolves its declared sources, which for a remote source means the network, so composing every candidate would fetch on behalf of a reviewer who never asked for that project and would fail the whole screen when one unrelated graph's origin was unreachable. Reading a candidate's own registers does neither. It touches only files already on disk beneath the path the reviewer gave, and it resolves nothing. That distinction is what UR-0014 rests on: the screen can say how far a graph has been signed off without resolving anything on its behalf, and what is ratifiable now is left to the worklist, which has the union to answer it with. An earlier draft of this item drew the line at loading rather than at composing and so gave up the counts altogether; the counts were always worth having, and the line was in the wrong place. This screen takes no ratification decision and so does not approach NG-0001; it chooses what to read, not what to sign. The cost falls on the reviewer, who reaches the worklist one keystroke later than before, and only when the path they gave was ambiguous.
 
 *Derives from:* UR-0013
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:72e8e3796dc8fae7bd1f2f0dec643538a3bc9f0b3a944a0ddd0586675ede7169
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:4a6a5c93566608c44cfea0ff7bb0f825cdb7b62215ee9aea1cf668a4af07c395
+<!-- tl:end -->
+
+<!-- tl:item SR-0049 -->
+**SR-0049 — The selection screen can reach every candidate it found** — `system_requirement`, status `implemented`
+
+> The selection screen shall be able to reach and show every candidate discovery returned, whatever the height of the terminal. Where the candidates do not all fit, the screen shall scroll so that the highlighted row is always drawn, and shall show that there are further candidates above or below the rows in view. The highlight shall never rest on a row the screen is not drawing.
+
+*Rationale:* The first version of the screen drew candidates until it ran out of rows and then stopped, while the highlight went on moving past the last row drawn. On a short terminal a reviewer could therefore move down to a candidate the screen was not showing, press enter, and open a graph they had never seen named. Truncation on its own would be a display limit. Truncation with a highlight that keeps moving is a way to open the wrong project silently, which is the failure UR-0013 exists to close, so this is a defect in SR-0048 rather than an addition to it. Who pays: nobody new. The screen already binds these keys, and a reviewer whose candidates all fit on the terminal sees no change at all.
+
+*Refines:* SR-0048
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:0d91672a90044b572fd798970c76a70664c3d267a8218584ca6cb8a25ee42167
+<!-- tl:end -->
+
+<!-- tl:item SR-0050 -->
+**SR-0050 — Each candidate shows how far it has been signed off** — `system_requirement`, status `implemented`
+
+> Each row of the selection screen shall show the candidate's ratification progress — how many of its own non-dead items are signed off, against how many can be — and this shall be the same figure the cockpit shows once that graph is open. The figure shall be computed from the candidate's own registers alone. tl-ratify shall not resolve the declared sources of a candidate in order to compute it.
+
+*Rationale:* The figure is the one the cockpit already computes for its own header, so the screen and the cockpit cannot end up giving two accounts of the same number. It needs only the graph's own item files: whether an item is signed off is read from its status and its stamp, and whether that stamp still covers it is asked of throughline's own fingerprint. None of those consults the composed union. It is deliberately progress and not a count of what is ratifiable now. Which concern an item is in — ungrounded, blocked, or ready — is decided over the union, because a local item may ground through a borrowed clause. A graph showing items outstanding may therefore hold fewer that can be signed today than the number suggests. Reporting how far the graph has been signed off is the strongest claim that can be made from its own files, and what is ratifiable now is left to the worklist, which has the union to answer it with. Who pays: the reviewer, who waits while each candidate's registers are read. The work is proportional to the graphs actually beneath the path they gave, and it is disk only.
+
+*Derives from:* UR-0014
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:29432be43f12d8c9d0bc2df4cbb26b99b52184bfad504004814475f84fa71e06
+<!-- tl:end -->
+
+<!-- tl:item SR-0051 -->
+**SR-0051 — Reading the candidates is visible, and one bad graph does not withhold the rest** — `system_requirement`, status `implemented`
+
+> While the candidates are being read, tl-ratify shall show that it is working and how far through the candidates it has got. A candidate whose own registers cannot be read shall still be listed, with the reason shown on its row in place of its figure, and shall remain selectable; it shall not prevent the other candidates being offered. Choosing it shall then fail with that reason, as choosing any graph that cannot be opened does.
+
+*Rationale:* Reading several graphs takes long enough to look like a hang, and a tool that looks hung is one the reviewer interrupts. Showing the work is what buys the right to do it at all: SR-0048 refused eager work partly because it would make the screen slow, and the answer to slow is to say so, not to hide it. A failure has to land on the row it belongs to. This screen exists precisely because the reviewer does not yet know which graph they want, so refusing to offer any of them because one is unreadable denies them the choice on the strength of a project they may not have been going to open. The broken row stays selectable because a reviewer who came to fix that graph still needs a way into it, and the failure they then meet is the one SR-0048 already specifies for a chosen graph that will not open. Who pays: nobody beyond the reviewer, and only in the time the reading takes.
+
+*Derives from:* UR-0014
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:62bdcf23f2bfdfe15bc938a2ad183812e51238d1c330a604e40e9c5a537852e4
+<!-- tl:end -->
+
+<!-- tl:item SR-0052 -->
+**SR-0052 — The reviewer can change the order the candidates are listed in** — `system_requirement`, status `implemented`
+
+> The selection screen shall list candidates in the order discovery returns them, which is by path, and shall let the reviewer change that order to most outstanding first or most recently changed first, using the key the worklist already binds for sorting. Recency shall be judged from the modification times of the candidate's own item files, without starting a process. The order in force shall be named on the screen. The available orders shall be fixed in the code: the project shall not configure them, and the choice shall not be remembered between runs.
+
+*Rationale:* Ordering is what turns the figure on each row into an answer. Most outstanding first is the order that matches why a reviewer opened the tool. Most recently changed first is the order that matches coming back to a graph somebody has just proposed items into. Path order stays the default because it is stable and does not move under the reviewer between runs, and because it is the order the refusal message prints when there is no terminal to ask on — the two ways of meeting the same list agree. The orders are fixed in the code because they are behaviour and not settings (SR-0026). A project that could name its own would be a project able to decide which of its graphs a reviewer sees first, and the assistant would then hold an account of the project that tl does not share. The choice is not persisted for the same reason: remembering it would be configuration of the assistant's own, written somewhere no project owns. Recency is read from the filesystem rather than from version control. Asking git would start a process for every candidate, and SR-0039 requires the module the decisions live in to run without one. Who pays: nobody. Every order is over graphs already read for SR-0050, so reordering costs nothing beyond the sort itself.
+
+*Derives from:* UR-0014
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:2db9dac8baddb77b411ff1a9c3229edd1c0892e36cb179f262dc2dd196802cef
 <!-- tl:end -->
 
 
@@ -792,5 +852,6 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0011 | The published distribution passes the suite it ships | SR-0040, SR-0041 |
 | UR-0012 | The requirements this tool is built to can be read, and read whole | SR-0042 |
 | UR-0013 | Choose which graph to open when the path I give holds more than one | SR-0045, SR-0047, SR-0048 |
+| UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052 |
 <!-- tl:end -->
 

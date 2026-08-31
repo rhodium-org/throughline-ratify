@@ -8,22 +8,33 @@ text: Where more than one graph is found and tl-ratify is running interactively 
   to the path given. The reviewer shall move and choose using the keys the cockpit
   already binds, and shall be able to leave without choosing, which restores the
   terminal and exits taking no decision, as SR-0016 requires of an interrupt. Only
-  the chosen graph shall be loaded and composed; tl-ratify shall not read or resolve
-  the sources of a graph the reviewer did not pick.
-rationale: The selection screen belongs in the cockpit rather than in a plain prompt
-  before curses opens, because the reviewer is about to spend the sitting in the
-  cockpit and a second interaction model to learn first is friction with nothing
-  behind it. Leaving without choosing has to be as ordinary as quitting the worklist,
-  since a reviewer who pointed the tool at the wrong tree learns that from this screen.
-  The lazy-open rule is the load-bearing part. Composing a graph resolves its declared
-  sources, which for a remote source means the network, so eagerly opening every
-  candidate in order to decorate the list with item counts would make the screen
-  slow, would fail when an unrelated graph's source is unreachable, and would fetch
-  on behalf of a reviewer who never asked for that project. The counts would be genuinely
-  useful, and they are given up for that reason. This screen takes no ratification
-  decision and so does not approach NG-0001; it chooses what to read, not what to
-  sign. The cost falls on the reviewer, who reaches the worklist one keystroke later
-  than before, and only when the path they gave was ambiguous.
+  the chosen graph shall be composed; tl-ratify shall not resolve the declared sources
+  of a graph the reviewer did not pick. A candidate's own registers may be read in
+  order to describe it on the screen.
+rationale: |-
+  The selection screen belongs in the cockpit rather than in a plain prompt before
+  curses opens, because the reviewer is about to spend the sitting in the cockpit and
+  a second interaction model to learn first is friction with nothing behind it.
+  Leaving without choosing has to be as ordinary as quitting the worklist, since a
+  reviewer who pointed the tool at the wrong tree learns that from this screen.
+
+  The lazy-compose rule is the load-bearing part. Composing a graph resolves its
+  declared sources, which for a remote source means the network, so composing every
+  candidate would fetch on behalf of a reviewer who never asked for that project and
+  would fail the whole screen when one unrelated graph's origin was unreachable.
+
+  Reading a candidate's own registers does neither. It touches only files already on
+  disk beneath the path the reviewer gave, and it resolves nothing. That distinction
+  is what UR-0014 rests on: the screen can say how far a graph has been signed off
+  without resolving anything on its behalf, and what is ratifiable now is left to the
+  worklist, which has the union to answer it with. An earlier draft of this item drew
+  the line at loading rather than at composing and so gave up the counts altogether;
+  the counts were always worth having, and the line was in the wrong place.
+
+  This screen takes no ratification decision and so does not approach NG-0001; it
+  chooses what to read, not what to sign. The cost falls on the reviewer, who reaches
+  the worklist one keystroke later than before, and only when the path they gave was
+  ambiguous.
 normative: true
 links:
 - target: UR-0013
@@ -31,4 +42,4 @@ links:
 attrs:
   origin: ai
   ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:72e8e3796dc8fae7bd1f2f0dec643538a3bc9f0b3a944a0ddd0586675ede7169
+  ratified_fingerprint: sha256:4a6a5c93566608c44cfea0ff7bb0f825cdb7b62215ee9aea1cf668a4af07c395

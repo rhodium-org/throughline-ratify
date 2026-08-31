@@ -1,0 +1,42 @@
+uid: SR-0052
+type: system_requirement
+status: implemented
+title: The reviewer can change the order the candidates are listed in
+text: 'The selection screen shall list candidates in the order discovery returns
+  them, which is by path, and shall let the reviewer change that order to most outstanding
+  first or most recently changed first, using the key the worklist already binds
+  for sorting. Recency shall be judged from the modification times of the candidate''s
+  own item files, without starting a process. The order in force shall be named on
+  the screen. The available orders shall be fixed in the code: the project shall
+  not configure them, and the choice shall not be remembered between runs.'
+rationale: |-
+  Ordering is what turns the figure on each row into an answer. Most outstanding
+  first is the order that matches why a reviewer opened the tool. Most recently
+  changed first is the order that matches coming back to a graph somebody has just
+  proposed items into.
+
+  Path order stays the default because it is stable and does not move under the
+  reviewer between runs, and because it is the order the refusal message prints
+  when there is no terminal to ask on — the two ways of meeting the same list agree.
+
+  The orders are fixed in the code because they are behaviour and not settings
+  (SR-0026). A project that could name its own would be a project able to decide
+  which of its graphs a reviewer sees first, and the assistant would then hold an
+  account of the project that tl does not share. The choice is not persisted for
+  the same reason: remembering it would be configuration of the assistant's own,
+  written somewhere no project owns.
+
+  Recency is read from the filesystem rather than from version control. Asking git
+  would start a process for every candidate, and SR-0039 requires the module the
+  decisions live in to run without one.
+
+  Who pays: nobody. Every order is over graphs already read for SR-0050, so
+  reordering costs nothing beyond the sort itself.
+normative: true
+links:
+- target: UR-0014
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:2db9dac8baddb77b411ff1a9c3229edd1c0892e36cb179f262dc2dd196802cef

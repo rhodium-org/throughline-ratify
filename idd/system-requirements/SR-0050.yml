@@ -1,0 +1,35 @@
+uid: SR-0050
+type: system_requirement
+status: implemented
+title: Each candidate shows how far it has been signed off
+text: Each row of the selection screen shall show the candidate's ratification progress
+  — how many of its own non-dead items are signed off, against how many can be —
+  and this shall be the same figure the cockpit shows once that graph is open. The
+  figure shall be computed from the candidate's own registers alone. tl-ratify shall
+  not resolve the declared sources of a candidate in order to compute it.
+rationale: |-
+  The figure is the one the cockpit already computes for its own header, so the
+  screen and the cockpit cannot end up giving two accounts of the same number. It
+  needs only the graph's own item files: whether an item is signed off is read from
+  its status and its stamp, and whether that stamp still covers it is asked of
+  throughline's own fingerprint. None of those consults the composed union.
+
+  It is deliberately progress and not a count of what is ratifiable now. Which
+  concern an item is in — ungrounded, blocked, or ready — is decided over the union,
+  because a local item may ground through a borrowed clause. A graph showing items
+  outstanding may therefore hold fewer that can be signed today than the number
+  suggests. Reporting how far the graph has been signed off is the strongest claim
+  that can be made from its own files, and what is ratifiable now is left to the
+  worklist, which has the union to answer it with.
+
+  Who pays: the reviewer, who waits while each candidate's registers are read. The
+  work is proportional to the graphs actually beneath the path they gave, and it is
+  disk only.
+normative: true
+links:
+- target: UR-0014
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:29432be43f12d8c9d0bc2df4cbb26b99b52184bfad504004814475f84fa71e06

@@ -1,0 +1,41 @@
+uid: UR-0014
+type: user_requirement
+status: implemented
+title: Tell me enough about each graph to choose between them
+text: As a reviewer whose path holds more than one graph, I want each candidate on
+  the selection screen to show how much of it is waiting for my signature, and I
+  want to change the order the candidates are listed in, so that I can open the graph
+  that needs me instead of reading paths and guessing.
+rationale: |-
+  The selection screen added by UR-0013 lists each candidate's project name and its
+  path, and nothing else. That is enough to tell the graphs apart and not enough to
+  choose between them. A reviewer opens tl-ratify to clear a backlog, so the fact
+  that decides which graph to open is how much of each one is waiting for them, and
+  that is the one fact the screen does not show.
+
+  Who pays: the reviewer, who waits while every candidate is read before the screen
+  appears, including the graphs they will not pick. The cost is bounded by reading
+  each candidate's own registers from disk. Their declared sources are not resolved,
+  so no graph is fetched over the network on behalf of a reviewer who never asked
+  for it, which is what SR-0048 protects and what it continues to protect.
+
+  Rejected: composing each candidate so the screen can show the exact ratify-ready
+  count the worklist would show. That resolves declared sources, over the network
+  for a remote one, for projects the reviewer never asked for, and one unreachable
+  origin would take down the whole screen. The figure shown is therefore the
+  project's own ratification progress, which is the same figure the cockpit header
+  shows once the graph is open, so the screen and the cockpit cannot give two
+  accounts of one number.
+
+  Rejected: leaving the ordering fixed and adding a filter box instead. Ordering is
+  what answers "which of these needs me most", and a filter answers "where is the
+  one I already had in mind" — which is the question the reviewer who knows the path
+  would have used -C for.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:4d8a7e1e07eafda04c8fc12161c9567cba596c2cee9145438adc442009d5843b
