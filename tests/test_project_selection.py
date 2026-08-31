@@ -9,6 +9,7 @@ screen that asks.
 """
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 
@@ -59,6 +60,21 @@ def test_no_graph_anywhere_names_all_three_directions(tmp_path):
     assert "at, beneath or above" in str(exc.value)
 
 
+def test_a_path_naming_a_file_is_read_as_the_directory_holding_it(multi_project):
+    """`-C` completed to `throughline.toml` itself is what a shell hands you when
+    you tab through to the config; it names the same graph the directory does."""
+    config = multi_project / "alpha" / "throughline.toml"
+    assert core.resolve_root(config) == multi_project / "alpha"
+    assert [c.rel for c in core.discover_projects(config)] == ["."]
+
+
+def test_a_graph_named_directly_is_its_own_candidate(multi_project):
+    """The path given is labelled `.` rather than by name, because the command that
+    would re-open it is the one the reviewer just ran."""
+    found = core.discover_projects(multi_project / "alpha")
+    assert [(c.name, c.rel) for c in found] == [("Alpha Graph", ".")]
+
+
 # --------------------------------------------------------------------------- #
 # SR-0046 — what may appear in the choice
 # --------------------------------------------------------------------------- #
@@ -105,6 +121,58 @@ def test_a_graph_declared_as_a_source_is_not_offered_as_a_peer(multi_project):
         cfg.read_text() + '\n[[sources]]\nnamespace = "base"\npath = "base"\n',
         encoding="utf-8")
     assert "Borrowed" not in [c.name for c in core.discover_projects(multi_project)]
+
+
+def test_a_symlinked_directory_is_never_followed(multi_project):
+    """A tree that links to itself, or to a graph already offered by its real path,
+    would otherwise offer the same project twice or search forever."""
+    (multi_project / "link").symlink_to(multi_project / "alpha", target_is_directory=True)
+    assert [c.rel for c in core.discover_projects(multi_project)] == ["alpha", "beta"]
+
+
+@pytest.mark.skipif(hasattr(os, "geteuid") and os.geteuid() == 0,
+                    reason="root reads every directory, so there is nothing to step over")
+def test_an_unreadable_directory_is_stepped_over(multi_project):
+    """One directory the reviewer cannot read must not cost them the choice between
+    the graphs they can."""
+    walled = multi_project / "walled"
+    walled.mkdir()
+    walled.chmod(0o000)
+    try:
+        names = [c.name for c in core.discover_projects(multi_project)]
+    finally:
+        walled.chmod(0o755)
+    assert names == ["Alpha Graph", "Beta Graph"]
+
+
+def test_a_graph_whose_config_cannot_be_read_is_still_offered(multi_project):
+    """Named by its directory, and with no sources believed of it. Discovery decides
+    what to offer, not whether a graph is sound — refusing to list a broken one
+    would hide the very project the reviewer opened the tool to go and fix."""
+    broken = multi_project / "gamma"
+    broken.mkdir()
+    (broken / "throughline.toml").write_text("[project\nname = ", encoding="utf-8")
+    assert [c.name for c in core.discover_projects(multi_project)] == [
+        "Alpha Graph", "Beta Graph", "gamma"]
+
+
+def test_discovery_survives_having_no_git(multi_project, monkeypatch):
+    """The ignore question is asked of git as a courtesy; a tree that is not a
+    repository, or a machine without git, still gets its choice."""
+    def _no_git(*args, **kwargs):
+        raise OSError("git: not found")
+
+    monkeypatch.setattr(core.subprocess, "run", _no_git)
+    assert [c.name for c in core.discover_projects(multi_project)] == [
+        "Alpha Graph", "Beta Graph"]
+
+
+def test_nothing_to_ask_about_starts_no_process(monkeypatch):
+    """SR-0039: the search starts a process only where there is a question for it."""
+    monkeypatch.setattr(
+        core.subprocess, "run",
+        lambda *a, **k: pytest.fail("ran git with nothing to ask about"))
+    assert core._vcs_ignored(core.Path("."), []) == set()
 
 
 def test_the_search_depth_is_a_constant_not_a_setting(multi_project):
@@ -166,6 +234,21 @@ def test_the_picked_graph_is_the_one_opened(multi_project, terminal, monkeypatch
 def test_leaving_without_choosing_opens_nothing(multi_project, terminal, monkeypatch):
     monkeypatch.setattr(tui, "choose_project", lambda candidates: None)
     assert cli.main(["-C", str(multi_project)]) == 0
+    assert terminal == {}
+
+
+def test_a_chosen_graph_that_will_not_open_says_so(multi_project, capfd, terminal,
+                                                   monkeypatch):
+    """The other half of the price SR-0048 pays for listing without composing: a
+    graph whose sources cannot be resolved looks sound until it is chosen, so the
+    failure has to arrive legibly at that moment rather than as a traceback."""
+    monkeypatch.setattr(cli.sys.stdout, "isatty", lambda: True, raising=False)
+    monkeypatch.setattr(tui, "choose_project", lambda candidates: candidates[0])
+    monkeypatch.setattr(core, "open_root", lambda root: (_ for _ in ()).throw(
+        core.RatifierError("source 'base' could not be resolved")))
+    rc = cli.main(["-C", str(multi_project)])
+    assert rc == 2
+    assert "source 'base' could not be resolved" in capfd.readouterr().err
     assert terminal == {}
 
 
@@ -238,9 +321,58 @@ def test_q_leaves_without_choosing(picker):
     assert chosen is None
 
 
+def test_moving_back_up_returns_to_the_first(picker):
+    scr, chosen = picker([ord("j"), ord("k"), ord("\n")])
+    assert chosen.name == "Alpha Graph"
+
+
+def test_the_ends_of_the_list_hold(picker):
+    """Moving past either end stays where it is, so a held key cannot walk the
+    highlight off the list and open a graph the reviewer never saw."""
+    scr, chosen = picker([tui.curses.KEY_UP] * 3 + [tui.curses.KEY_DOWN] * 5 + [ord(" ")])
+    assert chosen.name == "Beta Graph"
+
+
+def test_escape_leaves_without_choosing(picker):
+    scr, chosen = picker([27])
+    assert chosen is None
+
+
 def test_the_screen_names_every_candidate_and_its_path(picker):
     scr, _ = picker([ord("q")])
     painted = scr.painted()
     assert "Alpha Graph" in painted and "alpha" in painted
     assert "Beta Graph" in painted and "beta" in painted
     assert "leave without opening" in painted
+
+
+def test_a_terminal_too_short_for_the_list_still_draws(multi_project, monkeypatch):
+    """It draws what fits and keeps its keys, rather than raising out of curses and
+    leaving the reviewer with a broken terminal (SR-0016)."""
+    monkeypatch.setattr(tui.curses, "curs_set", lambda n: None)
+    monkeypatch.setattr(tui.curses, "doupdate", lambda: None)
+    monkeypatch.setattr(tui, "_attr", lambda name, bold=False: 0)
+    scr = FakeScreen(5, 80, [ord("\n")])
+    chosen = tui._Picker(scr, core.discover_projects(multi_project)).choose()
+    assert chosen.name == "Alpha Graph"
+    assert "leave without opening" in scr.painted()
+
+
+def test_ctrl_c_at_the_picker_takes_no_decision(monkeypatch):
+    """SR-0016 — the same answer quitting the worklist gives: the terminal is
+    restored by curses.wrapper and nothing is opened."""
+    monkeypatch.setattr(tui.curses, "wrapper",
+                        lambda fn, *a: (_ for _ in ()).throw(KeyboardInterrupt))
+    assert tui.choose_project([]) is None
+
+
+def test_choose_project_runs_the_picker_inside_curses(multi_project, monkeypatch):
+    """The wrapper is what restores the terminal on any exit, so the picker must be
+    reached through it rather than beside it."""
+    monkeypatch.setattr(tui, "_init_colours", lambda: None)
+    monkeypatch.setattr(tui.curses, "curs_set", lambda n: None)
+    monkeypatch.setattr(tui.curses, "doupdate", lambda: None)
+    monkeypatch.setattr(tui, "_attr", lambda name, bold=False: 0)
+    monkeypatch.setattr(tui.curses, "wrapper",
+                        lambda fn, *a: fn(FakeScreen(24, 80, [ord("j"), ord("\n")]), *a))
+    assert tui.choose_project(core.discover_projects(multi_project)).name == "Beta Graph"
