@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "throughline-ratify"
-version = "0.4.3"
+version = "0.5.0"
 description = "A full-screen, htop-style terminal assistant for reviewing and ratifying throughline requirement items. Compose-aware: grounds items over the composed union so borrowed clauses count. Ships the tl-ratify TUI."
 readme = "README.md"
 requires-python = ">=3.11"
