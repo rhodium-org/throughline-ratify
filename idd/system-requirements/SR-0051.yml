@@ -1,0 +1,34 @@
+uid: SR-0051
+type: system_requirement
+status: implemented
+title: Reading the candidates is visible, and one bad graph does not withhold the
+  rest
+text: While the candidates are being read, tl-ratify shall show that it is working
+  and how far through the candidates it has got. A candidate whose own registers
+  cannot be read shall still be listed, with the reason shown on its row in place
+  of its figure, and shall remain selectable; it shall not prevent the other candidates
+  being offered. Choosing it shall then fail with that reason, as choosing any graph
+  that cannot be opened does.
+rationale: |-
+  Reading several graphs takes long enough to look like a hang, and a tool that
+  looks hung is one the reviewer interrupts. Showing the work is what buys the
+  right to do it at all: SR-0048 refused eager work partly because it would make
+  the screen slow, and the answer to slow is to say so, not to hide it.
+
+  A failure has to land on the row it belongs to. This screen exists precisely
+  because the reviewer does not yet know which graph they want, so refusing to
+  offer any of them because one is unreadable denies them the choice on the
+  strength of a project they may not have been going to open. The broken row stays
+  selectable because a reviewer who came to fix that graph still needs a way into
+  it, and the failure they then meet is the one SR-0048 already specifies for a
+  chosen graph that will not open.
+
+  Who pays: nobody beyond the reviewer, and only in the time the reading takes.
+normative: true
+links:
+- target: UR-0014
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:62bdcf23f2bfdfe15bc938a2ad183812e51238d1c330a604e40e9c5a537852e4

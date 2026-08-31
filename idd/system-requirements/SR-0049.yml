@@ -1,0 +1,30 @@
+uid: SR-0049
+type: system_requirement
+status: implemented
+title: The selection screen can reach every candidate it found
+text: The selection screen shall be able to reach and show every candidate discovery
+  returned, whatever the height of the terminal. Where the candidates do not all
+  fit, the screen shall scroll so that the highlighted row is always drawn, and shall
+  show that there are further candidates above or below the rows in view. The highlight
+  shall never rest on a row the screen is not drawing.
+rationale: |-
+  The first version of the screen drew candidates until it ran out of rows and then
+  stopped, while the highlight went on moving past the last row drawn. On a short
+  terminal a reviewer could therefore move down to a candidate the screen was not
+  showing, press enter, and open a graph they had never seen named.
+
+  Truncation on its own would be a display limit. Truncation with a highlight that
+  keeps moving is a way to open the wrong project silently, which is the failure
+  UR-0013 exists to close, so this is a defect in SR-0048 rather than an addition
+  to it.
+
+  Who pays: nobody new. The screen already binds these keys, and a reviewer whose
+  candidates all fit on the terminal sees no change at all.
+normative: true
+links:
+- target: SR-0048
+  type: refines
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:0d91672a90044b572fd798970c76a70664c3d267a8218584ca6cb8a25ee42167

@@ -928,21 +928,39 @@ class App:
         self.scr.getch()
 
 
+_PICKER_TOP = 4          # first list row, below the header and the count line
+_PICKER_CHROME = 5       # rows the list may not use: everything above it, plus the footer
+
+
+def _picker_status(candidate: core.Candidate) -> str:
+    """What a row says about its graph beyond its name and path.
+
+    A candidate that could not be read says why, in place of the figure it has
+    none of, and stays a row like any other (SR-0051)."""
+    if candidate.error:
+        return candidate.error
+    if candidate.gradable is None:
+        return ""
+    return f"\u2713 {candidate.ratified}/{candidate.gradable} ratified"
+
+
 class _Picker:
     """The screen that asks which graph to open (SR-0048).
 
-    It lists what discovery found and nothing more. Decorating a row with the
-    graph's pending count would mean composing every candidate, and composing
-    resolves declared sources — for a remote source, over the network — so the
-    screen would fetch on behalf of projects the reviewer never asked for and
-    would fail whole because one unrelated graph's origin was unreachable. The
-    counts would be useful; that is the price they cost.
+    Each row carries how far its graph has been signed off, read from that
+    graph's own registers alone (SR-0050). Composing a candidate is what
+    SR-0048 still forbids: that resolves declared sources — for a remote
+    source, over the network — on behalf of projects the reviewer never asked
+    for. Only the graph picked here is composed.
     """
 
-    def __init__(self, stdscr, candidates: list[core.Candidate]) -> None:
+    def __init__(self, stdscr, candidates: list[core.Candidate],
+                 sort: str = core.PICKER_SORTS[0]) -> None:
         self.scr = stdscr
-        self.candidates = candidates
+        self.sort = sort
+        self.candidates = core.sort_candidates(candidates, sort)
         self.pos = 0
+        self.top = 0
 
     def choose(self) -> core.Candidate | None:
         curses.curs_set(0)
@@ -955,11 +973,29 @@ class _Picker:
                 self.pos = max(self.pos - 1, 0)
             elif ch in (curses.KEY_ENTER, 10, 13, ord(" ")):
                 return self.candidates[self.pos]
+            elif ch in (ord("s"), ord("S")):
+                self.resort()
             elif ch in (ord("q"), 27):
                 # Leaving without choosing is as ordinary as quitting the
                 # worklist: this screen is where a reviewer learns they pointed
                 # the tool at the wrong tree.
                 return None
+
+    def resort(self) -> None:
+        """Show the same candidates in the next order (SR-0052), keeping the
+        highlight on the graph it was on rather than on the row number it
+        happened to occupy."""
+        self.sort = core.PICKER_SORTS[
+            (core.PICKER_SORTS.index(self.sort) + 1) % len(core.PICKER_SORTS)]
+        held = self.candidates[self.pos] if self.candidates else None
+        self.candidates = core.sort_candidates(self.candidates, self.sort)
+        if held is not None:
+            self.pos = self.candidates.index(held)
+
+    def height(self, h: int) -> int:
+        """How many rows the list has on a screen ``h`` tall. Never below one, so
+        the highlighted row is drawn even where nothing else fits."""
+        return max(1, h - _PICKER_CHROME)
 
     def draw(self) -> None:
         self.scr.erase()
@@ -969,35 +1005,88 @@ class _Picker:
                      _attr("header", bold=True))
         _safe_addstr(self.scr, 2, 1,
                      f"{len(self.candidates)} throughline projects lie beneath the path "
-                     "you gave.", _attr("dim"))
+                     f"you gave. \u2502 sort:{self.sort}", _attr("dim"))
+        self._draw_list(h, w)
+        _hline(self.scr, h - 1, 0, w, _attr("header"))
+        _safe_addstr(
+            self.scr, h - 1, 0,
+            " \u2191\u2193/jk move \u2502 s sort \u2502 enter open"
+            " \u2502 q leave without opening", _attr("header"))
+        self.scr.noutrefresh()
+        curses.doupdate()
 
-        width = max(len(c.name) for c in self.candidates)
-        for i, c in enumerate(self.candidates):
-            y = 4 + i
-            if y >= h - 1:
+    def _draw_list(self, h: int, w: int) -> None:
+        height = self.height(h)
+        # Keep the highlight inside the drawn window. Without this the list was
+        # cut off at the foot of the screen while the highlight went on past it,
+        # so a reviewer could open a graph whose name they had never seen
+        # (SR-0049).
+        if self.pos < self.top:
+            self.top = self.pos
+        elif self.pos >= self.top + height:
+            self.top = self.pos - height + 1
+
+        name_width = max((len(c.name) for c in self.candidates), default=0)
+        status_width = max((len(_picker_status(c)) for c in self.candidates), default=0)
+        for i in range(height):
+            idx = self.top + i
+            if idx >= len(self.candidates):
                 break
-            selected = i == self.pos
+            c = self.candidates[idx]
+            y = _PICKER_TOP + i
+            selected = idx == self.pos
             attr = _attr("sel") if selected else 0
             if selected:
                 _hline(self.scr, y, 0, w, _attr("sel"))
             marker = "\u25b8" if selected else " "
-            _safe_addstr(self.scr, y, 1, f"{marker} {c.name:<{width}}  {c.rel}", attr)
+            status = _picker_status(c).ljust(status_width)
+            _safe_addstr(self.scr, y, 1,
+                         f"{marker} {c.name:<{name_width}}  {status}  {c.rel}", attr)
 
-        _hline(self.scr, h - 1, 0, w, _attr("header"))
-        _safe_addstr(self.scr, h - 1, 0,
-                     " \u2191\u2193/jk move \u2502 enter open \u2502 q leave without opening",
-                     _attr("header"))
-        self.scr.noutrefresh()
-        curses.doupdate()
+        if self.top > 0:
+            _safe_addstr(self.scr, _PICKER_TOP, w - 1, "\u25b2", _attr("dim"))
+        if self.top + height < len(self.candidates):
+            _safe_addstr(self.scr, _PICKER_TOP + height - 1, w - 1, "\u25bc", _attr("dim"))
+
+
+def _draw_reading(scr, done: int, total: int, candidate: core.Candidate) -> None:
+    """Say that the candidates are being read, and how far that has got (SR-0051).
+
+    Reading a graph is quick; reading forty is not, and an unexplained pause
+    before the picker appears is indistinguishable from a hang."""
+    scr.erase()
+    h, w = scr.getmaxyx()
+    _hline(scr, 0, 0, w, _attr("header", bold=True))
+    _safe_addstr(scr, 0, 0, f" tl-ratify {__version__} \u2502 reading projects",
+                 _attr("header", bold=True))
+    # Named by path as well: two graphs beneath one tree may carry the same
+    # project name, and only the path tells the reviewer which is being read.
+    _safe_addstr(scr, 2, 1,
+                 f"reading {done + 1} of {total} \u2502 {candidate.name}  {candidate.rel}",
+                 _attr("dim"))
+    span = max(1, min(w - 4, 60))
+    filled = int(span * done / total) if total else span
+    _safe_addstr(scr, 4, 1, "\u2588" * filled, _attr("ok"))
+    _safe_addstr(scr, 4, 1 + filled, "\u2591" * (span - filled), _attr("dim"))
+    scr.noutrefresh()
+    curses.doupdate()
 
 
 def choose_project(candidates: list[core.Candidate]) -> core.Candidate | None:
     """Ask which of ``candidates`` to open, returning ``None`` if the reviewer
     leaves without choosing. Ctrl-C is the quit key here as it is in the cockpit
-    (SR-0016) — the terminal is restored and no decision is taken."""
+    (SR-0016) — the terminal is restored and no decision is taken.
+
+    Each candidate is read for its ratification figure first, under a progress
+    display, because that reading is the only part of this screen that takes
+    long enough to be noticed (SR-0051)."""
     def _main(stdscr):
         _init_colours()
-        return _Picker(stdscr, candidates).choose()
+        curses.curs_set(0)
+        described = core.describe_candidates(
+            candidates,
+            on_progress=lambda i, total, c: _draw_reading(stdscr, i, total, c))
+        return _Picker(stdscr, described).choose()
 
     try:
         return curses.wrapper(_main)
