@@ -1,0 +1,24 @@
+uid: UR-0013
+type: user_requirement
+status: ratified
+title: Choose which graph to open when the path I give holds more than one
+text: As a reviewer opening a repository that holds more than one throughline project,
+  I want tl-ratify to show me the graphs it finds beneath the path I gave and let
+  me pick the one to work on, so that I do not have to know each graph's path before
+  I start.
+rationale: tl-ratify walks upward from the path it is given and opens the nearest
+  enclosing project. A repository that holds several graphs can therefore only be
+  opened one path at a time, and the reviewer has to know each path before starting.
+  Rejected — merging every graph found into one worklist; the tool writes only to
+  a single consumer register, and a merged list would hide which project a decision
+  lands in. The cost falls on the reviewer, who meets a prompt where there was none.
+  It applies only when more than one graph is found beneath the given path, so a
+  project with a single graph opens exactly as it does today.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+attrs:
+  origin: hybrid
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:c12ac4004c7f3406c7a65618e0b6f0a504affc84950acb8b9d0fca368c6799bf

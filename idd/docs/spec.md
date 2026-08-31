@@ -731,5 +731,6 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0010 | What is expected of participants, and where a breach is taken | SR-0036 |
 | UR-0011 | The published distribution passes the suite it ships | SR-0040, SR-0041 |
 | UR-0012 | The requirements this tool is built to can be read, and read whole | SR-0042 |
+| UR-0013 | Choose which graph to open when the path I give holds more than one | — |
 <!-- tl:end -->
 
