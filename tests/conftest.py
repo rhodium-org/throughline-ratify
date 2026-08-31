@@ -154,6 +154,29 @@ def demo_project(tmp_path: Path) -> Path:
     return _write_project(tmp_path / "project")
 
 
+def _named_project(root: Path, name: str) -> Path:
+    """The fixture graph under a project name of its own, so a tree holding several
+    can be told apart by what the picker and the refusal actually print."""
+    _write_project(root)
+    cfg = root / "throughline.toml"
+    cfg.write_text(
+        cfg.read_text().replace('name = "Ratifier Fixture"', f'name = "{name}"'),
+        encoding="utf-8",
+    )
+    return root
+
+
+@pytest.fixture
+def multi_project(tmp_path: Path) -> Path:
+    """A tree holding two graphs and nothing at its own root — the shape UR-0013 is
+    about, where the reviewer points at a repository rather than at a graph."""
+    base = tmp_path / "workspace"
+    base.mkdir()
+    _named_project(base / "alpha", "Alpha Graph")
+    _named_project(base / "beta", "Beta Graph")
+    return base
+
+
 @pytest.fixture
 def in_place_project(tmp_path: Path) -> Path:
     """The same graph in a project that has declared ratification does not move an

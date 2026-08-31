@@ -1,6 +1,6 @@
 uid: SR-0048
 type: system_requirement
-status: ratified
+status: implemented
 title: The reviewer picks the graph from a list, and only the picked graph is opened
 text: Where more than one graph is found and tl-ratify is running interactively on
   a terminal, it shall show a selection screen before the worklist. The screen shall

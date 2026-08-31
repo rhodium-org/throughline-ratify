@@ -25,9 +25,16 @@ ratified through this cockpit signed but unbound. One implementation, not two.
 """
 from __future__ import annotations
 
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Callable
+
+try:  # pragma: no cover - 3.11+ has it in the stdlib; the floor is 3.11
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover
+    import tomli as tomllib
 
 from throughline.fingerprint import fingerprint
 from throughline.graph import Index
@@ -245,15 +252,202 @@ def _find_root(start: Path) -> Path | None:
     return None
 
 
-def open_session(path: str | Path) -> Session:
-    """Open the throughline project enclosing ``path`` (walking upward like
-    ``git``), composing its sources when it declares any."""
+# How far beneath the given path the search for graphs reaches. A constant rather
+# than a setting: SR-0026 forbids the assistant carrying configuration of its own,
+# and this is deep enough for the layouts the requirement is about (``idd/`` at a
+# repository root, ``packages/<name>/idd`` in a monorepo).
+_MAX_SEARCH_DEPTH = 5
+
+
+@dataclass(frozen=True)
+class Candidate:
+    """A graph found beneath the path the reviewer gave (SR-0045).
+
+    Carries only what the choice needs — enough to name the graph and to open it.
+    Nothing here loads the project's items or resolves its sources; SR-0048 keeps
+    that work for the one graph the reviewer picks.
+    """
+
+    root: Path
+    name: str
+    rel: str    # display path, relative to the path searched
+
+
+class AmbiguousProjectError(RatifierError):
+    """More than one graph lies beneath the given path, so which to open is the
+    reviewer's to say (SR-0045). Carries the candidates so the caller can offer
+    them — interactively (SR-0048) or by refusing with them named (SR-0047)."""
+
+    def __init__(self, base: Path, candidates: list[Candidate]) -> None:
+        super().__init__(
+            f"{len(candidates)} throughline projects found beneath {base} — "
+            "which one to ratify against is yours to choose")
+        self.base = base
+        self.candidates = candidates
+
+
+def _project_name_of(root: Path) -> str:
+    """The project's declared name, read from its config alone.
+
+    Deliberately not via ``load_project``: naming a candidate must not read the
+    items of a graph the reviewer has not chosen (SR-0048). A config that cannot
+    be read falls back to the directory name — discovery lists graphs, and it is
+    opening one that judges whether it is sound (SR-0009).
+    """
+    try:
+        config = tomllib.loads((root / CONFIG_NAME).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return root.name
+    return config.get("project", {}).get("name") or root.name
+
+
+def _declared_path_sources(root: Path) -> set[Path]:
+    """Local directories this graph declares as sources.
+
+    Read through compose's own ``parse_sources`` rather than by picking the array
+    apart here, so the two can never hold different accounts of what a source
+    declaration means (SR-0026). It only needs the config, so a stand-in carrying
+    one avoids loading the graph.
+    """
+    try:
+        config = tomllib.loads((root / CONFIG_NAME).read_text(encoding="utf-8"))
+        declared = parse_sources(SimpleNamespace(config=config))
+    except (OSError, ValueError, SourceError):
+        return set()
+    return {
+        (root / src.path).resolve()
+        for src in declared
+        if not src.is_remote and src.path
+    }
+
+
+def _vcs_ignored(base: Path, dirs: list[Path]) -> set[Path]:
+    """Which of ``dirs`` the repository ignores, asked of git rather than answered
+    from a list of directory names kept here (SR-0046).
+
+    A tree that is not a repository, or a machine with no git, yields nothing
+    ignored — the walk then relies on its other exclusions rather than refusing.
+    """
+    if not dirs:
+        return set()
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(base), "check-ignore", "--stdin"],
+            input="\n".join(str(d) for d in dirs),
+            capture_output=True, text=True, timeout=10, check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return set()
+    return {Path(line).resolve() for line in proc.stdout.splitlines() if line.strip()}
+
+
+def _is_excluded(d: Path) -> bool:
+    """A directory the search never enters — one that cannot hold a graph the
+    reviewer owns (SR-0046). Dot-directories cover ``.git`` and ``.venv``;
+    ``pyvenv.cfg`` catches a virtualenv that is not named like one."""
+    return (
+        d.name.startswith(".")
+        or d.is_symlink()
+        or (d / "pyvenv.cfg").exists()
+    )
+
+
+def discover_projects(path: str | Path) -> list[Candidate]:
+    """Every graph at or beneath ``path``, in the order they should be offered.
+
+    Breadth-first to ``_MAX_SEARCH_DEPTH``, pruning what SR-0046 excludes as the
+    walk descends rather than filtering at the end, so an ignored directory costs
+    nothing to skip. A graph an enclosing candidate declares as a source is
+    dropped: composition gives a wider view, never a wider authority, so offering
+    one as a peer would present a graph on which every decision is then refused.
+    """
+    base = Path(path).resolve()
+    if not base.is_dir():
+        base = base.parent
+
+    roots: list[Path] = []
+    if (base / CONFIG_NAME).exists():
+        roots.append(base)
+
+    level = [base]
+    for _ in range(_MAX_SEARCH_DEPTH):
+        children: list[Path] = []
+        for parent in level:
+            try:
+                children.extend(
+                    c for c in sorted(parent.iterdir())
+                    if c.is_dir() and not _is_excluded(c)
+                )
+            except OSError:
+                continue
+        if not children:
+            break
+        ignored = _vcs_ignored(base, children)
+        children = [c for c in children if c not in ignored]
+        roots.extend(c for c in children if (c / CONFIG_NAME).exists())
+        level = children
+
+    borrowed: set[Path] = set()
+    for root in roots:
+        borrowed |= {
+            src for src in _declared_path_sources(root)
+            if src != root and root in src.parents
+        }
+
+    return [
+        Candidate(root=r, name=_project_name_of(r), rel=_relative_label(r, base))
+        for r in roots if r not in borrowed
+    ]
+
+
+def _relative_label(root: Path, base: Path) -> str:
+    """How a candidate's location is written for the reviewer — relative to what
+    they typed, so it reads as the answer to the path they gave."""
+    if root == base:
+        return "."
+    try:
+        return str(root.relative_to(base))
+    except ValueError:  # pragma: no cover - roots always sit under base
+        return str(root)
+
+
+def resolve_root(path: str | Path) -> Path:
+    """Which graph ``path`` means (SR-0045).
+
+    Pointing straight at a graph settles it, so a chosen candidate reopens
+    without being asked again and a project holding a nested graph is not turned
+    into a question by it. Otherwise the search runs beneath the path, and only
+    an empty result falls back to the upward walk that lets the tool run from
+    anywhere inside a project.
+    """
     start = Path(path).resolve()
-    root = _find_root(start)
+    base = start if start.is_dir() else start.parent
+    if (base / CONFIG_NAME).exists():
+        return base
+
+    candidates = discover_projects(base)
+    if len(candidates) == 1:
+        return candidates[0].root
+    if len(candidates) > 1:
+        raise AmbiguousProjectError(base, candidates)
+
+    root = _find_root(base)
     if root is None:
         raise RatifierError(
-            f"no throughline.toml at or above {start} — not inside a throughline project")
+            f"no throughline.toml at, beneath or above {start} — "
+            "not inside a throughline project")
+    return root
 
+
+def open_session(path: str | Path) -> Session:
+    """Open the throughline project ``path`` names, composing its sources when it
+    declares any. Raises :class:`AmbiguousProjectError` when the path encloses
+    more than one graph and the choice is the reviewer's to make."""
+    return open_root(resolve_root(path))
+
+
+def open_root(root: Path) -> Session:
+    """Open the graph rooted at ``root``, which is already decided."""
     try:
         consumer = load_project(root)
     except ProjectError as exc:
