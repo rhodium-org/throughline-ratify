@@ -57,6 +57,11 @@ from throughline.grounding import (
 # while it writes to the consumer's own item.
 from throughline.grounding import ratify as core_ratify
 from throughline.model import Item, Project
+# What moved since a signature, resolved by throughline against the stamp
+# (tl:SR-0165). Asked of the library for the reason the staleness verdict itself is
+# (SR-0022, SR-0030): a second answer to what counts as a content change would
+# drift from the validator's.
+from throughline.ratification import RatificationChange, change_since_ratification
 from throughline.schema import SchemaError
 from throughline.storage import (
     CONFIG_NAME,
@@ -209,6 +214,11 @@ class Session:
     composed: bool
     sources: list[SourceInfo] = field(default_factory=list)
     _index: Index | None = None
+    # Resolved differences, keyed by (uid, stamp). Keyed on the stamp and not the
+    # uid alone so that re-signing an item — which writes a new stamp — misses the
+    # entry left by its old one instead of showing a difference against content
+    # that has just been accepted.
+    _changes: dict[tuple[str, str], RatificationChange] = field(default_factory=dict)
 
     @property
     def schema(self):
@@ -716,6 +726,30 @@ def _signature_stale(session: Session, item: Item) -> bool:
     if not stamp:
         return False
     return fingerprint(item, session.schema) != stamp
+
+
+def change_since_signature(session: Session, uid: str) -> RatificationChange | None:
+    """What moved since ``uid``'s signature, or None when the item is not local.
+
+    Resolved on demand for the one item the reviewer is looking at, never for every
+    row: resolution walks back through an item's history, and a reviewer moving down
+    a worklist would pay that walk on each row they land on. throughline caches the
+    revision it resolves and re-verifies it against the stamp (tl:SR-0166), so the
+    second look at an item costs a read rather than a walk, and the memo here keeps
+    a redraw from asking twice.
+
+    The consumer project is what is asked, so the schema deciding which attributes
+    are normative is the one :func:`_signature_stale` judged staleness with. Handing
+    over the union instead would let the cockpit call an item stale and then report
+    nothing changed, which is the disagreement SR-0030 exists to prevent.
+    """
+    item = session.project.get(uid)
+    if item is None:
+        return None
+    key = (uid, str(item.attrs.get(RATIFIED_FINGERPRINT_ATTR) or ""))
+    if key not in session._changes:
+        session._changes[key] = change_since_ratification(session.project, item)
+    return session._changes[key]
 
 
 def _dead_concern(schema, status: str) -> str:

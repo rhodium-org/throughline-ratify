@@ -1,0 +1,23 @@
+uid: UR-0015
+type: user_requirement
+status: proposed
+title: Tell me what changed when a signature no longer covers the wording
+text: Where the assistant offers an item whose recorded signature no longer covers
+  its wording, a user shall be able to see which content changed since that signature,
+  in the view that is offering the item and without leaving the assistant. Where
+  that change cannot be established, the user shall be told that rather than shown
+  nothing.
+rationale: |-
+  SR-0030 made a stale signature visible and stopped the cockpit reporting full marks over one. It did not make the change legible — the reviewer is told that the words they accepted have been rewritten, and must then leave the cockpit and reconstruct what moved from git history. That is the same gap tl:UR-0028 names in throughline itself, arriving in the tool built for the one kind of user who can close it, and arriving in the one place the job is done in bulk. A reviewer working down a worklist has the least patience for a detour and the most exposure to signing without looking.
+
+  Who pays — nobody outside this tool. The change is read from throughline and shown in a pane the reviewer is already looking at, and a reviewer who does not want it can still ratify from the list.
+
+  Stated as an obligation on whichever view is doing the asking, not on the full-screen one alone, because the assistant also offers items through its list and its written record and the same reasoning reaches any surface that invites a signature.
+
+  Being unable to establish the change is its own answer and must be said. Showing nothing where nothing could be found would be read as nothing having changed, which is the one reading that sends a reviewer past exactly the change they are being asked to accept.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+attrs:
+  origin: ai

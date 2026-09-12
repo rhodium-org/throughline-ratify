@@ -26,6 +26,7 @@ links:
   type: relates
 - target: tl:SR-0135
   type: satisfies
+  stamp: sha256:5f06192623e4c04407a06307c4739424554edb91781b28dd92673b2c49b9ce8f
 attrs:
   priority: should
   verification: test

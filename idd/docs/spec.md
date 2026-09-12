@@ -223,6 +223,18 @@ What a person working with the tool must be able to do.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:4d8a7e1e07eafda04c8fc12161c9567cba596c2cee9145438adc442009d5843b
 <!-- tl:end -->
 
+<!-- tl:item UR-0015 -->
+**UR-0015 — Tell me what changed when a signature no longer covers the wording** — `user_requirement`, status `proposed`
+
+> Where the assistant offers an item whose recorded signature no longer covers its wording, a user shall be able to see which content changed since that signature, in the view that is offering the item and without leaving the assistant. Where that change cannot be established, the user shall be told that rather than shown nothing.
+
+*Rationale:* SR-0030 made a stale signature visible and stopped the cockpit reporting full marks over one. It did not make the change legible — the reviewer is told that the words they accepted have been rewritten, and must then leave the cockpit and reconstruct what moved from git history. That is the same gap tl:UR-0028 names in throughline itself, arriving in the tool built for the one kind of user who can close it, and arriving in the one place the job is done in bulk. A reviewer working down a worklist has the least patience for a detour and the most exposure to signing without looking. Who pays — nobody outside this tool. The change is read from throughline and shown in a pane the reviewer is already looking at, and a reviewer who does not want it can still ratify from the list. Stated as an obligation on whichever view is doing the asking, not on the full-screen one alone, because the assistant also offers items through its list and its written record and the same reasoning reaches any surface that invites a signature. Being unable to establish the change is its own answer and must be said. Showing nothing where nothing could be found would be read as nothing having changed, which is the one reading that sends a reviewer past exactly the change they are being asked to accept.
+
+*Derives from:* INT-0001
+
+**origin**: ai
+<!-- tl:end -->
+
 
 ## System requirements
 
@@ -294,6 +306,7 @@ What the software must do to meet them.
 > The TUI uses the whole terminal: a project header, a colour-coded concern summary, a scrollable worklist, a detail pane with grounding and links, and a keybinding footer, navigable by keyboard.
 
 *Derives from:* UR-0004
+*Satisfies:* tl:UR-0029
 
 **origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:373175cdb959fa3cd1afe50de08da7ee3d5dc89d7ddf64de06e926549ebf2d27 · **ratified_backfilled**: True
 <!-- tl:end -->
@@ -830,6 +843,21 @@ What the software must do to meet them.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:2db9dac8baddb77b411ff1a9c3229edd1c0892e36cb179f262dc2dd196802cef
 <!-- tl:end -->
 
+<!-- tl:item SR-0053 -->
+**SR-0053 — The cockpit shows what moved since the signature, and says when it cannot** — `system_requirement`, status `proposed`
+
+> Where the assistant presents an item whose ratification no longer covers its content, it shall show in that item's own view which normative fields changed since the signature, giving the value as signed beside the value as it now stands, and naming the revision the signed content was recovered from. Where the change cannot be established it shall say so plainly, distinctly from having found no change. What changed shall be settled by asking throughline, never by comparing content here.
+
+*Rationale:* SR-0030 settled that a stale signature is its own concern and that whether an item is in that state is throughline's judgement, not this tool's. The same division applies to what moved: throughline resolves the signed content by finding the revision whose fingerprint reproduces the stamp (tl:SR-0165) and returns the difference as fields, so this tool lays those fields out and derives nothing. A second implementation of what counts as a content change would drift from the validator's, and the cockpit would then disagree with check about what a reviewer is accepting — the precise failure SR-0022 and SR-0030 each refused for their own half of the same question. The revision is named because the difference is only as good as the content it was recovered from, and a reviewer who doubts what they are shown needs a handle they can go and look at. It is throughline's answer, reproduced, not a date this tool inferred. Unable to establish is shown as its own state rather than as an empty difference, because an empty difference asserts that the wording still stands as signed. That assertion, made wrongly, sends the reviewer past the change they are being asked to accept, and the case is reachable without anything being broken — a signature backfilled over content that was never committed, or a history that has been rewritten. Rejected — computing the difference here from the item's git history, which is available and would have been fewer moving parts. It would make this tool the second place the rule lives, and the rule is the one thing a ratification record cannot afford to have two versions of. Rejected — offering the difference only on a keystroke, which leaves the reviewer who does not know to press it exactly where SR-0030 found them.
+
+*Derives from:* UR-0015
+*Refines:* SR-0030
+*Satisfies:* tl:UR-0028
+*Relates:* tl:SR-0165, SR-0022
+
+**origin**: ai
+<!-- tl:end -->
+
 
 ## Traceability
 
@@ -853,5 +881,6 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0012 | The requirements this tool is built to can be read, and read whole | SR-0042 |
 | UR-0013 | Choose which graph to open when the path I give holds more than one | SR-0045, SR-0047, SR-0048 |
 | UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052 |
+| UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053 |
 <!-- tl:end -->
 

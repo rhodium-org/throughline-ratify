@@ -31,6 +31,7 @@ links:
   type: relates
 - target: tl:SR-0173
   type: satisfies
+  stamp: sha256:d67662fe09eb88d3cde3c9b8d8e0d4e3756c10709416bab7ddc7e30b6f407086
 attrs:
   origin: ai
   ratified_by: Henry Grech-Cini

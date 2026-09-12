@@ -87,7 +87,7 @@ classifiers = [
 # '_render_item'`, while `tl-ratify` still runs. An upper bound on compose 0.13.0
 # would be the narrower fix and is not available, that release being already on the
 # index as published, so the floor is what moves.
-dependencies = ["throughline-compose>=0.14.0", "throughline>=2.0.0"]
+dependencies = ["throughline-compose>=0.14.0", "throughline>=3.0.0"]  # throughline.ratification — the resolved difference between an item's content and the content its stamp was taken over, which SR-0053 lays out rather than derives — is public from 3.0.0 (tl:SR-0165, tl:SR-0166)
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]

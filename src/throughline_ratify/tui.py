@@ -17,7 +17,7 @@ from dataclasses import dataclass
 
 from . import core
 from . import __version__
-from .core import QueueItem, Session
+from .core import QueueItem, Session, change_since_signature
 
 # ------------------------------------------------------------------ colours
 
@@ -61,6 +61,18 @@ def _init_colours() -> None:
             _PAIR[name] = i
         except curses.error:  # pragma: no cover
             _PAIR[name] = 0
+
+
+def _shown(value) -> str:
+    """A changed field's value as one readable string. ``None`` reads as unset
+    rather than as the word None, because a normative attribute that was absent
+    when the signature was given is a real and different thing from one holding
+    the string 'None'."""
+    if value is None:
+        return "(unset)"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return " ".join(str(value).split())
 
 
 def _attr(name: str, *, bold: bool = False) -> int:
@@ -473,6 +485,34 @@ class App:
     def _sort_label(sort: str) -> str:
         return {"concern": "concern", "roots": "roots\u2193", "leaves": "leaves\u2191"}.get(sort, sort)
 
+    def _add_change(self, item: QueueItem, add, wrap) -> None:
+        """Lay out throughline's answer for what changed since the signature.
+
+        The fields arrive from the library as data and are only laid out here
+        (tl:SR-0165); nothing about what counts as a change is decided in this
+        method. Being unable to establish the difference is rendered as its own
+        state and never as an empty one — an empty difference would assert that
+        the wording still stands as signed, which is the reading that sends a
+        reviewer past the very change they are being asked to accept.
+        """
+        change = change_since_signature(self.session, item.uid)
+        if change is None or not change.stale:
+            return
+        if change.outcome == "unresolvable":
+            add("what changed — CANNOT BE ESTABLISHED", _attr("warn", bold=True))
+            wrap(change.reason, 2)
+            wrap("nobody can state what you would be accepting.", 2)
+            add()
+            return
+        at = change.revision[:9] if change.revision else "—"
+        add(f"what changed since the signature  (signed content at {at})",
+            _attr("stale", bold=True))
+        for c in change.changes:
+            add(f"  {c.field}", _attr("key"))
+            wrap(f"was: {_shown(c.was)}", 4)
+            wrap(f"now: {_shown(c.now)}", 4)
+        add()
+
     @staticmethod
     def _why_blocked(item: QueueItem) -> str:
         if item.concern in ("rejected", "deleted"):
@@ -729,6 +769,13 @@ class App:
         add(f"  grounded: {gicon}   depth: {dtxt}   ambiguous: {'yes' if item.ambiguous else 'no'}",
             _attr(gattr))
         add()
+
+        # What moved since the signature, for the one item being looked at
+        # (SR-0053). Above the wording rather than below it: the reviewer has just
+        # been told the signature no longer covers what follows, and this answers
+        # the question that raises.
+        if item.stale:
+            self._add_change(item, add, wrap)
 
         if item.text:
             add("text", _attr("key"))

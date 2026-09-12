@@ -55,6 +55,7 @@ links:
   type: relates
 - target: tl:SR-0157
   type: satisfies
+  stamp: sha256:c70b2072d3e14f058811bcdd28d23437b2be6deac8f40ca46881958fb70ee2a4
 attrs:
   origin: ai
   ratified_by: Henry Grech-Cini

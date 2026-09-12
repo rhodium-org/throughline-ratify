@@ -1,0 +1,35 @@
+uid: SR-0053
+type: system_requirement
+status: proposed
+title: The cockpit shows what moved since the signature, and says when it cannot
+text: Where the assistant presents an item whose ratification no longer covers its
+  content, it shall show in that item's own view which normative fields changed since
+  the signature, giving the value as signed beside the value as it now stands, and
+  naming the revision the signed content was recovered from. Where the change cannot
+  be established it shall say so plainly, distinctly from having found no change.
+  What changed shall be settled by asking throughline, never by comparing content
+  here.
+rationale: |-
+  SR-0030 settled that a stale signature is its own concern and that whether an item is in that state is throughline's judgement, not this tool's. The same division applies to what moved: throughline resolves the signed content by finding the revision whose fingerprint reproduces the stamp (tl:SR-0165) and returns the difference as fields, so this tool lays those fields out and derives nothing. A second implementation of what counts as a content change would drift from the validator's, and the cockpit would then disagree with check about what a reviewer is accepting — the precise failure SR-0022 and SR-0030 each refused for their own half of the same question.
+
+  The revision is named because the difference is only as good as the content it was recovered from, and a reviewer who doubts what they are shown needs a handle they can go and look at. It is throughline's answer, reproduced, not a date this tool inferred.
+
+  Unable to establish is shown as its own state rather than as an empty difference, because an empty difference asserts that the wording still stands as signed. That assertion, made wrongly, sends the reviewer past the change they are being asked to accept, and the case is reachable without anything being broken — a signature backfilled over content that was never committed, or a history that has been rewritten.
+
+  Rejected — computing the difference here from the item's git history, which is available and would have been fewer moving parts. It would make this tool the second place the rule lives, and the rule is the one thing a ratification record cannot afford to have two versions of. Rejected — offering the difference only on a keystroke, which leaves the reviewer who does not know to press it exactly where SR-0030 found them.
+normative: true
+links:
+- target: UR-0015
+  type: derives_from
+- target: SR-0030
+  type: refines
+- target: tl:UR-0028
+  type: satisfies
+  stamp: sha256:473504fc4ef1a634f903b822a43228db1e2648b014a79e424c8ddf3e6967f030
+- target: tl:SR-0165
+  type: relates
+  stamp: sha256:165a80dede2c5f84a0e6c40414532d88d011720732dac6abb3881f96653a4c17
+- target: SR-0022
+  type: relates
+attrs:
+  origin: ai
