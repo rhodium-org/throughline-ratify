@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "throughline-ratify"
-version = "0.6.0"
+version = "0.7.0"
 description = "A full-screen, htop-style terminal assistant for reviewing and ratifying throughline requirement items. Compose-aware: grounds items over the composed union so borrowed clauses count. Ships the tl-ratify TUI."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -87,7 +87,7 @@ classifiers = [
 # '_render_item'`, while `tl-ratify` still runs. An upper bound on compose 0.13.0
 # would be the narrower fix and is not available, that release being already on the
 # index as published, so the floor is what moves.
-dependencies = ["throughline-compose>=0.14.0", "throughline>=2.0.0"]
+dependencies = ["throughline-compose>=0.14.0", "throughline>=3.0.0"]  # throughline.ratification — the resolved difference between an item's content and the content its stamp was taken over, which SR-0053 lays out rather than derives — is public from 3.0.0 (tl:SR-0165, tl:SR-0166)
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
