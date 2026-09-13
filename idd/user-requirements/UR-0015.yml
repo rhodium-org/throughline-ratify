@@ -1,6 +1,6 @@
 uid: UR-0015
 type: user_requirement
-status: proposed
+status: ratified
 title: Tell me what changed when a signature no longer covers the wording
 text: Where the assistant offers an item whose recorded signature no longer covers
   its wording, a user shall be able to see which content changed since that signature,
@@ -21,3 +21,5 @@ links:
   type: derives_from
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:cd1b8bc1d21235431ac485cd46e1af97e9f73674ab9af7f320f8f31fc7f8e191

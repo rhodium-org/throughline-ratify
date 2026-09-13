@@ -224,7 +224,7 @@ What a person working with the tool must be able to do.
 <!-- tl:end -->
 
 <!-- tl:item UR-0015 -->
-**UR-0015 — Tell me what changed when a signature no longer covers the wording** — `user_requirement`, status `proposed`
+**UR-0015 — Tell me what changed when a signature no longer covers the wording** — `user_requirement`, status `ratified`
 
 > Where the assistant offers an item whose recorded signature no longer covers its wording, a user shall be able to see which content changed since that signature, in the view that is offering the item and without leaving the assistant. Where that change cannot be established, the user shall be told that rather than shown nothing.
 
@@ -232,7 +232,7 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0001
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:cd1b8bc1d21235431ac485cd46e1af97e9f73674ab9af7f320f8f31fc7f8e191
 <!-- tl:end -->
 
 
@@ -844,7 +844,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0053 -->
-**SR-0053 — The cockpit shows what moved since the signature, and says when it cannot** — `system_requirement`, status `proposed`
+**SR-0053 — The cockpit shows what moved since the signature, and says when it cannot** — `system_requirement`, status `ratified`
 
 > Where the assistant presents an item whose ratification no longer covers its content, it shall show in that item's own view which normative fields changed since the signature, giving the value as signed beside the value as it now stands, and naming the revision the signed content was recovered from. Where the change cannot be established it shall say so plainly, distinctly from having found no change. What changed shall be settled by asking throughline, never by comparing content here.
 
@@ -855,7 +855,7 @@ What the software must do to meet them.
 *Satisfies:* tl:UR-0028
 *Relates:* tl:SR-0165, SR-0022
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:b55dea798f40918e4c414d3c6405f2c06d80bc7c6ecf9100e125ab113d8f09b6
 <!-- tl:end -->
 
 

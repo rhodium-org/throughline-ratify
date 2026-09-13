@@ -1,6 +1,6 @@
 uid: SR-0053
 type: system_requirement
-status: proposed
+status: ratified
 title: The cockpit shows what moved since the signature, and says when it cannot
 text: Where the assistant presents an item whose ratification no longer covers its
   content, it shall show in that item's own view which normative fields changed since
@@ -33,3 +33,5 @@ links:
   type: relates
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:b55dea798f40918e4c414d3c6405f2c06d80bc7c6ecf9100e125ab113d8f09b6
