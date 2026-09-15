@@ -859,7 +859,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0054 -->
-**SR-0054 — The compose seam reads the resolution field the pinned edition exports, and degrades to the public resolver when the private path fails** — `system_requirement`, status `proposed`
+**SR-0054 — The compose seam reads the resolution field the pinned edition exports, and degrades to the public resolver when the private path fails** — `system_requirement`, status `ratified`
 
 > When the consumer declares [[sources]], the session shall build its union from the resolution's labels, the field throughline-compose has exported since 0.17.0 (compose SR-0045), which is the floor SR-0043 already declares. If the private resolution path cannot be imported, or the object it returns does not have the shape this package expects, the session shall fall back to the public single-hop resolver rather than fail. The fallback shall be reported in the source summary, so a reviewer can see that transitive sources were not followed.
 
@@ -868,11 +868,11 @@ What the software must do to meet them.
 *Derives from:* UR-0003
 *Relates:* SR-0006, SR-0043
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:146956d92d5fc255b74981741bb343f71461808466f684698b013ee3d37933ee
 <!-- tl:end -->
 
 <!-- tl:item SR-0055 -->
-**SR-0055 — The shipped suite composes a real source through the seam, and the sdist suite runs the cockpit over this repository's own composed graph** — `system_requirement`, status `proposed`
+**SR-0055 — The shipped suite composes a real source through the seam, and the sdist suite runs the cockpit over this repository's own composed graph** — `system_requirement`, status `ratified`
 
 > The test suite this package ships shall include a test that declares a path source on a consumer, resolves it through the seam SR-0054 names with nothing stubbed, and grounds a consumer item through the borrowed root, so the seam is exercised against the compose edition actually installed. The sdist suite shall also run the installed cockpit non-interactively over this repository's own graph, which declares a source, so the artifact is proved able to compose before it ships.
 
@@ -881,7 +881,7 @@ What the software must do to meet them.
 *Derives from:* UR-0011
 *Relates:* SR-0041, SR-0054
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:0200ab9ada118f01ae73dd4fa88bb3ffb97678e6f8cf6b1a00c3723a9263fae0
 <!-- tl:end -->
 
 
