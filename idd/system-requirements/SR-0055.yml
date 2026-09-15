@@ -1,6 +1,6 @@
 uid: SR-0055
 type: system_requirement
-status: proposed
+status: ratified
 title: The shipped suite composes a real source through the seam, and the sdist suite
   runs the cockpit over this repository's own composed graph
 text: The test suite this package ships shall include a test that declares a path
@@ -26,3 +26,5 @@ links:
   type: relates
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:0200ab9ada118f01ae73dd4fa88bb3ffb97678e6f8cf6b1a00c3723a9263fae0
