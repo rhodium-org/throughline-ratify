@@ -53,3 +53,10 @@ jobs:
           tar -xzf dist/*.tar.gz -C /tmp/unpacked --strip-components=1
           cd /tmp/unpacked
           /tmp/sdist-env/bin/python -m pytest -q
+
+      - name: Run the installed cockpit over this repository's own composed graph
+        # idd/ declares a [[sources]] block, so this is the seam a user of a composed
+        # graph hits and the one the unit tests used to stub (SR-0055). --list is the
+        # non-interactive path; it resolves the source, builds the union and prints the
+        # worklist, and exits non-zero if composing fails.
+        run: /tmp/sdist-env/bin/tl-ratify -C idd --list

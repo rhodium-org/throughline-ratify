@@ -1,0 +1,35 @@
+uid: SR-0054
+type: system_requirement
+status: ratified
+title: The compose seam reads the resolution field the pinned edition exports, and
+  degrades to the public resolver when the private path fails
+text: When the consumer declares [[sources]], the session shall build its union from
+  the resolution's labels, the field throughline-compose has exported since 0.17.0
+  (compose SR-0045), which is the floor SR-0043 already declares. If the private
+  resolution path cannot be imported, or the object it returns does not have the
+  shape this package expects, the session shall fall back to the public single-hop
+  resolver rather than fail. The fallback shall be reported in the source summary,
+  so a reviewer can see that transitive sources were not followed.
+rationale: 'On 15th September 2026 tl-ratify 0.7.1 with throughline-compose 0.18.0
+  failed on every consumer with sources: could not compose sources, _Resolution object
+  has no attribute ns_aliases. Compose 0.17.0 renamed the field to labels and its
+  own CLI moved with it; 0.7.1 then raised the floor to 0.18.0 (SR-0043), so the
+  paired edition pinned the release that removed the name. A graph with no sources
+  takes the early return and still worked, which is why the cockpit looked healthy.
+  The fallback written for a future compose internals rename only fired when the
+  import failed, not when the object changed shape, so it guarded the wrong event.
+  Rejected, pinning compose to an exact version, for the reason SR-0038 gives. Rejected,
+  asking compose for a public accessor, which is the right long-term shape but does
+  not fix installs already on the index.'
+normative: true
+links:
+- target: UR-0003
+  type: derives_from
+- target: SR-0006
+  type: relates
+- target: SR-0043
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:146956d92d5fc255b74981741bb343f71461808466f684698b013ee3d37933ee

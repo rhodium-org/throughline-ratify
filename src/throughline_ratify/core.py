@@ -617,21 +617,51 @@ def _compose_if_declared(consumer: Project, root: Path) -> tuple[Project, list[S
         return consumer, []
 
     try:
-        if _compose_resolve_sources is not None:
-            res = _compose_resolve_sources(declared, root)
-            union = build_union(consumer, res.projects(), res.ns_aliases)
-            infos = [SourceInfo(ns, res.locations.get(ns, "")) for ns in sorted(res.resolved)]
-        else:  # pragma: no cover - fallback for a future compose internals rename
+        union, infos = _compose_private(consumer, declared, root)
+    except _SeamChanged:
+        # The private path imported but no longer has the shape this package was
+        # written against (SR-0054): compose it with the public API instead of
+        # dying on an internal name, and say so beside every source.
+        try:
             union, infos = _compose_public_fallback(consumer, declared, root)
-    except (ComposeError, Exception) as exc:  # noqa: BLE001 - report any resolve failure cleanly
+        except Exception as exc:  # noqa: BLE001 - report any resolve failure cleanly
+            raise RatifierError(f"could not compose sources: {exc}") from exc
+    except Exception as exc:  # noqa: BLE001 - report any resolve failure cleanly
         if isinstance(exc, RatifierError):
             raise
         raise RatifierError(f"could not compose sources: {exc}") from exc
     return union.project, infos
 
 
-def _compose_public_fallback(consumer, declared, root):  # pragma: no cover
-    """Single-hop resolution via the public API only (no re-export handling)."""
+class _SeamChanged(Exception):
+    """tl-compose's private resolution path is present but not the shape expected."""
+
+
+def _compose_private(consumer, declared, root):
+    """Full resolution through tl-compose's own resolver: transitive sources, one
+    fetch per edition, the same union the CLI checks. The union is built from the
+    resolution's ``labels`` — the field compose has exported since 0.17.0 (compose
+    SR-0045), which is inside the floor SR-0043 declares. A rename of that field
+    or of the resolver is reported as :class:`_SeamChanged` so the caller can
+    take the public route (SR-0054)."""
+    if _compose_resolve_sources is None:
+        raise _SeamChanged("throughline_compose.cli._resolve_sources is not importable")
+    res = _compose_resolve_sources(declared, root)
+    try:
+        projects, labels, resolved, locations = (
+            res.projects(), res.labels, res.resolved, res.locations)
+    except AttributeError as exc:
+        raise _SeamChanged(str(exc)) from exc
+    union = build_union(consumer, projects, labels)
+    infos = [SourceInfo(ns, locations.get(ns, "")) for ns in sorted(resolved)]
+    return union, infos
+
+
+def _compose_public_fallback(consumer, declared, root):
+    """Single-hop resolution via the public API only: the sources the consumer
+    declares itself, nothing they compose in turn. Each source's location says
+    so, because a reviewer reading the summary should know transitive sources
+    were not followed (SR-0054)."""
     from throughline_compose.resolve import resolve_source
     from throughline.storage import read_project
 
@@ -641,7 +671,7 @@ def _compose_public_fallback(consumer, declared, root):  # pragma: no cover
         resolved_path = resolve_source(src, root)
         projects[src.namespace] = read_project(resolved_path)
         loc = f"{src.url}@{src.ref}" if src.is_remote else f"path {src.path}"
-        infos.append(SourceInfo(src.namespace, loc))
+        infos.append(SourceInfo(src.namespace, f"{loc} (public resolver, single hop)"))
     union = build_union(consumer, projects)
     return union, sorted(infos, key=lambda s: s.namespace)
 
