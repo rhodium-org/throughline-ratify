@@ -1,0 +1,28 @@
+uid: SR-0055
+type: system_requirement
+status: proposed
+title: The shipped suite composes a real source through the seam, and the sdist suite
+  runs the cockpit over this repository's own composed graph
+text: The test suite this package ships shall include a test that declares a path
+  source on a consumer, resolves it through the seam SR-0054 names with nothing stubbed,
+  and grounds a consumer item through the borrowed root, so the seam is exercised
+  against the compose edition actually installed. The sdist suite shall also run
+  the installed cockpit non-interactively over this repository's own graph, which
+  declares a source, so the artifact is proved able to compose before it ships.
+rationale: 'The tests that touched the compose seam stubbed it with monkeypatch,
+  and the sdist suite ran pytest but never the cockpit, so the only code path a user
+  of a composed graph hits was the one no gate ran. This is the shape SR-0041 records
+  for the missing conftest, and the shape compose 0.13.0 recorded for its own check:
+  a self-hosted gate cannot test the branch its own tests stub out. The suite runs
+  on the installed toolchain, so a later compose rename fails here on the day it
+  ships, not on a user.'
+normative: true
+links:
+- target: UR-0011
+  type: derives_from
+- target: SR-0041
+  type: relates
+- target: SR-0054
+  type: relates
+attrs:
+  origin: ai

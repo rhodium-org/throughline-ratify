@@ -688,3 +688,76 @@ def test_preview_reject_refuses_an_unknown_uid(demo_project):
     session = core.open_session(demo_project)
     with pytest.raises(core.RatifierError, match="does not exist"):
         core.preview_reject(session, "NOPE-9999")
+
+
+# --------------------------------------------------------------------------- #
+# The compose seam, driven for real (SR-0054, SR-0055)
+# --------------------------------------------------------------------------- #
+
+def _composed_consumer(tmp_path):
+    """A consumer that declares a ``path`` source and holds one item grounded only
+    through that source's root. Nothing is stubbed: the session resolves the
+    source with the compose edition actually installed."""
+    from conftest import _write_project
+    _write_project(tmp_path / "base")
+    consumer = _write_project(tmp_path / "consumer")
+    cfg = consumer / "throughline.toml"
+    cfg.write_text(cfg.read_text() + '\n[[sources]]\nnamespace = "base"\npath = "../base"\n',
+                   encoding="utf-8")
+    (consumer / "requirements" / "FR-0009.yml").write_text(
+        "uid: FR-0009\ntype: requirement\nstatus: proposed\n"
+        "title: Grounded only through the borrowed root\ntext: Body of FR-0009.\n"
+        "normative: true\nlinks:\n- target: base:INT-0001\n  type: derives_from\n"
+        "attrs:\n  origin: ai\n", encoding="utf-8")
+    return consumer
+
+
+def test_a_path_source_is_composed_through_the_real_seam(tmp_path):
+    """SR-0055: the seam is exercised unstubbed against the installed compose. The
+    borrowed root is in the union, the item grounded only through it is ratifiable,
+    and the summary names the source by its declared location."""
+    consumer = _composed_consumer(tmp_path)
+    session = core.open_session(consumer)
+    assert [(s.namespace, s.location) for s in session.sources] == [("base", "path ../base")]
+    queue = {q.uid: q for q in core.build_queue(session)}
+    assert queue["FR-0009"].grounded
+    # the control: the same consumer with its source undeclared cannot ground FR-0009,
+    # so the grounding above came through the seam and nothing else
+    cfg = consumer / "throughline.toml"
+    cfg.write_text(cfg.read_text().split("[[sources]]")[0], encoding="utf-8")
+    bare = core.open_session(consumer)
+    assert bare.sources == []
+    assert not {q.uid: q for q in core.build_queue(bare)}["FR-0009"].grounded
+
+
+def test_a_changed_private_seam_degrades_to_the_public_resolver(tmp_path, monkeypatch):
+    """SR-0054: when compose's private resolution object loses a field this package
+    reads, the session composes through the public single-hop resolver and says so,
+    rather than failing on an internal name."""
+    consumer = _composed_consumer(tmp_path)
+
+    class Renamed:  # the 0.16 -> 0.17 shape change, replayed
+        def __init__(self, real):
+            self._real = real
+        def projects(self):
+            return self._real.projects()
+        def __getattr__(self, name):
+            if name == "labels":
+                raise AttributeError("'_Resolution' object has no attribute 'labels'")
+            return getattr(self._real, name)
+
+    real = core._compose_resolve_sources
+    monkeypatch.setattr(core, "_compose_resolve_sources", lambda d, r: Renamed(real(d, r)))
+    session = core.open_session(consumer)
+    assert [(s.namespace, s.location) for s in session.sources] == [
+        ("base", "path ../base (public resolver, single hop)")]
+    queue = {q.uid: q for q in core.build_queue(session)}
+    assert queue["FR-0009"].grounded
+
+
+def test_an_unimportable_private_seam_also_degrades(tmp_path, monkeypatch):
+    """SR-0054: the import guard and the shape guard take the same route."""
+    consumer = _composed_consumer(tmp_path)
+    monkeypatch.setattr(core, "_compose_resolve_sources", None)
+    session = core.open_session(consumer)
+    assert session.sources[0].location.endswith("(public resolver, single hop)")

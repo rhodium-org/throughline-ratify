@@ -858,6 +858,32 @@ What the software must do to meet them.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:b55dea798f40918e4c414d3c6405f2c06d80bc7c6ecf9100e125ab113d8f09b6
 <!-- tl:end -->
 
+<!-- tl:item SR-0054 -->
+**SR-0054 — The compose seam reads the resolution field the pinned edition exports, and degrades to the public resolver when the private path fails** — `system_requirement`, status `proposed`
+
+> When the consumer declares [[sources]], the session shall build its union from the resolution's labels, the field throughline-compose has exported since 0.17.0 (compose SR-0045), which is the floor SR-0043 already declares. If the private resolution path cannot be imported, or the object it returns does not have the shape this package expects, the session shall fall back to the public single-hop resolver rather than fail. The fallback shall be reported in the source summary, so a reviewer can see that transitive sources were not followed.
+
+*Rationale:* On 15th September 2026 tl-ratify 0.7.1 with throughline-compose 0.18.0 failed on every consumer with sources: could not compose sources, _Resolution object has no attribute ns_aliases. Compose 0.17.0 renamed the field to labels and its own CLI moved with it; 0.7.1 then raised the floor to 0.18.0 (SR-0043), so the paired edition pinned the release that removed the name. A graph with no sources takes the early return and still worked, which is why the cockpit looked healthy. The fallback written for a future compose internals rename only fired when the import failed, not when the object changed shape, so it guarded the wrong event. Rejected, pinning compose to an exact version, for the reason SR-0038 gives. Rejected, asking compose for a public accessor, which is the right long-term shape but does not fix installs already on the index.
+
+*Derives from:* UR-0003
+*Relates:* SR-0006, SR-0043
+
+**origin**: ai
+<!-- tl:end -->
+
+<!-- tl:item SR-0055 -->
+**SR-0055 — The shipped suite composes a real source through the seam, and the sdist suite runs the cockpit over this repository's own composed graph** — `system_requirement`, status `proposed`
+
+> The test suite this package ships shall include a test that declares a path source on a consumer, resolves it through the seam SR-0054 names with nothing stubbed, and grounds a consumer item through the borrowed root, so the seam is exercised against the compose edition actually installed. The sdist suite shall also run the installed cockpit non-interactively over this repository's own graph, which declares a source, so the artifact is proved able to compose before it ships.
+
+*Rationale:* The tests that touched the compose seam stubbed it with monkeypatch, and the sdist suite ran pytest but never the cockpit, so the only code path a user of a composed graph hits was the one no gate ran. This is the shape SR-0041 records for the missing conftest, and the shape compose 0.13.0 recorded for its own check: a self-hosted gate cannot test the branch its own tests stub out. The suite runs on the installed toolchain, so a later compose rename fails here on the day it ships, not on a user.
+
+*Derives from:* UR-0011
+*Relates:* SR-0041, SR-0054
+
+**origin**: ai
+<!-- tl:end -->
+
 
 ## Traceability
 
@@ -869,7 +895,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 |---|---|---|
 | UR-0001 | See every item awaiting my ratification, most-actionable first | SR-0001, SR-0002, SR-0008, SR-0009, SR-0011, SR-0024, SR-0030 |
 | UR-0002 | Ratify or reject an item without leaving the full-screen view | SR-0003, SR-0004, SR-0005, SR-0012, SR-0013, SR-0014, SR-0022, SR-0023, SR-0025, SR-0026, SR-0027, SR-0028, SR-0029, SR-0037 |
-| UR-0003 | On a composed project, items grounded through a source are ratifiable | SR-0006 |
+| UR-0003 | On a composed project, items grounded through a source are ratifiable | SR-0006, SR-0054 |
 | UR-0004 | Read the interface like htop, not a scrolling log | SR-0007, SR-0010, SR-0031, SR-0044 |
 | UR-0005 | Leave a ratification session with a written record of what I decided | SR-0021 |
 | UR-0006 | A contribution states the terms under which it is offered | — |
@@ -877,7 +903,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0008 | A newcomer can set up, check and offer a change without asking | SR-0034, SR-0038 |
 | UR-0009 | A vulnerability can be reported without first disclosing it | SR-0035 |
 | UR-0010 | What is expected of participants, and where a breach is taken | SR-0036 |
-| UR-0011 | The published distribution passes the suite it ships | SR-0040, SR-0041 |
+| UR-0011 | The published distribution passes the suite it ships | SR-0040, SR-0041, SR-0055 |
 | UR-0012 | The requirements this tool is built to can be read, and read whole | SR-0042 |
 | UR-0013 | Choose which graph to open when the path I give holds more than one | SR-0045, SR-0047, SR-0048 |
 | UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052 |
