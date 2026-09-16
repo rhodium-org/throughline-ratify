@@ -884,6 +884,21 @@ What the software must do to meet them.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:0200ab9ada118f01ae73dd4fa88bb3ffb97678e6f8cf6b1a00c3723a9263fae0
 <!-- tl:end -->
 
+<!-- tl:item SR-0056 -->
+**SR-0056 — A changed prose field is shown as a diff in the pane, with the words that moved marked** — `system_requirement`, status `ratified`
+
+> Where the change since the signature holds a prose field, the cockpit shall show that field as a diff in its own pane: the kept, removed and added sentences in order, or lines where the value has lines, each marked as kept, removed or added, removed before added, and wrapped to the pane. A removed sentence shall be coloured red and its replacement green, and within a replaced sentence the words that moved shall be visibly marked. A value holding no whitespace is shown as before and after on one line. Which sentences and which words moved shall be read from throughline as data, never computed here.
+
+*Rationale:* SR-0053 put the value as signed beside the value as it now stands. For a field of one line that answers the question; for a paragraph it does not. The reviewer is shown eighty words twice and left to find the change by eye. The operator reported the pane as almost impossible to read. throughline answered the same complaint for tl ratify in SR-0198: a sentence-level diff, coloured as git colours one, with the moved words of a replaced sentence marked. From throughline 3.4.0 that diff is offered as data (tl:SR-0200), so this pane lays out the same units and marks that tl ratify paints. The two tools then agree about what moved, which is the rule SR-0053 already binds this pane to. Who pays: nobody outside this tool. The pane draws with curses, so colour and marking are the pane's own; a terminal without colour still sees the marks. Rejected: a word diff computed here with difflib, which is the second copy of the rule SR-0053 refuses. Rejected: parsing the escape codes out of throughline's painted output, which SR-0165 rejected for the fields and which applies to the diff for the same reason.
+
+*Derives from:* UR-0015
+*Refines:* SR-0053
+*Satisfies:* tl:SR-0198
+*Relates:* tl:SR-0200
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:72b7bb0ec21a5f15eb28bef252f2af22582fcf8cb39e663eabff5b8685fbeaa5
+<!-- tl:end -->
+
 
 ## Traceability
 
@@ -907,6 +922,6 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0012 | The requirements this tool is built to can be read, and read whole | SR-0042 |
 | UR-0013 | Choose which graph to open when the path I give holds more than one | SR-0045, SR-0047, SR-0048 |
 | UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052 |
-| UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053 |
+| UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053, SR-0056 |
 <!-- tl:end -->
 
