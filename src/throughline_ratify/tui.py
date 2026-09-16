@@ -15,6 +15,8 @@ import re
 import textwrap
 from dataclasses import dataclass
 
+from throughline.ratification import ADDED, REMOVED, diff_prose, is_prose, wrap_words
+
 from . import core
 from . import __version__
 from .core import QueueItem, Session, change_since_signature
@@ -43,6 +45,10 @@ def _init_colours() -> None:
         # Yellow, like "proposed": both are items a human still has to sign. Only
         # "proposed" is drawn bold, and the glyph and label carry the rest.
         "stale": (curses.COLOR_YELLOW, bg),
+        # A removed sentence and its replacement, coloured as git colours a diff
+        # (SR-0056); the words that moved within them are drawn in reverse video.
+        "removed": (curses.COLOR_RED, bg),
+        "added": (curses.COLOR_GREEN, bg),
         "blocked": (curses.COLOR_CYAN, bg),
         "ungrounded": (curses.COLOR_RED, bg),
         "ambiguous": (curses.COLOR_RED, bg),
@@ -117,6 +123,22 @@ def _hline(win, y: int, x: int, width: int, attr: int) -> None:
 
 
 _PARA_BREAK = re.compile(r"\n[ \t]*\n\s*")
+
+#: How one drawn line is painted: a single attribute for the whole line, or a
+#: run of ``(length, attribute)`` spans covering it in order — the shape a diff
+#: line needs, where the words that moved are marked within a coloured line.
+_Paint = int | tuple[tuple[int, int], ...]
+
+
+def _addline(win, y: int, x: int, text: str, paint: _Paint) -> None:
+    """Draw ``text`` at (y, x) under ``paint``, span by span where it has spans."""
+    if isinstance(paint, int):
+        _safe_addstr(win, y, x, text, paint)
+        return
+    pos = 0
+    for length, attr in paint:
+        _safe_addstr(win, y, x + pos, text[pos:pos + length], attr)
+        pos += length
 
 
 def _paragraphs(text: str) -> list[str]:
@@ -485,23 +507,26 @@ class App:
     def _sort_label(sort: str) -> str:
         return {"concern": "concern", "roots": "roots\u2193", "leaves": "leaves\u2191"}.get(sort, sort)
 
-    def _add_change(self, item: QueueItem, add, wrap) -> None:
+    def _add_change(self, item: QueueItem, add, wrap, width: int) -> None:
         """Lay out throughline's answer for what changed since the signature.
 
         The fields arrive from the library as data and are only laid out here
         (tl:SR-0165); nothing about what counts as a change is decided in this
-        method. Being unable to establish the difference is rendered as its own
-        state and never as an empty one — an empty difference would assert that
-        the wording still stands as signed, which is the reading that sends a
-        reviewer past the very change they are being asked to accept.
+        method. A prose field is shown as a diff (SR-0056), its units and marked
+        words read from throughline too (tl:SR-0200). Being unable to establish
+        the difference is rendered as its own state and never as an empty one —
+        an empty difference would assert that the wording still stands as signed,
+        which is the reading that sends a reviewer past the very change they are
+        being asked to accept.
         """
         change = change_since_signature(self.session, item.uid)
         if change is None or not change.stale:
             return
         if change.outcome == "unresolvable":
             add("what changed — CANNOT BE ESTABLISHED", _attr("warn", bold=True))
-            wrap(change.reason, 2)
-            wrap("nobody can state what you would be accepting.", 2)
+            wrap(change.reason, _attr("dim"), indent="    ")
+            wrap("nobody can state what you would be accepting.", _attr("dim"),
+                 indent="    ")
             add()
             return
         at = change.revision[:9] if change.revision else "—"
@@ -509,9 +534,40 @@ class App:
             _attr("stale", bold=True))
         for c in change.changes:
             add(f"  {c.field}", _attr("key"))
-            wrap(f"was: {_shown(c.was)}", 4)
-            wrap(f"now: {_shown(c.now)}", 4)
+            if is_prose(c.was, c.now):
+                self._add_diff(c.was, c.now, add, width)
+            else:
+                wrap(f"was: {_shown(c.was)}", 0, indent="    ")
+                wrap(f"now: {_shown(c.now)}", 0, indent="    ")
         add()
+
+    @staticmethod
+    def _add_diff(was: str, now: str, add, width: int) -> None:
+        """One prose field as a diff in the pane (SR-0056): kept sentences in
+        place and unmarked, a removed sentence red above its green replacement,
+        and within a replaced sentence the words that moved in reverse video,
+        consecutive moved words sharing one run so a reworded phrase reads as a
+        phrase. Which units and which words moved is throughline's answer
+        (tl:SR-0200), laid out and never recomputed here."""
+        base = {REMOVED: _attr("removed"), ADDED: _attr("added")}
+        for unit in diff_prose(was, now):
+            line_attr = base.get(unit.mark, 0)
+            moved_attr = line_attr | curses.A_REVERSE
+            first, rest = f"    {unit.mark} ", "      "
+            for n, words in enumerate(wrap_words(unit.words, first=first, rest=rest,
+                                                 width=width)):
+                head = first if n == 0 else rest
+                text = head
+                spans: list[tuple[int, int]] = [(len(head), line_attr)]
+                prev_moved = False
+                for i, (word, moved) in enumerate(words):
+                    if i:
+                        text += " "
+                        spans.append((1, moved_attr if moved and prev_moved else line_attr))
+                    text += word
+                    spans.append((len(word), moved_attr if moved else line_attr))
+                    prev_moved = moved
+                add(text, tuple(spans))
 
     @staticmethod
     def _why_blocked(item: QueueItem) -> str:
@@ -671,8 +727,8 @@ class App:
             src = scroll + i
             if src >= len(lines):
                 break
-            text, attr = lines[src]
-            _safe_addstr(self.scr, top + i, left + 1, text, attr)
+            text, paint = lines[src]
+            _addline(self.scr, top + i, left + 1, text, paint)
         # scroll indicators
         if scroll > 0:
             _safe_addstr(self.scr, top, left + width - 2, "\u25b2", _attr("dim"))
@@ -703,8 +759,8 @@ class App:
             self._detail_scroll = max(0, min(self._detail_scroll, total - height))
         return self._detail_scroll
 
-    def _detail_lines(self, item: QueueItem, width: int) -> list[tuple[int | str, int]]:
-        out: list[tuple[str, int]] = []
+    def _detail_lines(self, item: QueueItem, width: int) -> list[tuple[str, _Paint]]:
+        out: list[tuple[str, _Paint]] = []
         self._link_lines = {}
 
         def add(text: str = "", attr: int = 0) -> None:
@@ -775,7 +831,7 @@ class App:
         # been told the signature no longer covers what follows, and this answers
         # the question that raises.
         if item.stale:
-            self._add_change(item, add, wrap)
+            self._add_change(item, add, wrap, width)
 
         if item.text:
             add("text", _attr("key"))
