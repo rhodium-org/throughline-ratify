@@ -20,14 +20,12 @@ from . import core, report
 
 
 def _version_string() -> str:
-    # All three read through throughline's own helper, so a working tree is named as
+    # Both read through throughline's own helper, so a working tree is named as
     # one rather than reporting the release it derives from (SR-0031). This cockpit
     # shows a verdict rather than computing one, so the build behind each layer is
-    # part of what a reviewer needs in order to trust what is on the screen.
-    return (
-        f"tl-ratify {_v('throughline-ratify')} "
-        f"(throughline-compose {_v('throughline-compose')}, throughline {_v('throughline')})"
-    )
+    # part of what a reviewer needs in order to trust what is on the screen. The
+    # Tool composes since throughline 3.11, so there is no third package to name.
+    return f"tl-ratify {_v('throughline-ratify')} (throughline {_v('throughline')})"
 
 
 def build_parser() -> argparse.ArgumentParser:
