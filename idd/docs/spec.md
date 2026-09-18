@@ -869,7 +869,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0054 -->
-**SR-0054 — The compose seam reads the resolution field the pinned edition exports, and degrades to the public resolver when the private path fails** — `system_requirement`, status `ratified`
+**SR-0054 — The compose seam reads the resolution field the pinned edition exports, and degrades to the public resolver when the private path fails** — `system_requirement`, status `rejected`
 
 > When the consumer declares [[sources]], the session shall build its union from the resolution's labels, the field throughline-compose has exported since 0.17.0 (compose SR-0045), which is the floor SR-0043 already declares. If the private resolution path cannot be imported, or the object it returns does not have the shape this package expects, the session shall fall back to the public single-hop resolver rather than fail. The fallback shall be reported in the source summary, so a reviewer can see that transitive sources were not followed.
 
@@ -878,7 +878,7 @@ What the software must do to meet them.
 *Derives from:* UR-0003
 *Relates:* SR-0006, SR-0043
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:146956d92d5fc255b74981741bb343f71461808466f684698b013ee3d37933ee
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:146956d92d5fc255b74981741bb343f71461808466f684698b013ee3d37933ee · **invalidated_reason**: the name it reached for is published; SR-0057 and SR-0060 close it
 <!-- tl:end -->
 
 <!-- tl:item SR-0055 -->
@@ -973,7 +973,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 |---|---|---|
 | UR-0001 | See every item awaiting my ratification, most-actionable first | SR-0001, SR-0002, SR-0008, SR-0009, SR-0011, SR-0024, SR-0030 |
 | UR-0002 | Ratify or reject an item without leaving the full-screen view | SR-0003, SR-0004, SR-0005, SR-0012, SR-0013, SR-0014, SR-0022, SR-0023, SR-0025, SR-0026, SR-0027, SR-0028, SR-0029, SR-0037 |
-| UR-0003 | On a composed project, items grounded through a source are ratifiable | SR-0006, SR-0054 |
+| UR-0003 | On a composed project, items grounded through a source are ratifiable | SR-0006 |
 | UR-0004 | Read the interface like htop, not a scrolling log | SR-0007, SR-0010, SR-0031, SR-0044 |
 | UR-0005 | Leave a ratification session with a written record of what I decided | SR-0021 |
 | UR-0006 | A contribution states the terms under which it is offered | — |
