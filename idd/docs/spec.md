@@ -235,6 +235,16 @@ What a person working with the tool must be able to do.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:cd1b8bc1d21235431ac485cd46e1af97e9f73674ab9af7f320f8f31fc7f8e191
 <!-- tl:end -->
 
+<!-- tl:item UR-0016 -->
+**UR-0016 — Upgrading throughline does not cost me a new cockpit** — `user_requirement`, status `ratified`
+
+> As a reviewer I want the cockpit to go on working when throughline is upgraded, so that I am not held to a matching pair of versions and a rename inside the Tool does not oblige me to install anything here.
+
+*Derives from:* INT-0002
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:753916b2c6628bb74555ac539c596da1221cd58bd746d931c2475c4b611527d3
+<!-- tl:end -->
+
 
 ## System requirements
 
@@ -899,6 +909,59 @@ What the software must do to meet them.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:72b7bb0ec21a5f15eb28bef252f2af22582fcf8cb39e663eabff5b8685fbeaa5
 <!-- tl:end -->
 
+<!-- tl:item SR-0057 -->
+**SR-0057 — The cockpit stands on what throughline publishes, and on nothing else** — `system_requirement`, status `ratified`
+
+> The assistant shall use only the names throughline publishes as its interface — those `import throughline` offers, which that project's own document names as its compatibility surface. No module of this assistant shall import from a path inside throughline rather than from throughline itself, and none shall use a name beginning with an underscore from throughline or from throughline-compose. The single exception is the compose seam SR-0054 records, which stands only until the name it reaches for is published, and which the test shall name as the one import it allows, so that a second exception cannot be taken without being written down here. A test shall read this assistant's own source and fail on any other, catching a reach-in in the change that writes it rather than in an installation after an upgrade.
+
+*Rationale:* This assistant imports from ten paths inside throughline and one private name inside throughline-compose. None of those is a promise: the promise is the published list, and everything else is free to be renamed in any release. The consequence has been measured — twelve releases of throughline in five days, several cut for no reason except that an internal name this assistant reads had moved. A reviewer who upgrades the Tool pays for that, and the browser editor pays more, pinning exact wheels of all three packages so that an upgrade cannot happen to it at all. The principle is already this graph's own, twice. SR-0022 says a ratification is recorded by calling throughline's ratify rather than by a copy of it, and SR-0027 says the identity offered is throughline's rather than a second decision about who signs. Both are about the judgement being the Tool's. This clause is about the route to it: a judgement obtained through a private name is obtained by trespass, and it breaks without warning because nothing upstream ever undertook to keep it. The compose seam is named as the exception rather than left to contradict this, because SR-0054 is ratified and requires exactly what this forbids — it reads a private resolution field and degrades when that field changes shape. It was the right call at the time and its own rationale says why it is not the right end: asking compose for a public accessor is recorded there as the right long-term shape, rejected only because it could not repair installs already on the index. Naming the seam here, with the test made to name it too, is what keeps a bounded exception from becoming the general practice again. Closing it is SR-0059's work. The test is written against this assistant's own source rather than against throughline's, because the obligation is this side's. throughline can only promise what it publishes; which names this assistant chooses to lean on is a choice made here, and a choice made here is one this graph can hold.
+
+*Derives from:* UR-0016
+*Relates:* SR-0022, SR-0027, SR-0054, SR-0059
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:791c812fdc5c575d0a98d062ffe807f540dfdbb9d3fdf06e244c46e296bd059f
+<!-- tl:end -->
+
+<!-- tl:item SR-0058 -->
+**SR-0058 — The worklist the cockpit draws is throughline's, not a second copy of it** — `system_requirement`, status `ratified`
+
+> The worklist the cockpit draws shall be the one throughline computes. The items outstanding, the order they are offered in, the concern each is in and the vocabulary those concerns are named from, the count of what has been signed, and the reason an item cannot be signed shall all be obtained from throughline and rendered here. The assistant shall not decide any of them a second time. Where an item cannot be signed the reason shown shall be the one throughline's own ratify would give for refusing it, so that the sentence a reviewer reads in the list and the sentence they would meet at the prompt are one sentence. What remains this assistant's own is the drawing: the colour, the icon, the layout, the keys, and which of the concerns a particular view chooses to show.
+
+*Rationale:* Until now this assistant classified every row itself (SR-0002), because throughline offered nothing to ask. It does now: the ordered worklist, the vocabulary of concerns, the progress figure, and the obstacle its own ratify computes are part of its published interface. Keeping the local copy would leave two answers to one question — may this be signed, and if not why not — and they have already parted once. An item ratified and then advanced past the ratified status was invisible here until SR-0018 taught this side about it separately; a signature the content had outgrown needed SR-0030 to be noticed here after throughline could already see it. Each is the same defect arriving twice, and each cost a release on this side that a shared answer would not have. The vocabulary is named in the clause because throughline's is wider than the five SR-0002 enumerates: it also distinguishes a signature the content has outgrown, which SR-0030 had to add here separately, and the settled and dead states that the show-all view of SR-0020 already draws. Adopting the Tool's set is what stops a sixth concern being invented here the next time one is needed. The browser editor is the second reason. It needs the same model, and it imported it from this package — a cockpit built for a terminal — because nothing else offered one. That is the wrong dependency for it to have: it takes a curses application's release cycle into a browser to get at a computation that was never this application's to own. The drawing is deliberately kept here, and the line is worth stating plainly. throughline decides what is true about an item; this assistant decides how a person meets it. A colour is not a judgement, and moving it upstream would put a terminal's concerns into a tool that has no terminal.
+
+*Derives from:* UR-0016
+*Relates:* SR-0002, SR-0039, SR-0018, SR-0030, SR-0020
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:bbfc1ab3cf3fc02b040bd068d9c1c1461aa4661591b4869afad5e9203f67019c
+<!-- tl:end -->
+
+<!-- tl:item SR-0059 -->
+**SR-0059 — A name the cockpit needs and throughline does not publish is asked for, not reached for** — `system_requirement`, status `ratified`
+
+> Where the assistant needs something throughline does not publish, the gap shall be raised against throughline and closed there, and the assistant shall not depend on the unpublished name in the meantime — not by importing it from inside the package, and not by copying it here. Four are outstanding at the time of writing: the refusal a grounding operation returns, which the assistant must be able to recognise to report one; the record of what moved since a signature and the prose comparison drawn from it, which SR-0053 and SR-0056 draw in the detail pane; the helper that makes a console accept the characters written to it; and the names the compose seam uses, one of which is private today. Each shall end as a published name of the package that owns it, a published equivalent the assistant uses instead, or something the assistant owns outright as its own.
+
+*Rationale:* SR-0057 says what the assistant may lean on. This says what to do when the thing it needs is not there, because the answer that comes naturally under time pressure is to import it anyway, and a rule with no route out is a rule that gets broken quietly. The four are written down rather than described in general, because a general prohibition cannot be discharged. Each is a decision waiting to be taken by somebody, and two of them are genuinely open. A refusal and a record of change are throughline's own concepts and belong in its interface. A console-encoding helper is arguably not: it is what an interface does to a terminal, and this assistant is an interface, so owning it here may be the more honest end. The compose names depend on a question nobody has settled — whether composition stays a separate package at all. The shape of the remedy is also worth stating. A copy taken here would be the defect SR-0022 and SR-0027 were both written to remove, and one taken silently is worse than the reach-in it replaces: an import that breaks is visible on the next upgrade, whereas a copy goes on answering after the original has changed its mind.
+
+*Derives from:* UR-0016
+*Refines:* SR-0057
+*Relates:* SR-0053, SR-0054, SR-0056, SR-0022, SR-0027
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:398f2e36d0fb42a40b011b94b7a654a74afd23909fca63e0473d32423fb22ae5
+<!-- tl:end -->
+
+<!-- tl:item SR-0060 -->
+**SR-0060 — The floor and the pin move together, to the edition that publishes what is used** — `system_requirement`, status `ratified`
+
+> The declared dependency floor shall be the first published edition whose interface carries every throughline name the assistant uses, and the source pinned by this graph shall move to that same edition in the same change. A clause this graph cites shall therefore be read at the edition the assistant actually runs against, rather than at whatever edition the pin was last left on. Where a cached tree exists for the ref being left, it shall be cleared as part of that change, because a moved ref is not refetched and the check would otherwise pass against the wording that moved.
+
+*Rationale:* SR-0029 made this graph's dependency on throughline's a fact the validator holds rather than a claim in prose. The pin is what makes that true, and it is presently v3.4.0 while the floor in the package metadata says the same — which is the state this clause wants to keep, and which drifts the moment either moves alone. It matters here more than usual, because the clauses this assistant is about to cite do not exist at v3.4.0. The published interface, its document, and the worklist SR-0058 draws all arrive in a later edition. Citing them before the pin moves would leave a reference nothing can resolve; moving the pin without moving the floor would let the assistant be installed against an edition whose interface does not carry what it calls. They are one change. The cache is named because it has bitten this repo before: the ref in the source block is a tag, and the fetched tree for the old tag is kept. A pin moved without clearing it goes on validating against the text it was pinned to, and reports success — the worst available outcome, since the whole point of the pin is that the wording under a citation only moves when the line moves.
+
+*Derives from:* UR-0016
+*Relates:* SR-0029, SR-0043, SR-0058
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:2d65db4cc82860adfea1e5a7f6c0c924377487cfcd516d0d8bb94dbc73913fb1
+<!-- tl:end -->
+
 
 ## Traceability
 
@@ -923,5 +986,6 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0013 | Choose which graph to open when the path I give holds more than one | SR-0045, SR-0047, SR-0048 |
 | UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052 |
 | UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053, SR-0056 |
+| UR-0016 | Upgrading throughline does not cost me a new cockpit | SR-0057, SR-0058, SR-0059, SR-0060 |
 <!-- tl:end -->
 

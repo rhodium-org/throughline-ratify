@@ -1,0 +1,42 @@
+uid: SR-0059
+type: system_requirement
+status: ratified
+title: A name the cockpit needs and throughline does not publish is asked for, not
+  reached for
+text: 'Where the assistant needs something throughline does not publish, the gap
+  shall be raised against throughline and closed there, and the assistant shall not
+  depend on the unpublished name in the meantime — not by importing it from inside
+  the package, and not by copying it here. Four are outstanding at the time of writing:
+  the refusal a grounding operation returns, which the assistant must be able to
+  recognise to report one; the record of what moved since a signature and the prose
+  comparison drawn from it, which SR-0053 and SR-0056 draw in the detail pane; the
+  helper that makes a console accept the characters written to it; and the names
+  the compose seam uses, one of which is private today. Each shall end as a published
+  name of the package that owns it, a published equivalent the assistant uses instead,
+  or something the assistant owns outright as its own.'
+rationale: |-
+  SR-0057 says what the assistant may lean on. This says what to do when the thing it needs is not there, because the answer that comes naturally under time pressure is to import it anyway, and a rule with no route out is a rule that gets broken quietly.
+
+  The four are written down rather than described in general, because a general prohibition cannot be discharged. Each is a decision waiting to be taken by somebody, and two of them are genuinely open. A refusal and a record of change are throughline's own concepts and belong in its interface. A console-encoding helper is arguably not: it is what an interface does to a terminal, and this assistant is an interface, so owning it here may be the more honest end. The compose names depend on a question nobody has settled — whether composition stays a separate package at all.
+
+  The shape of the remedy is also worth stating. A copy taken here would be the defect SR-0022 and SR-0027 were both written to remove, and one taken silently is worse than the reach-in it replaces: an import that breaks is visible on the next upgrade, whereas a copy goes on answering after the original has changed its mind.
+normative: true
+links:
+- target: UR-0016
+  type: derives_from
+- target: SR-0057
+  type: refines
+- target: SR-0053
+  type: relates
+- target: SR-0054
+  type: relates
+- target: SR-0056
+  type: relates
+- target: SR-0022
+  type: relates
+- target: SR-0027
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:398f2e36d0fb42a40b011b94b7a654a74afd23909fca63e0473d32423fb22ae5
