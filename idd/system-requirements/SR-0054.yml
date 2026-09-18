@@ -1,6 +1,6 @@
 uid: SR-0054
 type: system_requirement
-status: ratified
+status: rejected
 title: The compose seam reads the resolution field the pinned edition exports, and
   degrades to the public resolver when the private path fails
 text: When the consumer declares [[sources]], the session shall build its union from
@@ -33,3 +33,5 @@ attrs:
   origin: ai
   ratified_by: Henry Grech-Cini
   ratified_fingerprint: sha256:146956d92d5fc255b74981741bb343f71461808466f684698b013ee3d37933ee
+  invalidated_reason: the name it reached for is published; SR-0057 and SR-0060 close
+    it

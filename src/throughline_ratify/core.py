@@ -659,9 +659,13 @@ def _row(session: Session, entry: WorklistEntry) -> QueueItem:
     """One worklist entry as the TUI draws it: the Tool's judgement, plus the body,
     the resolved links and the re-ratify itinerary this cockpit adds."""
     item = session.project.get(entry.uid)
+    # The walk is for an item that overshot ratification without ever being signed
+    # (SR-0019). A signed item whose wording has since moved is not one: the Tool
+    # records the new signature where it stands (throughline SR-0237, from 3.11.3),
+    # so the worklist already calls it ratifiable and no route is offered.
     reratify_path = (
         _reratify_route(session, item)
-        if not entry.ratifiable and entry.concern in ("blocked", "stale")
+        if not entry.ratifiable and entry.concern == "blocked"
         else None
     )
     return QueueItem(
@@ -821,12 +825,10 @@ def _reratify_route(session: Session, item: Item) -> list[str] | None:
     when the config offers no such round-trip, in which case no re-ratify affordance
     is shown.
 
-    Two different situations need this same round trip — an item that advanced past
-    ratified without ever being signed off (SR-0019), and one that was signed off and
-    whose wording has since moved out from under the signature (SR-0030). The route
-    is the same either way because it is a fact about the project's transitions, not
-    about why the sign-off is owed; which of the two it is belongs to the wording the
-    reviewer is shown, not here.
+    One situation needs this round trip: an item that advanced past ratified without
+    ever being signed off (SR-0019). An item that was signed off and whose wording has
+    since moved is re-signed where it stands by the Tool itself (throughline SR-0237)
+    and never arrives here.
 
     The itinerary is ``current → … → ratified → … → current``; persisting only its
     end state leaves the item exactly where it was but now carrying the ratification
@@ -907,12 +909,10 @@ def ratify_item(session: Session, uid: str, by: str, by_id: str | None = None) -
 def reratify_item(session: Session, uid: str, by: str,
                   by_id: str | None = None) -> list[str]:
     """Take a sign-off an item's own status cannot reach directly, then restore that
-    status — for a grounded, unambiguous item that has moved past ratified. It covers
-    both reasons a sign-off can be owed there: one never taken because the item
-    overshot ratification (SR-0019), and one taken but since outgrown by the wording
-    beneath it (SR-0030). The mechanics are identical; only what the caller tells the
-    reviewer differs, and telling them a signature was missing when it was merely
-    superseded would misdescribe the very record this tool exists to protect.
+    status — for a grounded, unambiguous item that overshot ratification without
+    ever being signed off (SR-0019). A signature that was taken and since outgrown by
+    the wording beneath it is not this case: the Tool records the replacement where
+    the item stands (throughline SR-0237), through :func:`ratify_item`.
 
     Every hop is walked through throughline's own :func:`set_status` choke point, so
     each step is validated against the project's ``[transitions]`` exactly as the CLI

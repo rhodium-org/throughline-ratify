@@ -97,13 +97,15 @@ def test_ratification_progress_counts_whole_project(demo_project):
 def test_ratified_then_advanced_item_is_done_not_pending(demo_project):
     # FR-0006 was ratified then moved on to 'implemented'. It carries the
     # ratified_by stamp, so it must be treated as signed off — excluded from the
-    # pending queue and never re-offered for a ratification 'implemented' can't take.
+    # pending queue, its concern the settled one. (Its record predates the content
+    # stamp, and the Tool lets such a record be completed where the item stands —
+    # throughline SR-0152, SR-0237 — which is the Tool's judgement, not this view's.)
     session = core.open_session(demo_project)
     pending = _by_uid(core.build_queue(session))
     assert "FR-0006" not in pending
     rows = _by_uid(core.build_queue(session, show_all=True))
     assert rows["FR-0006"].concern == "ratified"
-    assert not rows["FR-0006"].ratifiable_now
+    assert not rows["FR-0006"].stale
 
 
 def test_overshot_item_is_blocked_with_computed_reratify_route(demo_project):
@@ -168,15 +170,22 @@ def test_a_stale_item_counts_as_outstanding_not_as_ratified(demo_project):
     assert core.ratification_progress(session) == (done + 1, total)
 
 
-def test_a_stale_item_that_also_overshot_carries_the_reratify_route(demo_project):
+def test_a_stale_item_that_also_overshot_is_signed_where_it_stands(demo_project):
     """FR-0011 was signed off, rewritten since, *and* advanced to 'implemented'. The
-    round trip through ratified is the same one an overshoot uses — the difference is
-    what the reviewer is told, not how it gets there."""
+    Tool records the replacement where the item stands (throughline SR-0237), so no
+    route is walked and the status never moves."""
     session = core.open_session(demo_project)
     row = _by_uid(core.build_queue(session))["FR-0011"]
     assert row.concern == "stale" and row.stale
-    assert not row.ratifiable_now
-    assert row.reratify_path == ["implemented", "suspect", "ratified", "implemented"]
+    assert row.ratifiable_now
+    assert row.reratify_path is None
+
+    core.ratify_item(session, "FR-0011", by="bob")
+    fresh = core.open_session(demo_project)
+    item = fresh.project.get("FR-0011")
+    assert item.status == "implemented"
+    assert item.attrs["ratified_by"] == "bob"
+    assert "FR-0011" not in _by_uid(core.build_queue(fresh))
 
 
 def test_re_signing_a_stale_item_rebinds_it_and_clears_the_concern(demo_project):

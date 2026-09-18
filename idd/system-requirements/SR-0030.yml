@@ -8,11 +8,12 @@ text: An item whose recorded ratification fingerprint no longer matches its cont
   from an item nobody has signed off and from one whose signature still stands, presented
   as a signature that no longer covers the wording beneath it and naming the person
   who gave it. It shall not be counted as ratified where the assistant reports progress.
-  The action offered shall be ratification through throughline's own ratify, by the
-  route the project's transitions permit where the status cannot move straight there,
-  and both the confirmation and the session summary shall say a signature was replaced
-  rather than that a missed one was recorded. Whether an item is in this state shall
-  be settled by asking throughline, never by computing a fingerprint here.
+  The action offered shall be ratification through throughline's own ratify, which
+  records the new signature where the item stands (throughline SR-0237); no status
+  is walked for it. Both the confirmation and the session summary shall say a signature
+  was replaced rather than that a missed one was recorded. Whether an item is in
+  this state shall be settled by asking throughline, never by computing a fingerprint
+  here.
 rationale: throughline reports a stale ratification because the words a human accepted
   have since been rewritten, and only a person can clear it by accepting the new
   wording or reverting it (tl:SR-0148). That is a job exactly one kind of user can
@@ -48,4 +49,20 @@ links:
 attrs:
   origin: ai
   ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:e6be3c41ea042eb68ba12c931a9c0749b27c6aa5cc3354d14ad16b2388dabc9f
+  ratified_fingerprint: sha256:14d2596bf166142293c43a03a756007c1cf0cd7b8a25571cb546e5a73a28f1d2
+  ratified_content:
+    type: system_requirement
+    text: An item whose recorded ratification fingerprint no longer matches its content
+      shall appear in the default worklist under a concern of its own, distinct both
+      from an item nobody has signed off and from one whose signature still stands,
+      presented as a signature that no longer covers the wording beneath it and naming
+      the person who gave it. It shall not be counted as ratified where the assistant
+      reports progress. The action offered shall be ratification through throughline's
+      own ratify, which records the new signature where the item stands (throughline
+      SR-0237); no status is walked for it. Both the confirmation and the session
+      summary shall say a signature was replaced rather than that a missed one was
+      recorded. Whether an item is in this state shall be settled by asking throughline,
+      never by computing a fingerprint here.
+    normative: true
+    derived: false
+    attrs: {}

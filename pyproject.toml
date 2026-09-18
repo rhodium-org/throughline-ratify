@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "throughline-ratify"
-version = "0.9.0"
+version = "0.9.1"
 description = "A full-screen, htop-style terminal assistant for reviewing and ratifying throughline requirement items. Compose-aware: grounds items over the composed union so borrowed clauses count. Ships the tl-ratify TUI."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -86,7 +86,7 @@ classifiers = [
 # '_render_item'`, while `tl-ratify` still runs. An upper bound on compose 0.13.0
 # would be the narrower fix and is not available, that release being already on the
 # index as published, so the floor is what moves.
-dependencies = ["throughline>=3.11.2"]  # The floor is the first published edition whose interface carries every throughline name this package uses (SR-0060): 3.11.2 offers a suspect item as awaiting a human again in the worklist this cockpit draws (tl:SR-0229, this SR-0024 and SR-0058); 3.11.1 publishes the composition names (tl:SR-0234), the refusal a grounding operation returns and the record of what moved since a signature with its prose diff (tl:SR-0165, tl:SR-0200), the worklist a review interface draws (tl:SR-0229), and leaves room in its parser for the old composing package (tl:SR-0231). throughline-compose is no longer a dependency: composition is the Tool's own (tl:UR-0037).
+dependencies = ["throughline>=3.11.3"]  #  3.11.3 records a re-signature where the item stands (throughline SR-0237), so a signed item rewritten past ratified is ratifiable as it is and this cockpit walks no route for it (SR-0030).The floor is the first published edition whose interface carries every throughline name this package uses (SR-0060): 3.11.2 offers a suspect item as awaiting a human again in the worklist this cockpit draws (tl:SR-0229, this SR-0024 and SR-0058); 3.11.1 publishes the composition names (tl:SR-0234), the refusal a grounding operation returns and the record of what moved since a signature with its prose diff (tl:SR-0165, tl:SR-0200), the worklist a review interface draws (tl:SR-0229), and leaves room in its parser for the old composing package (tl:SR-0231). throughline-compose is no longer a dependency: composition is the Tool's own (tl:UR-0037).
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]

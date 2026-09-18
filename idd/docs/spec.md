@@ -578,7 +578,7 @@ What the software must do to meet them.
 <!-- tl:item SR-0030 -->
 **SR-0030 — A ratification the content has outgrown returns to the worklist as its own concern** — `system_requirement`, status `ratified`
 
-> An item whose recorded ratification fingerprint no longer matches its content shall appear in the default worklist under a concern of its own, distinct both from an item nobody has signed off and from one whose signature still stands, presented as a signature that no longer covers the wording beneath it and naming the person who gave it. It shall not be counted as ratified where the assistant reports progress. The action offered shall be ratification through throughline's own ratify, by the route the project's transitions permit where the status cannot move straight there, and both the confirmation and the session summary shall say a signature was replaced rather than that a missed one was recorded. Whether an item is in this state shall be settled by asking throughline, never by computing a fingerprint here.
+> An item whose recorded ratification fingerprint no longer matches its content shall appear in the default worklist under a concern of its own, distinct both from an item nobody has signed off and from one whose signature still stands, presented as a signature that no longer covers the wording beneath it and naming the person who gave it. It shall not be counted as ratified where the assistant reports progress. The action offered shall be ratification through throughline's own ratify, which records the new signature where the item stands (throughline SR-0237); no status is walked for it. Both the confirmation and the session summary shall say a signature was replaced rather than that a missed one was recorded. Whether an item is in this state shall be settled by asking throughline, never by computing a fingerprint here.
 
 *Rationale:* throughline reports a stale ratification because the words a human accepted have since been rewritten, and only a person can clear it by accepting the new wording or reverting it (tl:SR-0148). That is a job exactly one kind of user can do, and this is the tool built for them — yet it was the one place the job was invisible. Before this requirement, `tl-compose check --strict` reported SR-0028 stale while `tl-ratify --list --all` showed it as `✓ ratified` and the progress figure read 37/37. A cockpit that reports full marks while the validator reports an error is worse than one that reports nothing, because the reviewer stops looking. It is deliberately not the case SR-0019 answers, where an item advanced past ratified without ever being signed off and the route through ratified records a sign-off that never happened; here the sign-off did happen and a second is being taken over changed wording. Saying 'never ratified' of an item somebody did ratify would be a false statement about the accountability record, and counting it as ratified in the progress figure would be the same falsehood in a number. Nor is it SR-0024, where a suspect item's sign-off has already stopped holding for a reason of its own. The comparison is delegated to throughline for the reason SR-0022 gives for ratification itself — a second implementation of what counts as a content change would drift from the validator's, and the cockpit would then disagree with `check` about which items need a human.
 
@@ -586,7 +586,7 @@ What the software must do to meet them.
 *Relates:* SR-0019, SR-0022, SR-0024
 *Satisfies:* tl:SR-0148
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:e6be3c41ea042eb68ba12c931a9c0749b27c6aa5cc3354d14ad16b2388dabc9f
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:14d2596bf166142293c43a03a756007c1cf0cd7b8a25571cb546e5a73a28f1d2
 <!-- tl:end -->
 
 <!-- tl:item SR-0031 -->
@@ -869,7 +869,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0054 -->
-**SR-0054 — The compose seam reads the resolution field the pinned edition exports, and degrades to the public resolver when the private path fails** — `system_requirement`, status `ratified`
+**SR-0054 — The compose seam reads the resolution field the pinned edition exports, and degrades to the public resolver when the private path fails** — `system_requirement`, status `rejected`
 
 > When the consumer declares [[sources]], the session shall build its union from the resolution's labels, the field throughline-compose has exported since 0.17.0 (compose SR-0045), which is the floor SR-0043 already declares. If the private resolution path cannot be imported, or the object it returns does not have the shape this package expects, the session shall fall back to the public single-hop resolver rather than fail. The fallback shall be reported in the source summary, so a reviewer can see that transitive sources were not followed.
 
@@ -878,7 +878,7 @@ What the software must do to meet them.
 *Derives from:* UR-0003
 *Relates:* SR-0006, SR-0043
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:146956d92d5fc255b74981741bb343f71461808466f684698b013ee3d37933ee
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:146956d92d5fc255b74981741bb343f71461808466f684698b013ee3d37933ee · **invalidated_reason**: the name it reached for is published; SR-0057 and SR-0060 close it
 <!-- tl:end -->
 
 <!-- tl:item SR-0055 -->
@@ -973,7 +973,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 |---|---|---|
 | UR-0001 | See every item awaiting my ratification, most-actionable first | SR-0001, SR-0002, SR-0008, SR-0009, SR-0011, SR-0024, SR-0030 |
 | UR-0002 | Ratify or reject an item without leaving the full-screen view | SR-0003, SR-0004, SR-0005, SR-0012, SR-0013, SR-0014, SR-0022, SR-0023, SR-0025, SR-0026, SR-0027, SR-0028, SR-0029, SR-0037 |
-| UR-0003 | On a composed project, items grounded through a source are ratifiable | SR-0006, SR-0054 |
+| UR-0003 | On a composed project, items grounded through a source are ratifiable | SR-0006 |
 | UR-0004 | Read the interface like htop, not a scrolling log | SR-0007, SR-0010, SR-0031, SR-0044 |
 | UR-0005 | Leave a ratification session with a written record of what I decided | SR-0021 |
 | UR-0006 | A contribution states the terms under which it is offered | — |
