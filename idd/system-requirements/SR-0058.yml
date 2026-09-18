@@ -1,0 +1,40 @@
+uid: SR-0058
+type: system_requirement
+status: ratified
+title: The worklist the cockpit draws is throughline's, not a second copy of it
+text: 'The worklist the cockpit draws shall be the one throughline computes. The
+  items outstanding, the order they are offered in, the concern each is in and the
+  vocabulary those concerns are named from, the count of what has been signed, and
+  the reason an item cannot be signed shall all be obtained from throughline and
+  rendered here. The assistant shall not decide any of them a second time. Where
+  an item cannot be signed the reason shown shall be the one throughline''s own ratify
+  would give for refusing it, so that the sentence a reviewer reads in the list and
+  the sentence they would meet at the prompt are one sentence. What remains this
+  assistant''s own is the drawing: the colour, the icon, the layout, the keys, and
+  which of the concerns a particular view chooses to show.'
+rationale: |-
+  Until now this assistant classified every row itself (SR-0002), because throughline offered nothing to ask. It does now: the ordered worklist, the vocabulary of concerns, the progress figure, and the obstacle its own ratify computes are part of its published interface. Keeping the local copy would leave two answers to one question — may this be signed, and if not why not — and they have already parted once. An item ratified and then advanced past the ratified status was invisible here until SR-0018 taught this side about it separately; a signature the content had outgrown needed SR-0030 to be noticed here after throughline could already see it. Each is the same defect arriving twice, and each cost a release on this side that a shared answer would not have.
+
+  The vocabulary is named in the clause because throughline's is wider than the five SR-0002 enumerates: it also distinguishes a signature the content has outgrown, which SR-0030 had to add here separately, and the settled and dead states that the show-all view of SR-0020 already draws. Adopting the Tool's set is what stops a sixth concern being invented here the next time one is needed.
+
+  The browser editor is the second reason. It needs the same model, and it imported it from this package — a cockpit built for a terminal — because nothing else offered one. That is the wrong dependency for it to have: it takes a curses application's release cycle into a browser to get at a computation that was never this application's to own.
+
+  The drawing is deliberately kept here, and the line is worth stating plainly. throughline decides what is true about an item; this assistant decides how a person meets it. A colour is not a judgement, and moving it upstream would put a terminal's concerns into a tool that has no terminal.
+normative: true
+links:
+- target: UR-0016
+  type: derives_from
+- target: SR-0002
+  type: relates
+- target: SR-0039
+  type: relates
+- target: SR-0018
+  type: relates
+- target: SR-0030
+  type: relates
+- target: SR-0020
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:bbfc1ab3cf3fc02b040bd068d9c1c1461aa4661591b4869afad5e9203f67019c

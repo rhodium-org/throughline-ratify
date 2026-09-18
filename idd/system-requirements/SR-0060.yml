@@ -1,0 +1,33 @@
+uid: SR-0060
+type: system_requirement
+status: ratified
+title: The floor and the pin move together, to the edition that publishes what is
+  used
+text: The declared dependency floor shall be the first published edition whose interface
+  carries every throughline name the assistant uses, and the source pinned by this
+  graph shall move to that same edition in the same change. A clause this graph cites
+  shall therefore be read at the edition the assistant actually runs against, rather
+  than at whatever edition the pin was last left on. Where a cached tree exists for
+  the ref being left, it shall be cleared as part of that change, because a moved
+  ref is not refetched and the check would otherwise pass against the wording that
+  moved.
+rationale: |-
+  SR-0029 made this graph's dependency on throughline's a fact the validator holds rather than a claim in prose. The pin is what makes that true, and it is presently v3.4.0 while the floor in the package metadata says the same — which is the state this clause wants to keep, and which drifts the moment either moves alone.
+
+  It matters here more than usual, because the clauses this assistant is about to cite do not exist at v3.4.0. The published interface, its document, and the worklist SR-0058 draws all arrive in a later edition. Citing them before the pin moves would leave a reference nothing can resolve; moving the pin without moving the floor would let the assistant be installed against an edition whose interface does not carry what it calls. They are one change.
+
+  The cache is named because it has bitten this repo before: the ref in the source block is a tag, and the fetched tree for the old tag is kept. A pin moved without clearing it goes on validating against the text it was pinned to, and reports success — the worst available outcome, since the whole point of the pin is that the wording under a citation only moves when the line moves.
+normative: true
+links:
+- target: UR-0016
+  type: derives_from
+- target: SR-0029
+  type: relates
+- target: SR-0043
+  type: relates
+- target: SR-0058
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:2d65db4cc82860adfea1e5a7f6c0c924377487cfcd516d0d8bb94dbc73913fb1

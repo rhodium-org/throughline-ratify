@@ -1,0 +1,39 @@
+uid: SR-0057
+type: system_requirement
+status: ratified
+title: The cockpit stands on what throughline publishes, and on nothing else
+text: The assistant shall use only the names throughline publishes as its interface
+  — those `import throughline` offers, which that project's own document names as
+  its compatibility surface. No module of this assistant shall import from a path
+  inside throughline rather than from throughline itself, and none shall use a name
+  beginning with an underscore from throughline or from throughline-compose. The
+  single exception is the compose seam SR-0054 records, which stands only until the
+  name it reaches for is published, and which the test shall name as the one import
+  it allows, so that a second exception cannot be taken without being written down
+  here. A test shall read this assistant's own source and fail on any other, catching
+  a reach-in in the change that writes it rather than in an installation after an
+  upgrade.
+rationale: |-
+  This assistant imports from ten paths inside throughline and one private name inside throughline-compose. None of those is a promise: the promise is the published list, and everything else is free to be renamed in any release. The consequence has been measured — twelve releases of throughline in five days, several cut for no reason except that an internal name this assistant reads had moved. A reviewer who upgrades the Tool pays for that, and the browser editor pays more, pinning exact wheels of all three packages so that an upgrade cannot happen to it at all.
+
+  The principle is already this graph's own, twice. SR-0022 says a ratification is recorded by calling throughline's ratify rather than by a copy of it, and SR-0027 says the identity offered is throughline's rather than a second decision about who signs. Both are about the judgement being the Tool's. This clause is about the route to it: a judgement obtained through a private name is obtained by trespass, and it breaks without warning because nothing upstream ever undertook to keep it.
+
+  The compose seam is named as the exception rather than left to contradict this, because SR-0054 is ratified and requires exactly what this forbids — it reads a private resolution field and degrades when that field changes shape. It was the right call at the time and its own rationale says why it is not the right end: asking compose for a public accessor is recorded there as the right long-term shape, rejected only because it could not repair installs already on the index. Naming the seam here, with the test made to name it too, is what keeps a bounded exception from becoming the general practice again. Closing it is SR-0059's work.
+
+  The test is written against this assistant's own source rather than against throughline's, because the obligation is this side's. throughline can only promise what it publishes; which names this assistant chooses to lean on is a choice made here, and a choice made here is one this graph can hold.
+normative: true
+links:
+- target: UR-0016
+  type: derives_from
+- target: SR-0022
+  type: relates
+- target: SR-0027
+  type: relates
+- target: SR-0054
+  type: relates
+- target: SR-0059
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:791c812fdc5c575d0a98d062ffe807f540dfdbb9d3fdf06e244c46e296bd059f

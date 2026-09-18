@@ -4,7 +4,7 @@
 working through the throughline items that await human ratification."""
 from __future__ import annotations
 
-from throughline.version import distribution_version
+from throughline import distribution_version
 
 # Read from the installed distribution, and marked when that install is a working
 # tree rather than the release it derives from (SR-0031). The header shows this

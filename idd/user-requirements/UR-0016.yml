@@ -1,0 +1,15 @@
+uid: UR-0016
+type: user_requirement
+status: ratified
+title: Upgrading throughline does not cost me a new cockpit
+text: As a reviewer I want the cockpit to go on working when throughline is upgraded,
+  so that I am not held to a matching pair of versions and a rename inside the Tool
+  does not oblige me to install anything here.
+normative: true
+links:
+- target: INT-0002
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:753916b2c6628bb74555ac539c596da1221cd58bd746d931c2475c4b611527d3

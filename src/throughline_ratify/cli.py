@@ -14,7 +14,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from throughline.version import distribution_version as _v
+from throughline import distribution_version as _v
 
 from . import core, report
 
@@ -103,9 +103,26 @@ def _refuse_ambiguous(exc: core.AmbiguousProjectError) -> None:
         print(f"  {c.name:<{width}}  {c.rel:<20}  tl-ratify -C {c.rel}", file=sys.stderr)
 
 
+def _force_utf8_io() -> None:
+    """Emit UTF-8 regardless of the console's default codec.
+
+    This cockpit's own (SR-0059): what an interface does to its terminal is the
+    interface's business, and the helper the Tool keeps for its own command line
+    is not a name it publishes. A Windows console commonly defaults to cp1252,
+    which raises the instant a glyph outside Latin-1 is printed.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:  # pragma: no cover - stream is not a TextIOWrapper
+            continue
+        try:
+            reconfigure(encoding="utf-8")
+        except (ValueError, OSError):  # pragma: no cover - stream not reconfigurable
+            pass
+
+
 def main(argv: list[str] | None = None) -> int:
-    from throughline.cli import force_utf8_io
-    force_utf8_io()
+    _force_utf8_io()
     args = build_parser().parse_args(argv)
 
     # --list takes no decisions, so it could only ever produce an empty report the

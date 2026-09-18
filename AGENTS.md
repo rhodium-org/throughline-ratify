@@ -35,7 +35,7 @@ throughline / throughline-compose let an agent **propose** grounded requirements
 rejecting** them:
 
 ```bash
-pipx install throughline-ratify   # pulls tl and tl-compose along too
+pipx install throughline-ratify   # pulls tl along too; tl-compose is a second name for it
 tl-ratify                         # open the cockpit (walks up to find throughline.toml)
 tl-ratify -C idd                  # point at a graph under idd/
 tl-ratify --by alice              # record the ratifier on sign-off
@@ -88,7 +88,7 @@ names; the project's `[status.roles]` and `[transitions]` govern every move.
 
 ```
 python -m venv .venv && . .venv/bin/activate
-pip install -e ".[dev]"       # pulls throughline-compose (and throughline) along too
+pip install -e ".[dev]"       # pulls throughline along too
 pytest -q
 tl-compose -C idd check --strict   # this repo's own requirements graph — keep it green
 tl-compose -C idd docs --check     # its published spec (idd/docs/spec.md) — regenerate with `docs`

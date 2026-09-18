@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "throughline-ratify"
-version = "0.8.0"
+version = "0.9.0"
 description = "A full-screen, htop-style terminal assistant for reviewing and ratifying throughline requirement items. Compose-aware: grounds items over the composed union so borrowed clauses count. Ships the tl-ratify TUI."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -36,8 +36,7 @@ classifiers = [
   "Topic :: Software Development :: Documentation",
   "Topic :: Software Development :: Quality Assurance",
 ]
-# throughline-compose re-exports the throughline core it composes over, so this
-# single pin gives us both the union engine and the model/grounding APIs.
+# The one dependency is the Tool itself; composition is its own since 3.11.1.
 # ratify's prebuilt-index parameter — how we ground over the composed union while
 # writing only to our own registers (SR-0022) — needs throughline>=1.4.0.
 # throughline.identity, which decides both who is offered by default (SR-0027) and
@@ -87,7 +86,7 @@ classifiers = [
 # '_render_item'`, while `tl-ratify` still runs. An upper bound on compose 0.13.0
 # would be the narrower fix and is not available, that release being already on the
 # index as published, so the floor is what moves.
-dependencies = ["throughline-compose>=0.18.0", "throughline>=3.10.0"]  # throughline.ratification.RECORD and RatificationChange.source — where the signed content came from, which SR-0053 names in the pane rather than inferring — are public from 3.10.0 (tl:SR-0216). Below that floor the attribute does not exist and the pane raises. The compose floor is deliberately NOT moved here: a paired edition is only honest once compose has itself been released against this core (SR-0043), and that release does not exist yet. Previously: throughline.ratification.diff_prose / is_prose / wrap_words — a changed prose field's diff as data, which SR-0056 lays out in the pane — is public from 3.4.0 (tl:SR-0200). compose stays at 0.18.0: nothing compose forwards moved, and (compose==0.18.0, throughline==3.4.0) is a working pair. Previously: throughline.ratification — the resolved difference between an item's content and the content its stamp was taken over, which SR-0053 lays out rather than derives — is public from 3.0.0 (tl:SR-0165, tl:SR-0166). Moved to compose>=0.18.0 / throughline>=3.2.0 as a paired edition (SR-0043): 3.2.0 is where `tl ratify --replacing` and `tl withdraw` arrive (throughline SR-0196, SR-0197), and 0.18.0 is the compose that forwards the correction flag through its composed path (compose SR-0003) — below it, (compose==0.17.0, throughline==3.2.0) installs, and `tl-compose ratify --replacing` in a composed project refuses what bare `tl` performs. Nothing this package calls moved; the edition it hands out did.
+dependencies = ["throughline>=3.11.2"]  # The floor is the first published edition whose interface carries every throughline name this package uses (SR-0060): 3.11.2 offers a suspect item as awaiting a human again in the worklist this cockpit draws (tl:SR-0229, this SR-0024 and SR-0058); 3.11.1 publishes the composition names (tl:SR-0234), the refusal a grounding operation returns and the record of what moved since a signature with its prose diff (tl:SR-0165, tl:SR-0200), the worklist a review interface draws (tl:SR-0229), and leaves room in its parser for the old composing package (tl:SR-0231). throughline-compose is no longer a dependency: composition is the Tool's own (tl:UR-0037).
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
