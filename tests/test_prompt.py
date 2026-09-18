@@ -224,9 +224,9 @@ def test_a_stale_item_is_never_offered_as_though_nobody_had_signed_it(
 
 
 def test_a_stale_overshoot_is_not_told_it_was_never_ratified(demo_project, monkeypatch):
-    """FR-0011 reaches the same round trip an unsigned overshoot does, but saying it
-    "was never ratified" would deny a signature that exists — a false statement about
-    the one record this tool is for."""
+    """FR-0011 is re-signed where it stands, and saying it "was never ratified" would
+    deny a signature that exists — a false statement about the one record this tool
+    is for."""
     asked: list[str] = []
     monkeypatch.setattr(tui.App, "_confirm",
                         lambda self, msg, detail=None: asked.append(msg) or True)
@@ -238,8 +238,8 @@ def test_a_stale_overshoot_is_not_told_it_was_never_ratified(demo_project, monke
     assert "was never ratified" not in asked[0]
     assert "ratified by alice" in asked[0]
     assert "its wording has changed since" in asked[0]
-    # the route it will travel is still named, as it is for an unsigned overshoot
-    assert "implemented → suspect → ratified → implemented" in asked[0]
+    # signed where it stands: no route is named, because none is walked
+    assert "via" not in asked[0]
 
 
 def test_an_unsigned_overshoot_still_reads_as_a_missed_signature(demo_project,

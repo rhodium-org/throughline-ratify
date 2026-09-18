@@ -362,10 +362,11 @@ class App:
         if item is None:
             return
         if not item.ratifiable_now:
-            # An item whose sign-off is owed somewhere its status cannot reach — it
-            # overshot ratification, or it was signed and has since been rewritten —
-            # can still be put right via a route the project's own transitions permit.
-            # Offer that instead of a dead-end "cannot move to ratified" message.
+            # An item that overshot ratification without ever being signed can still
+            # be put right via a route the project's own transitions permit. Offer
+            # that instead of a dead-end "cannot move to ratified" message. (A signed
+            # item rewritten since is ratifiable as it stands — the Tool re-signs it
+            # in place, throughline SR-0237 — so it never arrives here.)
             if item.reratify_path:
                 self._do_reratify(item)
             else:
@@ -417,19 +418,12 @@ class App:
         the one core computed from this project's ``[transitions]`` — we only present
         it and confirm; nothing about which statuses are traversed is decided here.
 
-        Two situations arrive here and are asked, flashed and reported differently
-        (SR-0030): an item that overshot ratification without ever being signed off,
-        and one that was signed off and has since been rewritten. Telling the second
-        it "was never ratified" would deny a signature that exists."""
+        Only an item that overshot ratification without ever being signed off
+        arrives here (SR-0019); a signed item rewritten since is re-signed where it
+        stands by the Tool (SR-0030, throughline SR-0237)."""
         route = " \u2192 ".join(item.reratify_path or [])
-        if item.stale:
-            who = item.ratified_by or "a human"
-            question = (f"{item.uid} was ratified by {who}, and its wording has "
-                        f"changed since. Accept the new wording as "
-                        f"{self._signature()} via {route}?")
-        else:
-            question = (f"{item.uid} is at '{item.status}' and was never ratified. "
-                        f"Record sign-off as {self._signature()} via {route}?")
+        question = (f"{item.uid} is at '{item.status}' and was never ratified. "
+                    f"Record sign-off as {self._signature()} via {route}?")
         if not self._confirm(question):
             self.flash = _Flash("re-ratify cancelled", "dim")
             return
@@ -437,15 +431,11 @@ class App:
             walked = core.reratify_item(self.session, item.uid, self.ratifier,
                                         by_id=self.ratifier_id)
             if self.log is not None:
-                if item.stale:
-                    self.log.resigned(item.uid, item.title, item.ratified_by, walked)
-                else:
-                    self.log.reratified(item.uid, item.title, walked)
+                self.log.reratified(item.uid, item.title, walked)
             self.refresh_queue()
             walked_route = " \u2192 ".join(walked)
-            verb = "re-signed" if item.stale else "ratified"
             self.flash = _Flash(
-                f"\u2713 {item.uid} {verb} by {self.ratifier} "
+                f"\u2713 {item.uid} ratified by {self.ratifier} "
                 f"(via {walked_route})",
                 "ok",
             )

@@ -106,12 +106,9 @@ class DecisionLog:
     def reratified(self, uid: str, title: str, route: list[str]) -> None:
         self.decisions.append(Decision(RERATIFIED, uid, title, route=tuple(route)))
 
-    def resigned(self, uid: str, title: str, superseded: str = "",
-                 route: list[str] | None = None) -> None:
-        self.decisions.append(
-            Decision(RESIGNED, uid, title, route=tuple(route or ()),
-                     superseded=superseded)
-        )
+    def resigned(self, uid: str, title: str, superseded: str = "") -> None:
+        # Signed where it stood: a replaced signature walks no route (SR-0030).
+        self.decisions.append(Decision(RESIGNED, uid, title, superseded=superseded))
 
     def rejected(self, uid: str, title: str, reason: str, suspected: list[str],
                  refused: Sequence[tuple[str, str, str]] = ()) -> None:
@@ -163,7 +160,7 @@ def _entry(n: int, d: Decision) -> list[str]:
     """One decision, as the block of lines the report prints for it."""
     head = f"  {n}. {d.kind:<12} {d.uid}"
     out = [head, *_wrapped(d.title, "     ")]
-    if d.kind in (RERATIFIED, RESIGNED) and d.route:
+    if d.kind == RERATIFIED and d.route:
         out += _wrapped("route walked: " + " -> ".join(d.route), "     ")
     if d.kind == RESIGNED:
         out += _wrapped(

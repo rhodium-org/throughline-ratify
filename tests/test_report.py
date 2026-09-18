@@ -307,22 +307,21 @@ def test_a_re_signature_is_not_reported_as_a_missing_one(app):
     assert d.route == ()          # signed where it stood; nothing was walked
 
 
-def test_a_re_signature_that_had_to_travel_records_the_route(app):
+def test_a_re_signature_past_ratified_walks_no_route(app):
     app_obj, log = app
     _select(app_obj, "FR-0011")   # stale *and* advanced past ratified
     app_obj.do_ratify()
 
     d = log.decisions[0]
     assert d.kind == report.RESIGNED
-    assert d.route == ("implemented", "suspect", "ratified", "implemented")
+    assert d.route == ()          # the Tool signed it where it stood (SR-0237)
 
 
 def test_the_report_says_whose_signature_was_replaced():
     log = report.DecisionLog("Ada Lovelace")
-    log.resigned("FR-0010", "Rewritten since it was signed", "alice",
-                 ["implemented", "suspect", "ratified", "implemented"])
+    log.resigned("FR-0010", "Rewritten since it was signed", "alice")
     out = _rendered(log)
     assert "1. re-signed    FR-0010" in out
     assert "content changed since alice ratified it" in out
-    assert "route walked: implemented -> suspect -> ratified -> implemented" in out
+    assert "route walked" not in out
     assert "Tally: 1 re-signed" in out
