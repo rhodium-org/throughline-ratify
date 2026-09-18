@@ -15,7 +15,7 @@ import re
 import textwrap
 from dataclasses import dataclass
 
-from throughline.ratification import ADDED, RECORD, REMOVED, diff_prose, is_prose, wrap_words
+from throughline import ADDED, RECORD, REMOVED, diff_prose, is_prose, wrap_words
 
 from . import core
 from . import __version__
@@ -578,6 +578,12 @@ class App:
 
     @staticmethod
     def _why_blocked(item: QueueItem) -> str:
+        # The reason is the one throughline's own ratify would give (SR-0058), so
+        # the sentence in the list and the sentence at the prompt are one sentence.
+        # The wording below is kept only for the case the Tool does not refuse but
+        # this project's transitions offer no route back through ratified.
+        if item.obstacle:
+            return item.obstacle
         if item.concern in ("rejected", "deleted"):
             state = "rejected" if item.concern == "rejected" else "tombstoned"
             return f"{item.uid} is {state} and cannot be ratified"
@@ -675,7 +681,7 @@ class App:
             # Also account for the settled outcomes the wide view reveals.
             concerns += ["ratified", "rejected", "deleted"]
         for concern in concerns:
-            icon = core.CONCERNS[concern][0]
+            icon = core.CONCERN_ICONS[concern]
             seg = f"{icon} {counts.get(concern, 0)} {_CONCERN_LABEL[concern]}  "
             _safe_addstr(self.scr, 1, x, seg, _attr(concern, bold=concern in ("proposed",)))
             x += len(seg)

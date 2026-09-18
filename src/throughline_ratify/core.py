@@ -36,63 +36,47 @@ try:  # pragma: no cover - 3.11+ has it in the stdlib; the floor is 3.11
 except ModuleNotFoundError:  # pragma: no cover
     import tomli as tomllib
 
-from throughline.fingerprint import fingerprint
-from throughline.graph import Index
-# Who is offered, and what a stable identifier may look like, are throughline's
-# answers rather than ours (SR-0027, SR-0028). We import them; we do not restate
-# them, so the cockpit cannot drift from the command line.
-from throughline.identity import IdentityError
-from throughline.identity import default_ratifier as throughline_default_ratifier
-from throughline.identity import normalise_identifier as throughline_normalise_identifier
-from throughline.grounding import (
-    GroundingError,
-    Refusal,
-    invalidate,
-    reaches_root,
-    set_status,
-)
-# The real ratification operation (SR-0022). We do not reimplement it: it decides
-# what may be signed off and what gets recorded, and it accepts a prebuilt
-# grounding index (throughline SR-0151) so we can hand it our composed-union view
-# while it writes to the consumer's own item.
-from throughline.grounding import ratify as core_ratify
-from throughline.model import Item, Project
-# What moved since a signature, resolved by throughline against the stamp
-# (tl:SR-0165). Asked of the library for the reason the staleness verdict itself is
-# (SR-0022, SR-0030): a second answer to what counts as a content change would
-# drift from the validator's.
-from throughline.ratification import RatificationChange, change_since_ratification
-from throughline.schema import SchemaError
-from throughline.storage import (
+# Every name this module leans on is one throughline publishes (SR-0057): its
+# `__all__`, listed in its document 10. Nothing is imported from a path inside the
+# package and nothing that begins with an underscore, so a rename inside the Tool
+# is the Tool's business and not a release here (UR-0016). What the cockpit asks
+# of the Tool — who signs (SR-0027), what a signature records (SR-0022), what has
+# moved since it (SR-0030), what awaits one and why (SR-0058), and the composed
+# union it judges over (SR-0060) — is answered by these names and decided nowhere
+# else.
+from throughline import (
+    CONCERNS,
+    fingerprint,
     CONFIG_NAME,
+    ComposeError,
+    GroundingError,
+    IdentityError,
+    Index,
+    Item,
+    Project,
     ProjectError,
+    RatificationChange,
+    Refusal,
+    SchemaError,
+    SourceError,
+    WorklistEntry,
+    build_union,
+    change_since_ratification,
+    depths_from_roots,
+    entry_for,
+    invalidate,
+    is_namespace_qualified,
     load_project,
+    parse_sources,
+    reaches_root,
+    resolve_sources,
+    set_status,
     write_item,
 )
-
-# Compose is a hard dependency (it re-exports the throughline core), so these are
-# always importable. parse_sources/build_union are the public composition API.
-from throughline_compose.sources import SourceError, parse_sources
-from throughline_compose.union import ComposeError, build_union
-
-# is_namespace_qualified tells a source reference (``asvs:SR-0195``) from a local
-# one (``UR-0004``). Guarded: if compose renames it we degrade to a colon heuristic
-# rather than crashing.
-try:
-    from throughline_compose.union import is_namespace_qualified as _is_ns_qualified
-except Exception:  # pragma: no cover
-    def _is_ns_qualified(ref: str) -> bool:
-        return ":" in ref
-
-# _resolve_sources carries tl-compose's full resolution semantics (remote fetch,
-# path sources, one-level re-export, two-edition conflict detection). It is the
-# same code path tl-compose's own ratify uses, so reusing it keeps our grounding
-# view byte-identical to the CLI's. Guarded so a future rename degrades to the
-# public single-hop resolver rather than crashing.
-try:  # pragma: no cover - exercised via the composed-project path
-    from throughline_compose.cli import _resolve_sources as _compose_resolve_sources
-except Exception:  # pragma: no cover
-    _compose_resolve_sources = None
+from throughline import default_ratifier as throughline_default_ratifier
+from throughline import normalise_identifier as throughline_normalise_identifier
+from throughline import ratification_progress as throughline_ratification_progress
+from throughline import ratify as core_ratify
 
 
 class RatifierError(RuntimeError):
@@ -115,20 +99,22 @@ RATIFIED_FINGERPRINT_ATTR = "ratified_fingerprint"
 # Semantic concerns — what colour/icon a row earns, and how it sorts.
 # --------------------------------------------------------------------------- #
 
-# concern key -> (icon, sort rank). Lower rank sorts first (most actionable up
-# top, then the things a human must fix before they *can* sign off).
-CONCERNS: dict[str, tuple[str, int]] = {
-    "proposed": ("\u25cf", 0),   # ● AI-proposed, awaiting a human — the core case
-    "ready": ("\u25c9", 1),      # ◉ already human-approved, one move from ratified
-    "stale": ("\u21ba", 2),      # ↺ signed off, but the wording has moved since
-    "blocked": ("\u25cb", 3),    # ○ pending but not directly ratifiable yet
-    "ungrounded": ("\u26a0", 4),  # ⚠ reaches no root — must be linked before sign-off
-    "ambiguous": ("\u2691", 5),  # ⚑ flagged ambiguous — must be clarified first
-    "ratified": ("\u2713", 6),   # ✓ already signed off — done (only shown under --all)
-    # Dead items — kept for the record, shown only under --all and never actionable.
-    "rejected": ("\u2717", 7),   # ✗ invalidated (rejected) — retained, not signed off
-    "deleted": ("\u2620", 8),    # ☠ tombstoned (soft-deleted) — retained for history
+
+# The concerns a row can be in are throughline's vocabulary (SR-0058); what this
+# cockpit decides is only how each is drawn. A concern the Tool adds is caught at
+# import rather than drawn as a blank.
+CONCERN_ICONS: dict[str, str] = {
+    "proposed": "\u25cf",
+    "ready": "\u25c9",
+    "stale": "\u21ba",
+    "blocked": "\u25cb",
+    "ungrounded": "\u26a0",
+    "ambiguous": "\u2691",
+    "ratified": "\u2713",
+    "rejected": "\u2717",
+    "deleted": "\u2620",
 }
+assert set(CONCERN_ICONS) >= set(CONCERNS), sorted(set(CONCERNS) - set(CONCERN_ICONS))
 
 # The orderings the queue can be sorted by (SR-0011). "concern" is the default
 # most-actionable-first ranking; "roots"/"leaves" walk grounding depth so a large
@@ -189,10 +175,13 @@ class QueueItem:
     # Who took accountability, when the item carries a sign-off. Named on a stale
     # row so the reviewer can see whose signature they are about to replace.
     ratified_by: str = ""
+    # Why the item cannot be signed as the graph stands, in the words throughline's
+    # own ratify would use to refuse it (SR-0058); None when it can.
+    obstacle: str | None = None
 
     @property
     def icon(self) -> str:
-        return CONCERNS.get(self.concern, ("\u25cb", 9))[0]
+        return CONCERN_ICONS.get(self.concern, "\u25cb")
 
 
 @dataclass
@@ -608,154 +597,100 @@ def _open(root: Path, compose: bool) -> Session:
 
 def _compose_if_declared(consumer: Project, root: Path) -> tuple[Project, list[SourceInfo]]:
     """Return the graph to ground against and a summary of composed sources. With
-    no ``[[sources]]`` the consumer is its own union (pure ``tl`` behaviour)."""
+    no ``[[sources]]`` the consumer is its own union (pure ``tl`` behaviour).
+
+    Resolution is throughline's own, through the name it publishes (SR-0057): the
+    same closure the Tool's own composed commands build — transitive sources, one
+    fetch per edition, a namespace bound to two editions refused — so the union the
+    cockpit judges over is the union `tl check` judges over. The private seam
+    SR-0054 once read, and its fallback to a single-hop resolver, are gone with it.
+    """
     try:
         declared = parse_sources(consumer)
     except SourceError as exc:
         raise RatifierError(str(exc)) from exc
     if not declared:
         return consumer, []
-
     try:
-        union, infos = _compose_private(consumer, declared, root)
-    except _SeamChanged:
-        # The private path imported but no longer has the shape this package was
-        # written against (SR-0054): compose it with the public API instead of
-        # dying on an internal name, and say so beside every source.
-        try:
-            union, infos = _compose_public_fallback(consumer, declared, root)
-        except Exception as exc:  # noqa: BLE001 - report any resolve failure cleanly
-            raise RatifierError(f"could not compose sources: {exc}") from exc
-    except Exception as exc:  # noqa: BLE001 - report any resolve failure cleanly
-        if isinstance(exc, RatifierError):
-            raise
+        res = resolve_sources(declared, root)
+        union = build_union(consumer, res.projects(), res.labels)
+    except (SourceError, ComposeError) as exc:
         raise RatifierError(f"could not compose sources: {exc}") from exc
+    except Exception as exc:  # noqa: BLE001 - a resolver's failure, reported cleanly
+        raise RatifierError(f"could not compose sources: {exc}") from exc
+    infos = [SourceInfo(ns, res.locations.get(ns, "")) for ns in sorted(res.resolved)]
     return union.project, infos
 
-
-class _SeamChanged(Exception):
-    """tl-compose's private resolution path is present but not the shape expected."""
-
-
-def _compose_private(consumer, declared, root):
-    """Full resolution through tl-compose's own resolver: transitive sources, one
-    fetch per edition, the same union the CLI checks. The union is built from the
-    resolution's ``labels`` — the field compose has exported since 0.17.0 (compose
-    SR-0045), which is inside the floor SR-0043 declares. A rename of that field
-    or of the resolver is reported as :class:`_SeamChanged` so the caller can
-    take the public route (SR-0054)."""
-    if _compose_resolve_sources is None:
-        raise _SeamChanged("throughline_compose.cli._resolve_sources is not importable")
-    res = _compose_resolve_sources(declared, root)
-    try:
-        projects, labels, resolved, locations = (
-            res.projects(), res.labels, res.resolved, res.locations)
-    except AttributeError as exc:
-        raise _SeamChanged(str(exc)) from exc
-    union = build_union(consumer, projects, labels)
-    infos = [SourceInfo(ns, locations.get(ns, "")) for ns in sorted(resolved)]
-    return union, infos
-
-
-def _compose_public_fallback(consumer, declared, root):
-    """Single-hop resolution via the public API only: the sources the consumer
-    declares itself, nothing they compose in turn. Each source's location says
-    so, because a reviewer reading the summary should know transitive sources
-    were not followed (SR-0054)."""
-    from throughline_compose.resolve import resolve_source
-    from throughline.storage import read_project
-
-    projects: dict[str, Project] = {}
-    infos: list[SourceInfo] = []
-    for src in declared:
-        resolved_path = resolve_source(src, root)
-        projects[src.namespace] = read_project(resolved_path)
-        loc = f"{src.url}@{src.ref}" if src.is_remote else f"path {src.path}"
-        infos.append(SourceInfo(src.namespace, f"{loc} (public resolver, single hop)"))
-    union = build_union(consumer, projects)
-    return union, sorted(infos, key=lambda s: s.namespace)
-
-
-# --------------------------------------------------------------------------- #
-# The queue
-# --------------------------------------------------------------------------- #
 
 def build_queue(
     session: Session, *, show_all: bool = False, sort: str = "concern"
 ) -> list[QueueItem]:
-    """The ratification worklist: by default every local item that is neither settled
-    nor dead, ranked most-actionable first. Settled means signed off *and* still
-    covering its own content — an item whose wording has changed since it was accepted
-    stays in the backlog, because clearing that is a job only its ratifier can do
-    (SR-0030). ``show_all`` widens the view to
-    the whole local graph — already-ratified items *and* dead (rejected/tombstoned)
-    items become visible too, so a reviewer can see what they invalidated instead of
-    it silently vanishing. ``sort`` chooses the ordering — ``"concern"`` (default),
-    ``"roots"`` (shallowest grounding depth first) or ``"leaves"`` (deepest first);
-    see :data:`SORTS`."""
+    """The ratification worklist, as throughline computes it (SR-0058).
+
+    Which items are outstanding, the concern each is in, whether it can be signed
+    now and the Tool's own reason when it cannot, the depth from a root and the
+    order they are offered in all come from throughline; this function only draws
+    them. By default the settled outcomes (signed off, and the signature still
+    covering the content) and the dead are left out, as the Tool leaves them out;
+    ``show_all`` asks for them. ``sort`` is a view choice: ``"concern"`` keeps the
+    Tool's order, ``"roots"`` and ``"leaves"`` reorder by depth (see :data:`SORTS`).
+    """
     if sort not in SORTS:
         raise RatifierError(f"unknown sort {sort!r}; choose one of {', '.join(SORTS)}")
-    schema = session.schema
-    dead = schema.dead_statuses()
-    depths = _grounding_depths(session)
-    rows: list[QueueItem] = []
-
-    for item in session.project.items():
-        is_dead = item.status in dead
-        is_ratified = _is_ratified(session, item)
-        stale = is_ratified and not is_dead and _signature_stale(session, item)
-        # The default queue is the actionable backlog: hide the settled outcomes
-        # (signed off, and the signature still covers the content) and the dead.
-        # show_all keeps everything for review.
-        if not show_all and (is_dead or (is_ratified and not stale)):
-            continue
-
-        rows.append(
-            _evaluate(session, item, is_ratified, is_dead, stale, depths.get(item.uid)))
-
-    _sort_rows(rows, sort)
+    # Depth is measured over the composed union, so an item grounded only through
+    # a borrowed root is as close to it as one grounded through a local one.
+    depths = depths_from_roots(session.union, session.index)
+    entries = [entry_for(session.project, item, index=session.index, depths=depths)
+               for item in session.project.items()]
+    if not show_all:
+        entries = [e for e in entries if e.concern not in ("ratified", "rejected", "deleted")]
+    order = {name: n for n, name in enumerate(CONCERNS)}
+    entries.sort(key=lambda e: (order.get(e.concern, len(CONCERNS)),
+                                e.depth if e.depth is not None else 1 << 30, e.uid))
+    rows = [_row(session, e) for e in entries]
+    if sort == "roots":
+        rows.sort(key=lambda r: (r.depth is None, r.depth or 0, r.uid))
+    elif sort == "leaves":
+        rows.sort(key=lambda r: (r.depth is None, -(r.depth or 0), r.uid))
     return rows
 
 
-def _is_ratified(session: Session, item: Item) -> bool:
-    """Whether ``item`` counts as signed off *now*. True if it currently holds the
-    ratified status, or carries the ratification stamp — the latter catching an item
-    that was ratified and has since advanced to ``implemented``/``verified``, so it is
-    not wrongly re-offered for a ratification its status can no longer accept.
-
-    A past stamp settles the item only while its status still stands on it (SR-0024).
-    Once the item is suspect that sign-off no longer holds — something it rested on
-    was withdrawn — so it is awaiting a human again and belongs back in the worklist,
-    not filtered out of it by the very stamp the cascade called into question."""
-    if session.suspect_status is not None and item.status == session.suspect_status:
-        return False
-    # Where ratification does not advance the item (throughline SR-0172), the status
-    # carries no claim about sign-off — the ratified role is typically bound to an
-    # ordinary workflow state there, and reading it as a signature would mark every
-    # item passing through that state as signed by nobody. The stamp is the only
-    # witness, which is exactly what that setting makes it.
-    if not getattr(session.schema, "ratify_moves_status", True):
-        return bool(item.attrs.get(RATIFIED_BY_ATTR))
-    return (
-        item.status == session.ratified_status
-        or bool(item.attrs.get(RATIFIED_BY_ATTR))
+def _row(session: Session, entry: WorklistEntry) -> QueueItem:
+    """One worklist entry as the TUI draws it: the Tool's judgement, plus the body,
+    the resolved links and the re-ratify itinerary this cockpit adds."""
+    item = session.project.get(entry.uid)
+    reratify_path = (
+        _reratify_route(session, item)
+        if not entry.ratifiable and entry.concern in ("blocked", "stale")
+        else None
+    )
+    return QueueItem(
+        uid=entry.uid,
+        title=entry.title,
+        type=entry.type,
+        status=entry.status,
+        concern=entry.concern,
+        grounded=entry.grounded,
+        ambiguous=entry.ambiguous,
+        ratifiable_now=entry.ratifiable,
+        text=item.text,
+        rationale=item.rationale,
+        links=_resolve_links(session, item),
+        depth=entry.depth,
+        reratify_path=reratify_path,
+        reason=str(item.attrs.get("invalidated_reason") or ""),
+        # A dead row is drawn as dead; the staleness of the record it still carries
+        # is a fact the Tool reports, not an action this view offers (SR-0030).
+        stale=entry.stale and not entry.dead,
+        ratified_by=str(item.attrs.get(RATIFIED_BY_ATTR) or ""),
+        obstacle=entry.obstacle,
     )
 
 
-def _signature_stale(session: Session, item: Item) -> bool:
-    """Whether the ratification recorded on ``item`` still covers what it signed —
-    the drift throughline's ``check`` reports as ``ratified-stale`` (tl:SR-0148).
-
-    The fingerprint is asked of throughline rather than computed here, for the reason
-    ratification itself is (SR-0022): a second answer to what counts as a content
-    change would drift from the validator's, and the cockpit would then disagree with
-    ``check`` about which items still need a human — the exact failure this closes.
-    A record written before the stamp existed carries none and cannot be judged, so
-    it is not stale; that silence is throughline's own and is kept here."""
-    stamp = item.attrs.get(RATIFIED_FINGERPRINT_ATTR)
-    if not stamp:
-        return False
-    return fingerprint(item, session.schema) != stamp
+def fingerprint_of(session: Session, item: Item) -> str:
+    """The fingerprint the Tool would stamp on ``item`` now, under this project's
+    schema — asked of the Tool, never computed here (SR-0022)."""
+    return fingerprint(item, session.schema)
 
 
 def change_since_signature(session: Session, uid: str) -> RatificationChange | None:
@@ -782,156 +717,13 @@ def change_since_signature(session: Session, uid: str) -> RatificationChange | N
     return session._changes[key]
 
 
-def _dead_concern(schema, status: str) -> str:
-    """Which dead concern a status earns, decided from the project's own
-    ``[status.roles]``: the ``tombstone`` role reads as ``"deleted"``, every other
-    dead status (the ``invalidated`` role) as ``"rejected"``. No status name is
-    assumed — an undeclared tombstone role simply means everything dead is rejected."""
-    roles = schema.status_roles or {}
-    if status == roles.get("tombstone"):
-        return "deleted"
-    return "rejected"
-
-
-def _sort_rows(rows: list[QueueItem], sort: str) -> None:
-    """Order the queue in place. Ungrounded items (no depth) always sort last so
-    they never masquerade as roots or leaves."""
-    if sort == "roots":
-        rows.sort(key=lambda r: (r.depth is None, r.depth or 0, r.uid))
-    elif sort == "leaves":
-        rows.sort(key=lambda r: (r.depth is None, -(r.depth or 0), r.uid))
-    else:  # concern
-        rows.sort(key=lambda r: (CONCERNS.get(r.concern, ("", 9))[1], r.uid))
-
-
-def _grounding_depths(session: Session) -> dict[str, int]:
-    """Shortest number of grounding hops from each item down to a root, computed
-    over the composed union so borrowed chains are measured the same as local ones.
-    Roots are depth 0; items that never reach a root are absent (ungrounded)."""
-    from collections import deque
-
-    idx = session.index
-    schema = session.schema
-    ground = schema.ground_link_types
-    depth: dict[str, int] = {}
-    q: deque[str] = deque()
-    for it in session.union.items():
-        if schema.is_root(it):
-            depth[it.uid] = 0
-            q.append(it.uid)
-    while q:
-        cur = q.popleft()
-        d = depth[cur] + 1
-        for child, _k in idx.in_links(cur, ground):
-            if depth.get(child, d + 1) > d:
-                depth[child] = d
-                q.append(child)
-    return depth
-
 
 def ratification_progress(session: Session) -> tuple[int, int]:
     """``(ratified, gradable)`` over the local, non-dead items — the figure a human
-    watches climb as they sign off. Counts the whole project, not just the filtered
-    queue, so ratifying a row makes the number move even when it then leaves view.
-
-    An item whose content has moved since it was accepted is counted as outstanding,
-    not as ratified (SR-0030). Its signature no longer covers it, so counting it would
-    report full marks over work the validator is calling an error — and a reviewer
-    reading full marks stops looking."""
-    schema = session.schema
-    dead = schema.dead_statuses()
-    ratified = gradable = 0
-    for item in session.project.items():
-        if item.status in dead:
-            continue
-        gradable += 1
-        if _is_ratified(session, item) and not _signature_stale(session, item):
-            ratified += 1
-    return ratified, gradable
-
-
-def _evaluate(
-    session: Session, item: Item, is_ratified: bool, is_dead: bool, stale: bool,
-    depth: int | None
-) -> QueueItem:
-    schema = session.schema
-    union_item = session.union.get(item.uid) or item
-    grounded = schema.is_root(union_item) or reaches_root(session.index, schema, item.uid)
-    ambiguous = bool(item.attrs.get("ambiguous"))
-    # Whether a sign-off can be taken from where the item already stands. Where
-    # ratification advances the item, that is a transition question. Where the
-    # project has declared it does not (throughline SR-0172), no transition is
-    # involved — every status can take one directly, and the round trip below is
-    # never offered, because walking a route there would fabricate exactly the
-    # history that setting exists to avoid. Deciding it any other way would also
-    # re-take, here, the judgement SR-0022 leaves to throughline.
-    directly = (
-        schema.allows_transition(item.status, session.ratified_status)
-        if getattr(schema, "ratify_moves_status", True)
-        else True
-    )
-    # Signed off, and the signature still covers the content. Only that settles an
-    # item; a stale one is offered again, which throughline's own ratify permits
-    # precisely because the content moved (SR-0030).
-    settled = is_ratified and not stale
-    # A dead item is never actionable, whatever stamp it may still carry.
-    ratifiable_now = (
-        directly and grounded and not ambiguous and not settled and not is_dead
-    )
-
-    if is_dead:
-        # Invalidated/tombstoned — surfaced only under show_all, for the record. This
-        # takes precedence over any lingering ratified stamp: it is now dead.
-        concern = _dead_concern(schema, item.status)
-    elif stale:
-        # Signed off, then rewritten. Its own concern, ranked above the states that
-        # must be fixed before anything can be signed off and never folded into
-        # "ratified" — that is the claim the drift contradicts.
-        concern = "stale"
-    elif is_ratified:
-        concern = "ratified"  # done — only appears under show_all
-    elif ambiguous:
-        concern = "ambiguous"
-    elif not grounded:
-        concern = "ungrounded"
-    elif not directly:
-        concern = "blocked"
-    elif item.status == session.proposed_status:
-        concern = "proposed"
-    else:
-        concern = "ready"  # approved, one move from ratified
-
-    # Two states need a sign-off the item's current status cannot take directly: one
-    # that advanced past ratified without ever being signed off, and one that was
-    # signed off, has since been rewritten, and has also moved on. Both are carried
-    # by the same round trip through ratified, offered only where this project's own
-    # transitions permit one — what differs is what the reviewer is told they are
-    # doing (SR-0019 records a sign-off that never happened; SR-0030 replaces one
-    # that did).
-    reratify_path = (
-        _reratify_route(session, item)
-        if not ratifiable_now and concern in ("blocked", "stale")
-        else None
-    )
-
-    return QueueItem(
-        uid=item.uid,
-        title=item.title,
-        type=item.type,
-        status=item.status,
-        concern=concern,
-        grounded=grounded,
-        ambiguous=ambiguous,
-        ratifiable_now=ratifiable_now,
-        text=item.text,
-        rationale=item.rationale,
-        links=_resolve_links(session, item),
-        depth=depth,
-        reratify_path=reratify_path,
-        reason=str(item.attrs.get("invalidated_reason") or ""),
-        stale=stale,
-        ratified_by=str(item.attrs.get(RATIFIED_BY_ATTR) or ""),
-    )
+    watches climb — as throughline counts it (SR-0058). Counts the whole project,
+    not just the filtered queue, so ratifying a row makes the number move even
+    when it then leaves view."""
+    return throughline_ratification_progress(session.project, index=session.index)
 
 
 def _resolve_links(session: Session, item: Item) -> list[LinkView]:
@@ -950,7 +742,7 @@ def _resolve_links(session: Session, item: Item) -> list[LinkView]:
         ref = link.target
         lookup = union_targets[i] if union_targets and i < len(union_targets) else ref
         target_item = session.union.get(lookup)
-        external = _is_ns_qualified(ref)
+        external = is_namespace_qualified(ref)
         out.append(LinkView(
             type=link.type,
             ref=ref,

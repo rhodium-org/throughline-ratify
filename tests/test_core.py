@@ -609,7 +609,9 @@ def test_a_stamped_item_that_moved_on_stays_out_of_the_worklist(demo_project):
     session = core.open_session(demo_project)
     item = session.project.get("FR-0007")   # overshot to 'implemented'
     item.attrs["ratified_by"] = "Ada Lovelace"
-    assert core._is_ratified(session, item)
+    item.attrs["ratified_fingerprint"] = core.fingerprint_of(session, item)
+    assert "FR-0007" not in _uids(core.build_queue(session))
+    assert _by_uid(core.build_queue(session, show_all=True))["FR-0007"].concern == "ratified"
 
 
 # --------------------------------------------------------------------------- #
@@ -713,9 +715,9 @@ def _composed_consumer(tmp_path):
 
 
 def test_a_path_source_is_composed_through_the_real_seam(tmp_path):
-    """SR-0055: the seam is exercised unstubbed against the installed compose. The
-    borrowed root is in the union, the item grounded only through it is ratifiable,
-    and the summary names the source by its declared location."""
+    """SR-0055, SR-0060: composition is exercised unstubbed against the installed
+    Tool. The borrowed root is in the union, the item grounded only through it is
+    ratifiable, and the summary names the source by its declared location."""
     consumer = _composed_consumer(tmp_path)
     session = core.open_session(consumer)
     assert [(s.namespace, s.location) for s in session.sources] == [("base", "path ../base")]
@@ -730,34 +732,19 @@ def test_a_path_source_is_composed_through_the_real_seam(tmp_path):
     assert not {q.uid: q for q in core.build_queue(bare)}["FR-0009"].grounded
 
 
-def test_a_changed_private_seam_degrades_to_the_public_resolver(tmp_path, monkeypatch):
-    """SR-0054: when compose's private resolution object loses a field this package
-    reads, the session composes through the public single-hop resolver and says so,
-    rather than failing on an internal name."""
+def test_composition_is_the_tools_own_resolution(tmp_path, monkeypatch):
+    """SR-0057, SR-0060: the union is built through the resolution throughline
+    publishes, and through nothing private. Replacing that one name is enough to
+    see every source the session composes."""
+    import throughline
     consumer = _composed_consumer(tmp_path)
+    seen = []
 
-    class Renamed:  # the 0.16 -> 0.17 shape change, replayed
-        def __init__(self, real):
-            self._real = real
-        def projects(self):
-            return self._real.projects()
-        def __getattr__(self, name):
-            if name == "labels":
-                raise AttributeError("'_Resolution' object has no attribute 'labels'")
-            return getattr(self._real, name)
+    def spy(sources, root, **kw):
+        seen.append([s.namespace for s in sources])
+        return throughline.resolve_sources(sources, root, **kw)
 
-    real = core._compose_resolve_sources
-    monkeypatch.setattr(core, "_compose_resolve_sources", lambda d, r: Renamed(real(d, r)))
+    monkeypatch.setattr(core, "resolve_sources", spy)
     session = core.open_session(consumer)
-    assert [(s.namespace, s.location) for s in session.sources] == [
-        ("base", "path ../base (public resolver, single hop)")]
-    queue = {q.uid: q for q in core.build_queue(session)}
-    assert queue["FR-0009"].grounded
-
-
-def test_an_unimportable_private_seam_also_degrades(tmp_path, monkeypatch):
-    """SR-0054: the import guard and the shape guard take the same route."""
-    consumer = _composed_consumer(tmp_path)
-    monkeypatch.setattr(core, "_compose_resolve_sources", None)
-    session = core.open_session(consumer)
-    assert session.sources[0].location.endswith("(public resolver, single hop)")
+    assert seen == [["base"]]
+    assert [(s.namespace, s.location) for s in session.sources] == [("base", "path ../base")]
