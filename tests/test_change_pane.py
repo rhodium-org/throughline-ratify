@@ -18,7 +18,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
-from throughline.ratification import FieldChange, RatificationChange
+from throughline.ratification import HISTORY, RECORD, FieldChange, RatificationChange
 
 from throughline_ratify import core, tui
 
@@ -330,3 +330,27 @@ def test_a_plainly_painted_line_is_drawn_whole():
     win = _Window()
     tui._addline(win, 1, 2, "text", 5)
     assert win.calls == [(1, 2, "text", 5)]
+
+
+def test_content_resolved_from_the_record_says_so_rather_than_naming_no_revision(
+        demo_project, monkeypatch):
+    """From 3.10.0 a ratification record carries the content it was taken over, so the
+    earlier wording needs no history and there is no revision to name. The pane used to
+    print an em dash there, which reads as "we could not tell" (SR-0053, tl:SR-0216)."""
+    _answer(monkeypatch, RatificationChange(
+        uid="FR-0001", outcome="changed", stamp="sha256:abc", source=RECORD,
+        changes=(FieldChange("text", "was", "now"),)))
+    joined = "\n".join(_pane(_item(), core.open_session(demo_project)))
+    assert "signed content from the record" in joined
+    assert "signed content at" not in joined
+
+
+def test_content_resolved_from_history_still_names_the_revision(demo_project, monkeypatch):
+    """The other route is unchanged: a reviewer who doubts it gets a handle to look at."""
+    _answer(monkeypatch, RatificationChange(
+        uid="FR-0001", outcome="changed", stamp="sha256:abc", source=HISTORY,
+        revision="c0ffee123" + "0" * 31,
+        changes=(FieldChange("text", "was", "now"),)))
+    joined = "\n".join(_pane(_item(), core.open_session(demo_project)))
+    assert "signed content at c0ffee123" in joined
+    assert "from the record" not in joined

@@ -15,7 +15,7 @@ import re
 import textwrap
 from dataclasses import dataclass
 
-from throughline.ratification import ADDED, REMOVED, diff_prose, is_prose, wrap_words
+from throughline.ratification import ADDED, RECORD, REMOVED, diff_prose, is_prose, wrap_words
 
 from . import core
 from . import __version__
@@ -529,8 +529,15 @@ class App:
                  indent="    ")
             add()
             return
-        at = change.revision[:9] if change.revision else "—"
-        add(f"what changed since the signature  (signed content at {at})",
+        # Where the signed content came from: a revision walked out of history, or
+        # the ratification record itself, which needs no history at all (tl:SR-0216).
+        if change.source == RECORD:
+            where = "from the record"
+        elif change.revision:
+            where = f"at {change.revision[:9]}"
+        else:
+            where = "at —"
+        add(f"what changed since the signature  (signed content {where})",
             _attr("stale", bold=True))
         for c in change.changes:
             add(f"  {c.field}", _attr("key"))
