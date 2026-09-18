@@ -586,7 +586,7 @@ What the software must do to meet them.
 *Relates:* SR-0019, SR-0022, SR-0024
 *Satisfies:* tl:SR-0148
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:e6be3c41ea042eb68ba12c931a9c0749b27c6aa5cc3354d14ad16b2388dabc9f
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:14d2596bf166142293c43a03a756007c1cf0cd7b8a25571cb546e5a73a28f1d2
 <!-- tl:end -->
 
 <!-- tl:item SR-0031 -->
