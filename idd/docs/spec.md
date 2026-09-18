@@ -846,7 +846,7 @@ What the software must do to meet them.
 <!-- tl:item SR-0053 -->
 **SR-0053 — The cockpit shows what moved since the signature, and says when it cannot** — `system_requirement`, status `ratified`
 
-> Where the assistant presents an item whose ratification no longer covers its content, it shall show in that item's own view which normative fields changed since the signature, giving the value as signed beside the value as it now stands, and naming the revision the signed content was recovered from. Where the change cannot be established it shall say so plainly, distinctly from having found no change. What changed shall be settled by asking throughline, never by comparing content here.
+> Where the assistant presents an item whose ratification no longer covers its content, it shall show in that item's own view which normative fields changed since the signature, giving the value as signed beside the value as it now stands, and naming where the signed content came from: the revision it was recovered from, or the ratification record itself where the record carries the content it was taken over. Where the change cannot be established it shall say so plainly, distinctly from having found no change. What changed shall be settled by asking throughline, never by comparing content here.
 
 *Rationale:* SR-0030 settled that a stale signature is its own concern and that whether an item is in that state is throughline's judgement, not this tool's. The same division applies to what moved: throughline resolves the signed content by finding the revision whose fingerprint reproduces the stamp (tl:SR-0165) and returns the difference as fields, so this tool lays those fields out and derives nothing. A second implementation of what counts as a content change would drift from the validator's, and the cockpit would then disagree with check about what a reviewer is accepting — the precise failure SR-0022 and SR-0030 each refused for their own half of the same question. The revision is named because the difference is only as good as the content it was recovered from, and a reviewer who doubts what they are shown needs a handle they can go and look at. It is throughline's answer, reproduced, not a date this tool inferred. Unable to establish is shown as its own state rather than as an empty difference, because an empty difference asserts that the wording still stands as signed. That assertion, made wrongly, sends the reviewer past the change they are being asked to accept, and the case is reachable without anything being broken — a signature backfilled over content that was never committed, or a history that has been rewritten. Rejected — computing the difference here from the item's git history, which is available and would have been fewer moving parts. It would make this tool the second place the rule lives, and the rule is the one thing a ratification record cannot afford to have two versions of. Rejected — offering the difference only on a keystroke, which leaves the reviewer who does not know to press it exactly where SR-0030 found them.
 
@@ -855,7 +855,7 @@ What the software must do to meet them.
 *Satisfies:* tl:UR-0028
 *Relates:* tl:SR-0165, SR-0022
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:b55dea798f40918e4c414d3c6405f2c06d80bc7c6ecf9100e125ab113d8f09b6
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:983c23232e2e43848f879674809260c2369e9f056a6f18bb2a241b5e5b41317b
 <!-- tl:end -->
 
 <!-- tl:item SR-0054 -->
