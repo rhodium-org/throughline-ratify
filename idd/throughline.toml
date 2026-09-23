@@ -19,8 +19,8 @@ format_version = 3
 # is the importer's choice, not the source's, which is exactly what it is for.
 #
 # subdir is 'idd' because throughline keeps its own graph there, as this repo does.
-# Note that a moved ref is NOT refetched — bumping this needs the cached tree for
-# the old ref cleared, or the check silently passes against stale content.
+# tl picks up a moved ref: it asks the origin what the ref points at now and
+# refetches when it has moved, so bumping this needs no cache cleared.
 [[sources]]
 namespace = "tl"
 url = "https://github.com/rhodium-org/throughline"
@@ -39,13 +39,13 @@ subdir = "idd"
 # permissive — able to accept a borrowed item the source's own graph would reject.
 # Nothing here is widened for the source now, so nothing here needs marking as
 # such: read every line below as this project's own model, because it is.
-# Published documents (SR-0042): `tl-compose docs` renders these in place from the
+# Published documents (SR-0042): `tl docs` renders these in place from the
 # composed graph and `docs --check` gates their freshness. Configuring this is also
 # what makes publication coverage judged at all — with it set, a live normative item
-# of this project's own that no document names is reported by `check --strict`. That
-# second half needs throughline-compose >= 0.13.0, which is where the union path
-# began handing the published set to the validator; before it, this line bought
-# freshness alone and the coverage rule stayed silent.
+# of this project's own that no document names is reported by `check --strict`. The
+# union path began handing the published set to the validator in throughline-compose
+# 0.13.0, and every tl that composes (3.11.0 on) does the same; before it, this line
+# bought freshness alone and the coverage rule stayed silent.
 [docs]
 paths = ["docs/*.md"]
 

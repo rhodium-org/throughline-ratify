@@ -11,6 +11,13 @@ text: A CONTRIBUTING.md at the repository root shall state how to install the pa
   working on throughline or throughline-compose it shall point at the chained editable
   install, because a cockpit running against a published validator reports figures
   that disagree with the gate and is indistinguishable from a real defect.
+rationale: The gate a contributor is told to run has to be the one that composes
+  this graph's source, or the first namespace-qualified reference stops it and the
+  contributor meets a failure that is not theirs (UR-0008). When this was written
+  that meant tl-compose, because bare tl could not compose. Since throughline 3.11,
+  tl composes a graph's sources itself and tl-compose remains only as a second name
+  for it, so the composing command is now tl, and tl is the command CONTRIBUTING.md
+  names. The text's wording predates 3.11.
 normative: true
 links:
 - target: UR-0008
