@@ -10,8 +10,7 @@ This repository is **throughline-ratify**, an htop-style terminal cockpit (CLI
 `tl-ratify`) for working through the
 [throughline](https://github.com/rhodium-org/throughline) items that await
 **human ratification** — one item at a time, most-actionable first. It is
-compose-aware: on a
-[`tl-compose`](https://github.com/rhodium-org/throughline-compose) project it
+compose-aware: on a project that declares `[[sources]]`, which `tl` composes, it
 grounds each item over the composed union, and only ever writes to your own
 consumer registers. It is also *self-hosting*: its own requirements live under
 [`idd/`](idd). Read the hat that matches what you're doing:
@@ -30,12 +29,12 @@ the one thing the whole toolchain exists to protect.
 
 ### Where it fits
 
-throughline / throughline-compose let an agent **propose** grounded requirements
+throughline (`tl`) lets an agent **propose** grounded requirements
 (they enter `proposed`). `tl-ratify` is the human's tool for **accepting or
 rejecting** them:
 
 ```bash
-pipx install throughline-ratify   # pulls tl along too; tl-compose is a second name for it
+pipx install throughline-ratify   # pulls tl along too
 tl-ratify                         # open the cockpit (walks up to find throughline.toml)
 tl-ratify -C idd                  # point at a graph under idd/
 tl-ratify --by alice              # record the ratifier on sign-off
@@ -90,43 +89,42 @@ names; the project's `[status.roles]` and `[transitions]` govern every move.
 python -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"       # pulls throughline along too
 pytest -q
-tl-compose -C idd check --strict   # this repo's own requirements graph — keep it green
-tl-compose -C idd docs --check     # its published spec (idd/docs/spec.md) — regenerate with `docs`
+tl -C idd check --strict           # this repo's own requirements graph — keep it green
+tl -C idd docs --check             # its published spec (idd/docs/spec.md) — regenerate with `docs`
 ```
 
-**Use `tl-compose`, not bare `tl`, on this repo's graph.** It adopts throughline's
-own graph as a pinned source, so a requirement here can point at the upstream
-clause it tracks (`satisfies: tl:SR-0157`) and have that reference
-resolved rather than merely asserted in a rationale (SR-0029). Bare `tl` fails the
-moment it meets a namespace-qualified reference it cannot resolve. The union is
-governed by *this* project's schema, so `idd/throughline.toml` declares some types,
-links and statuses only to accept the source's items; those lines are marked as
-such — they are not this project's own model.
+**`tl` composes this repo's graph.** It adopts throughline's own graph as a pinned
+source, so a requirement here can point at the upstream clause it tracks
+(`satisfies: tl:SR-0157`) and have that reference resolved rather than merely
+asserted in a rationale (SR-0029). `tl` 3.11.0 or later composes the source
+itself; an older `tl` reports the reference as `namespace-unresolved`. The union is
+governed by *this* project's schema, and a finding whose only remedy lies in the
+source's own graph is not raised here, so `idd/throughline.toml` declares nothing
+merely to admit the source's items — every line of it is this project's own model.
 
-### If you are also working on throughline or throughline-compose — chain the editables
+### If you are also working on throughline — chain the editables
 
 `pip install -e ".[dev]"` makes *this* package editable and resolves
-[throughline-compose](https://github.com/rhodium-org/throughline-compose) and
-[throughline](https://github.com/rhodium-org/throughline) **from PyPI**. This repo is
-the most exposed of the three, because it sits on top of both: the cockpit you run
-can be your working tree while the validator behind it is a published release, and
-every version string will still agree. A cockpit reporting `38/38 ratified` while
-`tl-compose check --strict` reports an error is exactly what that looks like, and it
-is indistinguishable from a real defect until you check which build you are running.
+[throughline](https://github.com/rhodium-org/throughline) **from PyPI**. This repo
+is exposed because it sits on top of it: the cockpit you run can be your working
+tree while the validator behind it is a published release, and every version
+string will still agree. A cockpit reporting `38/38 ratified` while
+`tl check --strict` reports an error is exactly what that looks like, and it is
+indistinguishable from a real defect until you check which build you are running.
 
-Check all three out side by side and chain them in a **single** command, so the
+Check both out side by side and chain them in a **single** command, so the
 resolver never reaches the index:
 
 ```sh
-pip install -e ../throughline -e ../throughline-compose -e ".[dev]"
+pip install -e ../throughline -e ".[dev]"
 ```
 
 Then verify rather than assume — every path must be your checkout, not
 `site-packages`:
 
 ```sh
-python -c "import throughline as a, throughline_compose as b, throughline_ratify as c; \
-[print(m.__file__) for m in (a, b, c)]"
+python -c "import throughline as a, throughline_ratify as b; \
+[print(m.__file__) for m in (a, b)]"
 ```
 
 Because `tl-ratify` is a CLI you also *use*, the pipx installation needs the same
@@ -136,7 +134,7 @@ carries that recipe and the two traps in `pipx inject` that fail silently.
 
 Changes here follow the same IDD discipline this tool serves: ground the change in
 an `idd/` item (create + get it ratified if new — you can dogfood `tl-ratify`
-itself), cite the UID in your commit, and keep `tl-compose -C idd check --strict`
-and `tl-compose -C idd docs --check` green — the second is not a formality here,
+itself), cite the UID in your commit, and keep `tl -C idd check --strict`
+and `tl -C idd docs --check` green — the second is not a formality here,
 because `[docs] paths` is configured, so a new item that never reaches
 `idd/docs/spec.md` fails the first.

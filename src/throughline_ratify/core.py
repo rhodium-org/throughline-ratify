@@ -6,7 +6,7 @@ This module owns everything that touches a throughline graph; the TUI
 (:mod:`throughline_ratify.tui`) is a pure view over the values it
 produces. It is deliberately compose-aware: when the project declares
 ``[[sources]]`` it grounds each item over the *composed union* — exactly as
-``tl-compose ratify`` does — so an item whose grounding chain reaches a root only
+``tl ratify`` does — so an item whose grounding chain reaches a root only
 through a borrowed clause is seen as grounded, not orphaned. Writes only ever land
 on the consumer's own registers; a composed source is a read-only view.
 

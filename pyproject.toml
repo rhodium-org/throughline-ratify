@@ -54,38 +54,38 @@ classifiers = [
 # grounding.Invalidation.marked/.refused, which the reject path reads to report what
 # a cascade actually did and what it could not (SR-0037), first ships in 1.13.0.
 #
-# Every clause above names an API this package calls. compose>=0.13.0 is the one
-# that does not, and it is here deliberately, because this block says more than
-# which functions the cockpit imports. `pipx install throughline-ratify` is how the
-# estate hands someone the whole toolchain — the README and AGENTS.md both say so —
-# and ratify sits on top of both packages, so what it declares is the *edition* of
-# that toolchain it delivers, not only the symbols it reaches for. 0.13.0 is the
-# release in which `tl-compose check` began handing the set of published documents
-# to the validator; below it, a project that has configured `[docs] paths` is told
-# nothing whatsoever about publication coverage and cannot tell that apart from
-# being fully published (compose SR-0038). Shipping someone a cockpit for taking
-# accountability over requirements alongside a checker that quietly does not check
-# is not a saving worth making, and this repo's own gate (SR-0042) rests on the
-# same release.
+# Every clause above names an API this package calls. Until composition became the
+# Tool's own in 3.11.1, this block also declared compose>=0.13.0, which named none,
+# and it was there deliberately, because this block says more than which functions
+# the cockpit imports. `pipx install throughline-ratify` is how the estate hands
+# someone the whole toolchain — the README and AGENTS.md both say so — so what it
+# declares is the *edition* of that toolchain it delivers, not only the symbols it
+# reaches for. 0.13.0 was the release in which `tl-compose check` began handing the
+# set of published documents to the validator; below it, a project that had
+# configured `[docs] paths` was told nothing whatsoever about publication coverage
+# and could not tell that apart from being fully published (compose SR-0038).
+# Shipping someone a cockpit for taking accountability over requirements alongside a
+# checker that quietly does not check is not a saving worth making, and this repo's
+# own gate (SR-0042) rested on the same release.
 #
-# That floor carries throughline's with it: a floor of compose is only honest at the
+# That floor carried throughline's with it: a floor of compose is only honest at the
 # lowest throughline it can itself be installed against, or the declared-minimum
-# resolution SR-0038 installs would not resolve at all. So the two move as one.
+# resolution SR-0038 installs would not resolve at all. So the two moved as one.
 #
-# They move to compose>=0.14.0 / throughline>=2.0.0 because on 2026-08-16 the pair
+# They moved to compose>=0.14.0 / throughline>=2.0.0 because on 2026-08-16 the pair
 # became coupled in the other direction too, and the previous floors admitted a
-# combination that does not work (SR-0043). throughline 2.0.0 stopped providing
-# `tl:sourced` — a directive core could never render, because mirroring a borrowed
-# clause needs the composed sources and only compose holds them — and opened a
-# registry for a front end to provide one instead; compose 0.14.0 is the release
-# that registers it there. Neither half is any use without the other. The floors as
-# they stood named 0.13.0 and 1.13.2, both ends of that range resolve to a working
-# pair, and (compose==0.13.0, throughline==2.0.0) sits in the interior where nothing
-# looked. pip installs it without complaint and then `tl-compose` does not start at
-# all — `--version` included — dying on `ImportError: cannot import name
-# '_render_item'`, while `tl-ratify` still runs. An upper bound on compose 0.13.0
-# would be the narrower fix and is not available, that release being already on the
-# index as published, so the floor is what moves.
+# combination that did not work (SR-0043). throughline 2.0.0 stopped providing
+# `tl:sourced` — a directive core could not then render, because mirroring a borrowed
+# clause needed the composed sources and only compose held them — and opened a
+# registry for a front end to provide one instead; compose 0.14.0 was the release
+# that registered it there. Neither half was any use without the other. The floors
+# as they stood named 0.13.0 and 1.13.2, both ends of that range resolved to a
+# working pair, and (compose==0.13.0, throughline==2.0.0) sat in the interior where
+# nothing looked. pip installed it without complaint and then `tl-compose` did not
+# start at all — `--version` included — dying on `ImportError: cannot import name
+# '_render_item'`, while `tl-ratify` still ran. An upper bound on compose 0.13.0
+# would have been the narrower fix and was not available, that release being already
+# on the index as published, so the floor was what moved.
 dependencies = ["throughline>=3.11.3"]  #  3.11.3 records a re-signature where the item stands (throughline SR-0237), so a signed item rewritten past ratified is ratifiable as it is and this cockpit walks no route for it (SR-0030).The floor is the first published edition whose interface carries every throughline name this package uses (SR-0060): 3.11.2 offers a suspect item as awaiting a human again in the worklist this cockpit draws (tl:SR-0229, this SR-0024 and SR-0058); 3.11.1 publishes the composition names (tl:SR-0234), the refusal a grounding operation returns and the record of what moved since a signature with its prose diff (tl:SR-0165, tl:SR-0200), the worklist a review interface draws (tl:SR-0229), and leaves room in its parser for the old composing package (tl:SR-0231). throughline-compose is no longer a dependency: composition is the Tool's own (tl:UR-0037).
 
 [project.optional-dependencies]

@@ -34,8 +34,8 @@ jobs:
 
       - name: Install it into a clean environment
         # A fresh venv, so what gets imported is the artifact rather than this
-        # checkout, and throughline-compose (with throughline behind it) resolves
-        # from the index exactly as a user's install would.
+        # checkout, and throughline resolves from the index exactly as a user's
+        # install would.
         run: |
           python -m venv /tmp/sdist-env
           /tmp/sdist-env/bin/pip install --upgrade pip

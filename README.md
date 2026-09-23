@@ -5,11 +5,11 @@ A full-screen, **htop-style** terminal cockpit for working through the
 await human ratification — one item at a time, with colour and glyphs carrying the
 semantic weight so your eye lands on the actionable rows first.
 
-It is **compose-aware**: on a
-[`tl-compose`](https://github.com/rhodium-org/throughline-compose) project it grounds
-each item over the *composed union*, so an item whose grounding chain reaches a root
-only through a borrowed source counts as grounded — never orphaned. Writes only ever
-land on your own consumer registers; a composed source stays read-only.
+It is **compose-aware**: on a project that declares `[[sources]]`, which `tl`
+composes, it grounds each item over the *composed union*, so an item whose grounding
+chain reaches a root only through a borrowed source counts as grounded — never
+orphaned. Writes only ever land on your own consumer registers; a composed source
+stays read-only.
 
 ```
  throughline-ratify │ my-service                               composed │ 2 source(s)
@@ -30,8 +30,8 @@ land on your own consumer registers; a composed source stays read-only.
 pipx install throughline-ratify
 ```
 
-This pulls in `throughline-compose` (and, transitively, the `throughline` core), so
-the `tl` and `tl-compose` CLIs come along too.
+This pulls in `throughline`, so the `tl` CLI comes along too; it composes a
+project's sources itself.
 
 ## Use
 
@@ -128,7 +128,7 @@ Every row is classified by the one thing you most need to know about it:
 - **What needs ratifying** — every local item whose status is not the project's
   `ratified` role and is not a dead status. Ranking, colour and icon come from the
   concern each item earns.
-- **Ratifying** mirrors `tl-compose ratify`: it runs throughline's grounding gate
+- **Ratifying** mirrors `tl ratify`: it runs throughline's grounding gate
   over the composed union (refusing ambiguous or ungrounded items), sets the
   `ratified`-role status through the config-driven `set_status` choke point, records
   who signed off, and writes the item back to its own register.
@@ -144,17 +144,17 @@ govern every move.
 python -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"
 pytest -q
-tl-compose -C idd check --strict   # this repo is itself throughline-managed
-tl-compose -C idd docs --check     # its published spec must match that graph
+tl -C idd check --strict           # this repo is itself throughline-managed
+tl -C idd docs --check             # its published spec must match that graph
 ```
 
 This project practises what it automates: its own requirements live in
 [`idd/`](https://github.com/rhodium-org/throughline-ratify/tree/main/idd) as a throughline graph, published as
 [`idd/docs/spec.md`](https://github.com/rhodium-org/throughline-ratify/blob/main/idd/docs/spec.md), and CI gates every change on
-`tl-compose check --strict`.
+`tl check --strict`.
 
-The gate is the composition-aware one because this graph adopts throughline's own
-graph as a pinned source. A requirement here that tracks an upstream clause points
+The check composes a union because this graph adopts throughline's own graph as a
+pinned source. A requirement here that tracks an upstream clause points
 straight at it — `satisfies: tl:SR-0157` — so the citation is resolved
 against a pinned edition of throughline's requirements rather than restated in a
 rationale field that nothing validates.

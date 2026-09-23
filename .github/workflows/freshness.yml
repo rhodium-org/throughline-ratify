@@ -2,10 +2,9 @@ name: freshness
 
 # SR-0038.
 
-# throughline and throughline-compose are declared as floors, not locked, so CI
-# resolves whatever PyPI happens to publish. A green check is therefore only true
-# on the day it ran: a release of either can turn this repo red without a commit
-# here, and nothing would say so until a contributor next opened a pull request —
+# throughline is declared as a floor, not locked, so CI resolves whatever PyPI
+# happens to publish. A green check is therefore only true on the day it ran: a
+# release of it can turn this repo red without a commit here, and nothing would say so until a contributor next opened a pull request —
 # who then meets a failure that has nothing to do with their change. That is not
 # hypothetical here; it is what happened on 2026-08-09, when throughline 1.13
 # shipped a rule this graph did not satisfy.
