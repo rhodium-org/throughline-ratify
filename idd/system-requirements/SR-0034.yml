@@ -4,20 +4,17 @@ status: implemented
 title: CONTRIBUTING.md carries the whole path from clone to pull request
 text: A CONTRIBUTING.md at the repository root shall state how to install the package
   for development, how to run the tests, and how to run this repository's own requirements
-  gate — naming tl-compose rather than bare tl, because the graph composes a source
-  and bare tl cannot resolve it. It shall state that a change is grounded in an idd/
-  item before it is built and that the item's UID is cited in the commit, and shall
-  record the terms a contribution is offered under. Where the contributor is also
-  working on throughline or throughline-compose it shall point at the chained editable
-  install, because a cockpit running against a published validator reports figures
-  that disagree with the gate and is indistinguishable from a real defect.
+  gate — naming tl 3.11.0 or later, because the graph composes a source and a tl
+  older than 3.11.0 cannot resolve it. It shall state that a change is grounded in
+  an idd/ item before it is built and that the item's UID is cited in the commit,
+  and shall record the terms a contribution is offered under. Where the contributor
+  is also working on throughline it shall point at the chained editable install,
+  because a cockpit running against a published validator reports figures that disagree
+  with the gate and is indistinguishable from a real defect.
 rationale: The gate a contributor is told to run has to be the one that composes
   this graph's source, or the first namespace-qualified reference stops it and the
-  contributor meets a failure that is not theirs (UR-0008). When this was written
-  that meant tl-compose, because bare tl could not compose. Since throughline 3.11,
-  tl composes a graph's sources itself and tl-compose remains only as a second name
-  for it, so the composing command is now tl, and tl is the command CONTRIBUTING.md
-  names. The text's wording predates 3.11.
+  contributor meets a failure that is not theirs (UR-0008). From throughline 3.11.0
+  that gate is tl itself.
 normative: true
 links:
 - target: UR-0008
@@ -25,4 +22,19 @@ links:
 attrs:
   origin: ai
   ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:8a6897b4d5075eb8f726f205e95114ebf44dfb1aa02b423e192ca49c987648c0
+  ratified_fingerprint: sha256:ae934f0fe355d805807765f423dfd655c5e22b63ab55bc8b56da17ba651de84c
+  ratified_content:
+    type: system_requirement
+    text: A CONTRIBUTING.md at the repository root shall state how to install the
+      package for development, how to run the tests, and how to run this repository's
+      own requirements gate — naming tl 3.11.0 or later, because the graph composes
+      a source and a tl older than 3.11.0 cannot resolve it. It shall state that
+      a change is grounded in an idd/ item before it is built and that the item's
+      UID is cited in the commit, and shall record the terms a contribution is offered
+      under. Where the contributor is also working on throughline it shall point
+      at the chained editable install, because a cockpit running against a published
+      validator reports figures that disagree with the gate and is indistinguishable
+      from a real defect.
+    normative: true
+    derived: false
+    attrs: {}
