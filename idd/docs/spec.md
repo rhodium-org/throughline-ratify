@@ -634,7 +634,7 @@ What the software must do to meet them.
 
 *Derives from:* UR-0008
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:8a6897b4d5075eb8f726f205e95114ebf44dfb1aa02b423e192ca49c987648c0
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:ae934f0fe355d805807765f423dfd655c5e22b63ab55bc8b56da17ba651de84c
 <!-- tl:end -->
 
 <!-- tl:item SR-0035 -->
