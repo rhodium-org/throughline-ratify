@@ -1,6 +1,6 @@
 uid: UR-0017
 type: user_requirement
-status: proposed
+status: ratified
 title: A screen left open does not sign wording I was not shown
 text: When the graph is changed by someone or something else while my cockpit is
   open, I want what I sign, reject or unlink to be the graph as it now is and as
@@ -16,3 +16,13 @@ links:
   type: derives_from
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:078b8b296a61b9f27e9ced3d5dbae8f30eb2d23ff6cce2745674ef09ba2c31a0
+  ratified_content:
+    type: user_requirement
+    text: When the graph is changed by someone or something else while my cockpit
+      is open, I want what I sign, reject or unlink to be the graph as it now is
+      and as I have been shown it, never an older copy the cockpit still holds.
+    normative: true
+    derived: false
+    attrs: {}

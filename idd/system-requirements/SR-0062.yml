@@ -1,6 +1,6 @@
 uid: SR-0062
 type: system_requirement
-status: proposed
+status: ratified
 title: An idle cockpit reloads when the graph changes on disk, and says so
 text: While it waits for a key at the worklist, the cockpit shall look at the graph's
   files at a short interval and, when they differ from what it last read or wrote,
@@ -15,3 +15,15 @@ links:
   type: relates
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:25644d5357801eafbdffc1bef781b01e6ffb028035598da8848bbcdcd8b1657d
+  ratified_content:
+    type: system_requirement
+    text: While it waits for a key at the worklist, the cockpit shall look at the
+      graph's files at a short interval and, when they differ from what it last read
+      or wrote, reload the graph, keep the cursor on the same item, and say that
+      it has reloaded. It shall not bound the wait for an answer to a question it
+      has asked, and it shall do nothing when nothing has changed.
+    normative: true
+    derived: false
+    attrs: {}

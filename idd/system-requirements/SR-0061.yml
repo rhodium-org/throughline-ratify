@@ -1,6 +1,6 @@
 uid: SR-0061
 type: system_requirement
-status: proposed
+status: ratified
 title: Nothing is written over a graph that changed on disk since the screen read
   it
 text: Before the cockpit signs, re-signs, rejects or removes a link, and again after
@@ -17,3 +17,16 @@ links:
   type: relates
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:0282fde51eb2963ffdd58204e111d0af4aba67d2b342ce25fc40bcf82f31a7c3
+  ratified_content:
+    type: system_requirement
+    text: Before the cockpit signs, re-signs, rejects or removes a link, and again
+      after the reviewer has answered its question, it shall compare the graph's
+      files on disk with what it last read or wrote itself. If they differ it shall
+      write nothing, reload the graph, keep the cursor on the same item where that
+      item is still listed, and tell the reviewer that the graph changed and the
+      action was not taken. The cockpit's own writes are not a difference.
+    normative: true
+    derived: false
+    attrs: {}
