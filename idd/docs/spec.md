@@ -245,6 +245,18 @@ What a person working with the tool must be able to do.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:753916b2c6628bb74555ac539c596da1221cd58bd746d931c2475c4b611527d3
 <!-- tl:end -->
 
+<!-- tl:item UR-0017 -->
+**UR-0017 — A screen left open does not sign wording I was not shown** — `user_requirement`, status `proposed`
+
+> When the graph is changed by someone or something else while my cockpit is open, I want what I sign, reject or unlink to be the graph as it now is and as I have been shown it, never an older copy the cockpit still holds.
+
+*Rationale:* Found on 3 October 2026: a cockpit opened before an agent amended five items showed them with their old wording, and signing from it would have written the old wording back over the amendments and stamped it. The same day's notes on another graph record links restamped with stale fingerprints by a screen opened before an amendment.
+
+*Derives from:* INT-0001
+
+**origin**: ai
+<!-- tl:end -->
+
 
 ## System requirements
 
@@ -962,6 +974,28 @@ What the software must do to meet them.
 *Relates:* SR-0029, SR-0043, SR-0058
 
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:2d65db4cc82860adfea1e5a7f6c0c924377487cfcd516d0d8bb94dbc73913fb1
+<!-- tl:end -->
+
+<!-- tl:item SR-0061 -->
+**SR-0061 — Nothing is written over a graph that changed on disk since the screen read it** — `system_requirement`, status `proposed`
+
+> Before the cockpit signs, re-signs, rejects or removes a link, and again after the reviewer has answered its question, it shall compare the graph's files on disk with what it last read or wrote itself. If they differ it shall write nothing, reload the graph, keep the cursor on the same item where that item is still listed, and tell the reviewer that the graph changed and the action was not taken. The cockpit's own writes are not a difference.
+
+*Derives from:* UR-0017
+*Relates:* SR-0030
+
+**origin**: ai
+<!-- tl:end -->
+
+<!-- tl:item SR-0062 -->
+**SR-0062 — An idle cockpit reloads when the graph changes on disk, and says so** — `system_requirement`, status `proposed`
+
+> While it waits for a key at the worklist, the cockpit shall look at the graph's files at a short interval and, when they differ from what it last read or wrote, reload the graph, keep the cursor on the same item, and say that it has reloaded. It shall not bound the wait for an answer to a question it has asked, and it shall do nothing when nothing has changed.
+
+*Derives from:* UR-0017
+*Relates:* SR-0033
+
+**origin**: ai
 <!-- tl:end -->
 
 
