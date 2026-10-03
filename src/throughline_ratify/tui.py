@@ -170,6 +170,10 @@ class _Flash:
     kind: str = "dim"  # ok | warn | err | dim
 
 
+# How long the cockpit waits for a key before it looks at the disk again (SR-0062).
+IDLE_MS = 2000
+
+
 class App:
     def __init__(self, stdscr, session: Session, ratifier: str, log=None,
                  ratifier_id: str | None = None):
@@ -228,13 +232,43 @@ class App:
         raises, so a failure never leaves the footer claiming work is under way."""
         self.busy = "reloading from disk…"
         self.flash = _Flash()
+        was = self.current.uid if self.current else None
         try:
             self.draw()
             self.session = core.open_session(self.session.root)
             self.refresh_queue()
         finally:
             self.busy = ""
+        # Stay on the item the reviewer was reading, when it is still listed: a
+        # reload that moved the cursor would put the next key on a different item.
+        if was is not None:
+            for i, row in enumerate(self.rows):
+                if row.uid == was:
+                    self.sel = i
+                    break
         self.flash = _Flash("reloaded from disk", "ok")
+
+    def _moved_under_us(self, what: str) -> bool:
+        """Before anything is written: has the graph changed on disk since this screen
+        read it? If so reload, write nothing, and say why (SR-0061).
+
+        The cockpit writes from the copy of the graph it holds. Were that copy older
+        than the files, a signature would put the old wording back over the new and
+        sign it: wording the reviewer was shown, but no longer what the item says."""
+        if not core.changed_on_disk(self.session):
+            return False
+        self.reload_from_disk()
+        self.flash = _Flash(
+            f"the graph changed on disk, so nothing was {what}. It has been reloaded: "
+            "read the item again and repeat the key", "warn")
+        return True
+
+    def idle(self) -> None:
+        """No key for a while: if the graph changed on disk, show the reviewer the
+        graph as it now is, and say so (SR-0062)."""
+        if core.changed_on_disk(self.session):
+            self.reload_from_disk()
+            self.flash = _Flash("the graph changed on disk and has been reloaded", "warn")
 
     # -- main loop ----------------------------------------------------------
     def run(self) -> None:
@@ -242,10 +276,18 @@ class App:
         self.scr.keypad(True)
         while True:
             self.draw()
+            # The wait is bounded here and nowhere else: a question the reviewer has
+            # been asked must wait for the reviewer, however long that takes.
+            self.scr.timeout(IDLE_MS)
             try:
                 ch = self.scr.getch()
             except KeyboardInterrupt:  # Ctrl-C — quit cleanly, like 'q'
                 return
+            finally:
+                self.scr.timeout(-1)
+            if ch == -1:               # no key: look at the disk, keep any message up
+                self.idle()
+                continue
             if ch in (ord("q"), ord("Q")):
                 return
             self.handle(ch)
@@ -333,12 +375,17 @@ class App:
         item = self.current
         if item is None or not item.links:
             return
+        if self._moved_under_us("removed"):
+            return
         lv = item.links[self.link_sel]
         if not self._confirm(f"Remove link {lv.type} \u2192 {lv.ref} from {item.uid}?"):
             self.flash = _Flash("removal cancelled", "dim")
             return
+        if self._moved_under_us("removed"):
+            return
         try:
             core.remove_link(self.session, item.uid, self.link_sel)
+            core.mark_seen(self.session)
         except core.RatifierError as exc:
             self.flash = _Flash(str(exc), "err")
             return
@@ -358,6 +405,8 @@ class App:
 
     # -- actions ------------------------------------------------------------
     def do_ratify(self) -> None:
+        if self._moved_under_us("signed"):
+            return
         item = self.current
         if item is None:
             return
@@ -375,9 +424,12 @@ class App:
         if not self._confirm(self._ratify_question(item)):
             self.flash = _Flash("ratify cancelled", "dim")
             return
+        if self._moved_under_us("signed"):     # it can change while the question is up
+            return
         try:
             core.ratify_item(self.session, item.uid, self.ratifier,
                              by_id=self.ratifier_id)
+            core.mark_seen(self.session)
             if self.log is not None:
                 if item.stale:
                     self.log.resigned(item.uid, item.title, item.ratified_by)
@@ -427,9 +479,12 @@ class App:
         if not self._confirm(question):
             self.flash = _Flash("re-ratify cancelled", "dim")
             return
+        if self._moved_under_us("signed"):
+            return
         try:
             walked = core.reratify_item(self.session, item.uid, self.ratifier,
                                         by_id=self.ratifier_id)
+            core.mark_seen(self.session)
             if self.log is not None:
                 self.log.reratified(item.uid, item.title, walked)
             self.refresh_queue()
@@ -443,6 +498,8 @@ class App:
             self.flash = _Flash(str(exc), "err")
 
     def do_reject(self) -> None:
+        if self._moved_under_us("rejected"):
+            return
         item = self.current
         if item is None:
             return
@@ -467,8 +524,11 @@ class App:
         if not self._confirm(f"Reject {item.uid}?", detail):
             self.flash = _Flash("reject cancelled", "dim")
             return
+        if self._moved_under_us("rejected"):
+            return
         try:
             outcome = core.reject_item(self.session, item.uid, reason)
+            core.mark_seen(self.session)
             if self.log is not None:
                 self.log.rejected(item.uid, item.title, reason, list(outcome),
                                   outcome.refused)
@@ -998,6 +1058,8 @@ class App:
             "  s            cycle sort: concern \u2192 roots\u2193 \u2192 leaves\u2191",
             "  /            filter by uid or title",
             "  R            reload the graph from disk",
+            "               (it also reloads by itself when the files change, and",
+            "               never signs or rejects over a change it has not shown)",
             "  ?            this help",
             "  q            quit",
             "",

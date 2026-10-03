@@ -208,6 +208,10 @@ class Session:
     # entry left by its old one instead of showing a difference against content
     # that has just been accepted.
     _changes: dict[tuple[str, str], RatificationChange] = field(default_factory=dict)
+    # What the graph's files looked like when this session last read or wrote them
+    # (SR-0061). Compared with the disk before anything is written, so a screen left
+    # open across somebody else's edit cannot sign wording it never showed.
+    seen: tuple = ()
 
     @property
     def schema(self):
@@ -541,6 +545,46 @@ def resolve_root(path: str | Path) -> Path:
     return root
 
 
+def disk_state(session: Session) -> tuple:
+    """What the session's graph looks like on disk now: every item file, register
+    manifest and the configuration, each with its size and modification time.
+
+    Read from the filesystem and nothing else, for the reason :func:`_latest_change`
+    gives. The composed sources are included, because an item's grounding can change
+    under the reviewer without one of the consumer's own files moving; a register
+    that has no folder of its own, as a fetched source's may not, has no files to
+    watch and is passed over. A file that vanishes between the listing and the stat
+    simply drops out, and its absence is itself a difference from what was seen."""
+    state = []
+    files = [session.root / CONFIG_NAME]
+    seen_dirs: set[Path] = set()
+    for project in (session.project, session.union):
+        for register in project.registers.values():
+            if register.path is None or register.path in seen_dirs:
+                continue
+            seen_dirs.add(register.path)
+            files.extend(sorted(register.path.glob("*.yml")))
+            files.append(register.path / ".register.yml")
+    for f in files:
+        try:
+            st = f.stat()
+        except OSError:
+            continue
+        state.append((str(f), st.st_mtime_ns, st.st_size))
+    return tuple(state)
+
+
+def mark_seen(session: Session) -> None:
+    """Record the disk as this session now knows it: after a read, or after a write
+    the session itself has just made, which is not somebody else's change."""
+    session.seen = disk_state(session)
+
+
+def changed_on_disk(session: Session) -> bool:
+    """True when the graph's files differ from what this session last read or wrote."""
+    return disk_state(session) != session.seen
+
+
 def open_session(path: str | Path) -> Session:
     """Open the throughline project ``path`` names, composing its sources when it
     declares any. Raises :class:`AmbiguousProjectError` when the path encloses
@@ -584,7 +628,7 @@ def _open(root: Path, compose: bool) -> Session:
         ) from exc
 
     union, sources = _compose_if_declared(consumer, root) if compose else (consumer, [])
-    return Session(
+    session = Session(
         root=root,
         project=consumer,
         union=union,
@@ -593,6 +637,8 @@ def _open(root: Path, compose: bool) -> Session:
         composed=bool(sources),
         sources=sources,
     )
+    mark_seen(session)
+    return session
 
 
 def _compose_if_declared(consumer: Project, root: Path) -> tuple[Project, list[SourceInfo]]:

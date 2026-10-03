@@ -1,0 +1,19 @@
+uid: SR-0061
+type: system_requirement
+status: proposed
+title: Nothing is written over a graph that changed on disk since the screen read
+  it
+text: Before the cockpit signs, re-signs, rejects or removes a link, and again after
+  the reviewer has answered its question, it shall compare the graph's files on disk
+  with what it last read or wrote itself. If they differ it shall write nothing,
+  reload the graph, keep the cursor on the same item where that item is still listed,
+  and tell the reviewer that the graph changed and the action was not taken. The
+  cockpit's own writes are not a difference.
+normative: true
+links:
+- target: UR-0017
+  type: derives_from
+- target: SR-0030
+  type: relates
+attrs:
+  origin: ai

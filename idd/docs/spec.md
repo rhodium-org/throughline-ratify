@@ -989,5 +989,6 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052 |
 | UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053, SR-0056 |
 | UR-0016 | Upgrading throughline does not cost me a new cockpit | SR-0057, SR-0058, SR-0059, SR-0060 |
+| UR-0017 | A screen left open does not sign wording I was not shown | SR-0061, SR-0062 |
 <!-- tl:end -->
 
