@@ -1,0 +1,28 @@
+uid: UR-0017
+type: user_requirement
+status: ratified
+title: A screen left open does not sign wording I was not shown
+text: When the graph is changed by someone or something else while my cockpit is
+  open, I want what I sign, reject or unlink to be the graph as it now is and as
+  I have been shown it, never an older copy the cockpit still holds.
+rationale: 'Found on 3 October 2026: a cockpit opened before an agent amended five
+  items showed them with their old wording, and signing from it would have written
+  the old wording back over the amendments and stamped it. The same day''s notes
+  on another graph record links restamped with stale fingerprints by a screen opened
+  before an amendment.'
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:078b8b296a61b9f27e9ced3d5dbae8f30eb2d23ff6cce2745674ef09ba2c31a0
+  ratified_content:
+    type: user_requirement
+    text: When the graph is changed by someone or something else while my cockpit
+      is open, I want what I sign, reject or unlink to be the graph as it now is
+      and as I have been shown it, never an older copy the cockpit still holds.
+    normative: true
+    derived: false
+    attrs: {}

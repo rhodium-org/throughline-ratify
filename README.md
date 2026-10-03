@@ -105,6 +105,8 @@ themselves remain the only source of truth.
 | `?` | help |
 | `q` | quit |
 
+The cockpit watches the graph's files while it is open. If something else changes them, it reloads by itself and says so, and it never signs, rejects or unlinks over a change it has not shown you: the action is refused, the graph is reloaded, and you repeat the key once you have read the item as it now stands.
+
 ### Concerns
 
 Every row is classified by the one thing you most need to know about it:
