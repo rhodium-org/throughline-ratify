@@ -1,0 +1,51 @@
+uid: SR-0065
+type: system_requirement
+status: ratified
+title: A sitting that spans several graphs is summarised one graph at a time
+text: Where `--summary` was given and the reviewer opened more than one graph in
+  the sitting, tl-ratify shall keep a separate account for each graph and render
+  them on exit in the order the graphs were first opened, each complete as SR-0021
+  describes, with its own header and its own trailer. Decisions taken on separate
+  visits to the same graph shall appear in that graph's one account. A graph in which
+  no decision was taken shall produce no account. Where a path was given, every account
+  shall be written to that one file. The accounts shall be rendered when the program
+  ends for any reason after a graph has been opened, including a chosen graph that
+  cannot be opened. The ratifier offered for each graph shall be asked of that graph,
+  unless `--by` named one for the sitting.
+rationale: |-
+  Before SR-0063 a sitting was one graph, so one account was the whole of it. With several graphs in a sitting there are three ways to get this wrong: report only the last graph, overwrite the file once for each graph, or merge the decisions into one list.
+
+  A merged list would lose which project a decision landed in. UR-0013 rejected a merged worklist for that reason, and the same reason applies to the record of what was done.
+
+  Each account keeps its own trailer because the trailer names item identifiers, and identifiers are unique only within a graph. One trailer over several graphs could name SR-0003 twice and mean two different items.
+
+  The ratifier is asked of each graph because SR-0027 makes the name on offer the one that graph's repository signs with. The graphs beneath one path are usually in one repository and the answer is usually the same, but that is a fact about the tree and not something for the assistant to assume.
+
+  Who pays: a reviewer who pastes the summary into a commit now reads one section for each graph instead of one in all.
+normative: true
+links:
+- target: UR-0005
+  type: derives_from
+- target: SR-0021
+  type: relates
+- target: SR-0027
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:e76c6d0c67a2e3f49afb99088e85c848baa6234f7dbd785982aeb4f234febd09
+  ratified_content:
+    type: system_requirement
+    text: Where `--summary` was given and the reviewer opened more than one graph
+      in the sitting, tl-ratify shall keep a separate account for each graph and
+      render them on exit in the order the graphs were first opened, each complete
+      as SR-0021 describes, with its own header and its own trailer. Decisions taken
+      on separate visits to the same graph shall appear in that graph's one account.
+      A graph in which no decision was taken shall produce no account. Where a path
+      was given, every account shall be written to that one file. The accounts shall
+      be rendered when the program ends for any reason after a graph has been opened,
+      including a chosen graph that cannot be opened. The ratifier offered for each
+      graph shall be asked of that graph, unless `--by` named one for the sitting.
+    normative: true
+    derived: false
+    attrs: {}

@@ -80,7 +80,7 @@ def test_a_well_formed_by_id_reaches_the_sitting(demo_project, monkeypatch):
     monkeypatch.setattr("sys.stdout.isatty", lambda: True)
     seen = {}
     monkeypatch.setattr("throughline_ratify.tui.run",
-                        lambda session, ratifier, log=None, ratifier_id=None:
+                        lambda session, ratifier, log=None, ratifier_id=None, **k:
                             seen.update(by=ratifier, by_id=ratifier_id))
 
     rc = cli.main(["-C", str(demo_project), "--by", "Ada Lovelace",
@@ -94,7 +94,7 @@ def test_no_by_id_stays_none_all_the_way_through(demo_project, monkeypatch):
     monkeypatch.setattr("sys.stdout.isatty", lambda: True)
     seen = {}
     monkeypatch.setattr("throughline_ratify.tui.run",
-                        lambda session, ratifier, log=None, ratifier_id=None:
+                        lambda session, ratifier, log=None, ratifier_id=None, **k:
                             seen.update(by_id=ratifier_id))
     cli.main(["-C", str(demo_project), "--by", "Ada Lovelace"])
     assert seen == {"by_id": None}

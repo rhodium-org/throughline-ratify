@@ -1,0 +1,47 @@
+uid: SR-0063
+type: system_requirement
+status: ratified
+title: Quitting a graph that was picked from the selection screen returns to that
+  screen
+text: Where the reviewer opened a graph by picking it on the selection screen, the
+  quit key on the worklist shall close that graph and show the selection screen again.
+  Leaving the selection screen without choosing shall end the program, as SR-0048
+  requires. An interrupt on either screen shall end the program without showing the
+  selection screen again. While a graph picked this way is open, the worklist shall
+  name the quit key by where it leads. Where no selection screen was shown, because
+  the path settled on one graph, the quit key shall end the program as it does today.
+rationale: |-
+  The pick is one step in a sitting, not the start of a program, so undoing it has to be possible from inside the tool. Returning on the quit key keeps one way out of each screen.
+
+  The interrupt is kept as the way out of everything because SR-0016 already says an interrupt exits, and because a reviewer who wants to stop should not have to learn that the answer depends on how the graph was opened.
+
+  The label matters because the same key now does two things depending on how the reviewer arrived. A footer that said quit over a key that goes back to a list would be wrong for exactly the reviewers this change is for.
+
+  A graph that was opened without a selection screen has no list to go back to. Showing a list of one would be a screen with a single possible answer.
+
+  Who pays: a reviewer leaving a multi-graph sitting presses the quit key once more than before.
+normative: true
+links:
+- target: UR-0018
+  type: derives_from
+- target: SR-0048
+  type: relates
+- target: SR-0016
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:da389676539e3d2883971459c69a0fa8e97d6ec43cf24bffb3fbedc56ed866c5
+  ratified_content:
+    type: system_requirement
+    text: Where the reviewer opened a graph by picking it on the selection screen,
+      the quit key on the worklist shall close that graph and show the selection
+      screen again. Leaving the selection screen without choosing shall end the program,
+      as SR-0048 requires. An interrupt on either screen shall end the program without
+      showing the selection screen again. While a graph picked this way is open,
+      the worklist shall name the quit key by where it leads. Where no selection
+      screen was shown, because the path settled on one graph, the quit key shall
+      end the program as it does today.
+    normative: true
+    derived: false
+    attrs: {}

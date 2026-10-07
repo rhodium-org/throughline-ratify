@@ -107,6 +107,14 @@ themselves remain the only source of truth.
 
 The cockpit watches the graph's files while it is open. If something else changes them, it reloads by itself and says so, and it never signs, rejects or unlinks over a change it has not shown you: the action is refused, the graph is reloaded, and you repeat the key once you have read the item as it now stands.
 
+### A path that holds more than one graph
+
+Point `tl-ratify` at a tree that holds several graphs (`tl-ratify -C .` at the root of a repository with an anchor graph and one per component) and it lists them, each with how far it has been signed off. `Enter` opens the highlighted graph, `s` changes the order, `q` leaves.
+
+In a graph opened from that list, `q` goes back to the list instead of ending the program, and the footer says `q:projects`. The list comes back with the highlight on the graph you just closed and its figure read again, so the next graph is one key away. `q` on the list, or `Ctrl-C` anywhere, ends the program. With `--summary`, a sitting that took decisions in more than one graph gets one account for each, in the order you opened them, all in the one file.
+
+Without a terminal to ask on (`--list`, or output piped), an ambiguous path is refused, with the `-C` command that selects each graph.
+
 ### Concerns
 
 Every row is classified by the one thing you most need to know about it:

@@ -1,0 +1,45 @@
+uid: SR-0064
+type: system_requirement
+status: ratified
+title: The selection screen comes back where the reviewer left it, with its figures
+  read again
+text: When the selection screen is shown again after a graph has been closed, the
+  highlight shall rest on the graph that was just closed and the candidates shall
+  be in the order the reviewer last chose. Each candidate's ratification figure shall
+  be read again from its own registers before the screen is drawn, under the same
+  progress display as the first reading. The list of candidates shall be the one
+  found when the program started; the search beneath the path shall not be repeated.
+  No candidate's declared sources shall be resolved in order to show the screen again.
+rationale: |-
+  The reviewer has just signed items in one of these graphs, so the figure on its row is the one fact on the screen known to be out of date. Showing the old figure would have the screen and the worklist disagree about the same number, which SR-0050 exists to prevent.
+
+  Keeping the highlight and the order means the next graph down is one key away. A screen that reset to the top in path order would make the reviewer find their place again after every graph.
+
+  The search is not repeated because it asks the version control system which directories it ignores, which starts a process, and the set of graphs in a repository does not change in the course of a sitting in any way the reviewer cannot recover from by starting again.
+
+  Who pays: the reviewer, who waits for the candidates to be read once for every graph they close. The reading is of files on disk only.
+normative: true
+links:
+- target: UR-0018
+  type: derives_from
+- target: SR-0050
+  type: relates
+- target: SR-0052
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:ecc3de659a34348ce1a0307ff09ddba39b9ea4fa489d9268152e94e319a4453d
+  ratified_content:
+    type: system_requirement
+    text: When the selection screen is shown again after a graph has been closed,
+      the highlight shall rest on the graph that was just closed and the candidates
+      shall be in the order the reviewer last chose. Each candidate's ratification
+      figure shall be read again from its own registers before the screen is drawn,
+      under the same progress display as the first reading. The list of candidates
+      shall be the one found when the program started; the search beneath the path
+      shall not be repeated. No candidate's declared sources shall be resolved in
+      order to show the screen again.
+    normative: true
+    derived: false
+    attrs: {}
