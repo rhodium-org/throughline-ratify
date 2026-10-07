@@ -220,17 +220,24 @@ def emit(
     project_name: str,
     composed: bool,
     stream=None,
+    append: bool = False,
 ) -> Path | None:
     """Render the sitting to ``destination`` — a path, or :data:`STDOUT` for the
     stream. Returns the file written, or ``None`` when nothing was written.
 
     A sitting in which no decision was taken produces no report and, crucially,
     creates no file: a browsing session must not leave a misleading empty artefact
-    behind (SR-0021)."""
+    behind (SR-0021).
+
+    ``append`` adds this account after the ones already rendered instead of
+    replacing them, for a sitting that took decisions in more than one graph
+    (SR-0065)."""
     if destination is None or not log:
         return None
 
     text = render(log, project_name=project_name, composed=composed)
+    if append:
+        text = "\n" + text
     if destination == STDOUT:
         (stream or sys.stdout).write(text)
         return None
@@ -238,5 +245,6 @@ def emit(
     path = Path(destination).expanduser()
     if path.parent and not path.parent.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8")
+    with path.open("a" if append else "w", encoding="utf-8") as fh:
+        fh.write(text)
     return path

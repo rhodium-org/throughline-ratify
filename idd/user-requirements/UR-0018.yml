@@ -1,0 +1,29 @@
+uid: UR-0018
+type: user_requirement
+status: ratified
+title: Leaving a graph takes me back to the list I picked it from
+text: As a reviewer working through a repository that holds more than one graph,
+  I want leaving the graph I picked to put me back on the list of graphs, so that
+  I can open the next one without starting tl-ratify again.
+rationale: |-
+  Found on 7 October 2026. UR-0013 gave the reviewer a list to pick from, and the tool then treated the pick as final: quitting the worklist ended the program. A repository that holds an anchor graph and a graph for each component is signed off as one piece of work, so the reviewer started the tool once for every graph and waited each time while every candidate was read again.
+
+  Who pays: a reviewer who meant to leave altogether presses the quit key twice, once on the worklist and once on the list. An interrupt still leaves in one step.
+
+  Rejected: a separate key on the worklist for going back to the list, with the quit key left as it is. The list is where the reviewer came from, so the key that leaves the worklist should lead there, and a second key would be one more thing to learn for a screen that already has a way out.
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:8eef06d7b5745e682f4a7efc63215fc0065a94d1533ce3e973317f9e6c116935
+  ratified_content:
+    type: user_requirement
+    text: As a reviewer working through a repository that holds more than one graph,
+      I want leaving the graph I picked to put me back on the list of graphs, so
+      that I can open the next one without starting tl-ratify again.
+    normative: true
+    derived: false
+    attrs: {}

@@ -131,6 +131,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     interactive = not args.list and sys.stdout.isatty()
+    candidates = None
     try:
         session = core.open_session(args.path)
     except core.AmbiguousProjectError as exc:
@@ -141,15 +142,7 @@ def main(argv: list[str] | None = None) -> int:
         if not interactive:
             _refuse_ambiguous(exc)
             return 2
-        from . import tui
-        chosen = tui.choose_project(exc.candidates)
-        if chosen is None:
-            return 0
-        try:
-            session = core.open_root(chosen.root)
-        except core.RatifierError as err:
-            print(f"tl-ratify: {err}", file=sys.stderr)
-            return 2
+        session, candidates = None, exc.candidates
     except core.RatifierError as exc:
         print(f"tl-ratify: {exc}", file=sys.stderr)
         return 2
@@ -162,34 +155,93 @@ def main(argv: list[str] | None = None) -> int:
               file=sys.stderr)
         return 2
 
-    from . import tui  # deferred: only import curses when we actually open the UI
-
-    # The whole identity is settled here, before curses opens (SR-0027, SR-0028).
-    # The name offered is throughline's, obtained by asking it about this project
-    # rather than by deciding it here; a malformed identifier is throughline's to
-    # judge, and refusing now means the refusal is legible instead of arriving
-    # behind a full-screen view.
-    # Asked of the graph that was opened rather than the path that was typed, so a
-    # picked candidate is the project whose identity is offered (SR-0045).
-    ratifier = args.by or core.default_ratifier(session.root)
+    # A malformed identifier is throughline's to judge, and refusing now means the
+    # refusal is legible instead of arriving behind a full-screen view (SR-0028).
     try:
         ratifier_id = core.normalise_identifier(args.by_id)
     except core.RatifierError as exc:
         print(f"tl-ratify: {exc}", file=sys.stderr)
         return 2
-    # The log carries exactly the name the sitting signs off under — the report
-    # never names a ratifier of its own choosing.
-    log = report.DecisionLog(ratifier) if args.summary is not None else None
-    tui.run(session, ratifier, log, ratifier_id=ratifier_id)
+
+    from . import tui  # deferred: only import curses when we actually open the UI
+
+    sitting = _Sitting(args.by, ratifier_id, args.summary)
+    if candidates is None:
+        sitting.open(tui, session)
+        rc = 0
+    else:
+        rc = _work_through(tui, candidates, sitting)
 
     # Rendered only now, with curses closed, so the output is redirectable and
     # pasteable rather than merely readable inside the full-screen view.
-    if log is not None:
-        written = report.emit(log, args.summary, project_name=session.project_name,
-                              composed=session.composed)
+    sitting.report()
+    return rc
+
+
+def _work_through(tui, candidates: list[core.Candidate], sitting: "_Sitting") -> int:
+    """Ask which graph to open, open it, and ask again when it is closed, until
+    the reviewer leaves the list without choosing or interrupts (SR-0063)."""
+    chooser = tui.ProjectChooser(candidates)
+    while True:
+        chosen = chooser.choose()
+        if chosen is None:
+            return 0
+        try:
+            session = core.open_root(chosen.root)
+        except core.RatifierError as err:
+            print(f"tl-ratify: {err}", file=sys.stderr)
+            return 2
+        if not sitting.open(tui, session, quit_leads_to="projects"):
+            return 0
+
+
+class _Sitting:
+    """One run of the cockpit, over however many graphs the reviewer opens in it.
+
+    It keeps an account for each graph, not one for the run (SR-0065): a decision
+    is recorded against the project it landed in, and item identifiers are unique
+    only within a graph, so one trailer over several could name two different
+    items by one UID.
+    """
+
+    def __init__(self, by: str | None, ratifier_id: str | None,
+                 summary: str | None) -> None:
+        self.by = by
+        self.ratifier_id = ratifier_id
+        self.summary = summary
+        # graph root -> (its account, the session it was last opened as), in the
+        # order the graphs were first opened.
+        self.accounts: dict = {}
+
+    def open(self, tui, session: core.Session, quit_leads_to: str = "quit") -> bool:
+        """Open the cockpit on ``session``; True when the reviewer left it with
+        the quit key, False when they interrupted it."""
+        # The name offered is throughline's, obtained by asking it about this
+        # project rather than by deciding it here (SR-0027). Asked of the graph
+        # that was opened rather than the path that was typed, so a picked
+        # candidate is the project whose identity is offered (SR-0045).
+        ratifier = self.by or core.default_ratifier(session.root)
+        log = None
+        if self.summary is not None:
+            # The log carries exactly the name the sitting signs off under — the
+            # report never names a ratifier of its own choosing. A graph opened a
+            # second time goes on with the account it already has.
+            log = self.accounts[session.root][0] if session.root in self.accounts \
+                else report.DecisionLog(ratifier)
+            self.accounts[session.root] = (log, session)
+        return tui.run(session, ratifier, log, ratifier_id=self.ratifier_id,
+                       quit_leads_to=quit_leads_to)
+
+    def report(self) -> None:
+        written, rendered = None, 0
+        for log, session in self.accounts.values():
+            if not log:
+                continue
+            written = report.emit(log, self.summary, project_name=session.project_name,
+                                  composed=session.composed, append=rendered > 0)
+            rendered += 1
         if written is not None:
             print(f"tl-ratify: session summary written to {written}", file=sys.stderr)
-    return 0
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -257,6 +257,18 @@ What a person working with the tool must be able to do.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:078b8b296a61b9f27e9ced3d5dbae8f30eb2d23ff6cce2745674ef09ba2c31a0
 <!-- tl:end -->
 
+<!-- tl:item UR-0018 -->
+**UR-0018 — Leaving a graph takes me back to the list I picked it from** — `user_requirement`, status `ratified`
+
+> As a reviewer working through a repository that holds more than one graph, I want leaving the graph I picked to put me back on the list of graphs, so that I can open the next one without starting tl-ratify again.
+
+*Rationale:* Found on 7 October 2026. UR-0013 gave the reviewer a list to pick from, and the tool then treated the pick as final: quitting the worklist ended the program. A repository that holds an anchor graph and a graph for each component is signed off as one piece of work, so the reviewer started the tool once for every graph and waited each time while every candidate was read again. Who pays: a reviewer who meant to leave altogether presses the quit key twice, once on the worklist and once on the list. An interrupt still leaves in one step. Rejected: a separate key on the worklist for going back to the list, with the quit key left as it is. The list is where the reviewer came from, so the key that leaves the worklist should lead there, and a second key would be one more thing to learn for a screen that already has a way out.
+
+*Derives from:* INT-0001
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:8eef06d7b5745e682f4a7efc63215fc0065a94d1533ce3e973317f9e6c116935
+<!-- tl:end -->
+
 
 ## System requirements
 
@@ -998,6 +1010,45 @@ What the software must do to meet them.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:25644d5357801eafbdffc1bef781b01e6ffb028035598da8848bbcdcd8b1657d
 <!-- tl:end -->
 
+<!-- tl:item SR-0063 -->
+**SR-0063 — Quitting a graph that was picked from the selection screen returns to that screen** — `system_requirement`, status `ratified`
+
+> Where the reviewer opened a graph by picking it on the selection screen, the quit key on the worklist shall close that graph and show the selection screen again. Leaving the selection screen without choosing shall end the program, as SR-0048 requires. An interrupt on either screen shall end the program without showing the selection screen again. While a graph picked this way is open, the worklist shall name the quit key by where it leads. Where no selection screen was shown, because the path settled on one graph, the quit key shall end the program as it does today.
+
+*Rationale:* The pick is one step in a sitting, not the start of a program, so undoing it has to be possible from inside the tool. Returning on the quit key keeps one way out of each screen. The interrupt is kept as the way out of everything because SR-0016 already says an interrupt exits, and because a reviewer who wants to stop should not have to learn that the answer depends on how the graph was opened. The label matters because the same key now does two things depending on how the reviewer arrived. A footer that said quit over a key that goes back to a list would be wrong for exactly the reviewers this change is for. A graph that was opened without a selection screen has no list to go back to. Showing a list of one would be a screen with a single possible answer. Who pays: a reviewer leaving a multi-graph sitting presses the quit key once more than before.
+
+*Derives from:* UR-0018
+*Relates:* SR-0048, SR-0016
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:da389676539e3d2883971459c69a0fa8e97d6ec43cf24bffb3fbedc56ed866c5
+<!-- tl:end -->
+
+<!-- tl:item SR-0064 -->
+**SR-0064 — The selection screen comes back where the reviewer left it, with its figures read again** — `system_requirement`, status `ratified`
+
+> When the selection screen is shown again after a graph has been closed, the highlight shall rest on the graph that was just closed and the candidates shall be in the order the reviewer last chose. Each candidate's ratification figure shall be read again from its own registers before the screen is drawn, under the same progress display as the first reading. The list of candidates shall be the one found when the program started; the search beneath the path shall not be repeated. No candidate's declared sources shall be resolved in order to show the screen again.
+
+*Rationale:* The reviewer has just signed items in one of these graphs, so the figure on its row is the one fact on the screen known to be out of date. Showing the old figure would have the screen and the worklist disagree about the same number, which SR-0050 exists to prevent. Keeping the highlight and the order means the next graph down is one key away. A screen that reset to the top in path order would make the reviewer find their place again after every graph. The search is not repeated because it asks the version control system which directories it ignores, which starts a process, and the set of graphs in a repository does not change in the course of a sitting in any way the reviewer cannot recover from by starting again. Who pays: the reviewer, who waits for the candidates to be read once for every graph they close. The reading is of files on disk only.
+
+*Derives from:* UR-0018
+*Relates:* SR-0050, SR-0052
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:ecc3de659a34348ce1a0307ff09ddba39b9ea4fa489d9268152e94e319a4453d
+<!-- tl:end -->
+
+<!-- tl:item SR-0065 -->
+**SR-0065 — A sitting that spans several graphs is summarised one graph at a time** — `system_requirement`, status `ratified`
+
+> Where `--summary` was given and the reviewer opened more than one graph in the sitting, tl-ratify shall keep a separate account for each graph and render them on exit in the order the graphs were first opened, each complete as SR-0021 describes, with its own header and its own trailer. Decisions taken on separate visits to the same graph shall appear in that graph's one account. A graph in which no decision was taken shall produce no account. Where a path was given, every account shall be written to that one file. The accounts shall be rendered when the program ends for any reason after a graph has been opened, including a chosen graph that cannot be opened. The ratifier offered for each graph shall be asked of that graph, unless `--by` named one for the sitting.
+
+*Rationale:* Before SR-0063 a sitting was one graph, so one account was the whole of it. With several graphs in a sitting there are three ways to get this wrong: report only the last graph, overwrite the file once for each graph, or merge the decisions into one list. A merged list would lose which project a decision landed in. UR-0013 rejected a merged worklist for that reason, and the same reason applies to the record of what was done. Each account keeps its own trailer because the trailer names item identifiers, and identifiers are unique only within a graph. One trailer over several graphs could name SR-0003 twice and mean two different items. The ratifier is asked of each graph because SR-0027 makes the name on offer the one that graph's repository signs with. The graphs beneath one path are usually in one repository and the answer is usually the same, but that is a fact about the tree and not something for the assistant to assume. Who pays: a reviewer who pastes the summary into a commit now reads one section for each graph instead of one in all.
+
+*Derives from:* UR-0005
+*Relates:* SR-0021, SR-0027
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:e76c6d0c67a2e3f49afb99088e85c848baa6234f7dbd785982aeb4f234febd09
+<!-- tl:end -->
+
 
 ## Traceability
 
@@ -1011,7 +1062,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0002 | Ratify or reject an item without leaving the full-screen view | SR-0003, SR-0004, SR-0005, SR-0012, SR-0013, SR-0014, SR-0022, SR-0023, SR-0025, SR-0026, SR-0027, SR-0028, SR-0029, SR-0037 |
 | UR-0003 | On a composed project, items grounded through a source are ratifiable | SR-0006 |
 | UR-0004 | Read the interface like htop, not a scrolling log | SR-0007, SR-0010, SR-0031, SR-0044 |
-| UR-0005 | Leave a ratification session with a written record of what I decided | SR-0021 |
+| UR-0005 | Leave a ratification session with a written record of what I decided | SR-0021, SR-0065 |
 | UR-0006 | A contribution states the terms under which it is offered | — |
 | UR-0007 | Know that a reload is running, not that the tool has hung | SR-0033 |
 | UR-0008 | A newcomer can set up, check and offer a change without asking | SR-0034, SR-0038 |
@@ -1024,5 +1075,6 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053, SR-0056 |
 | UR-0016 | Upgrading throughline does not cost me a new cockpit | SR-0057, SR-0058, SR-0059, SR-0060 |
 | UR-0017 | A screen left open does not sign wording I was not shown | SR-0061, SR-0062 |
+| UR-0018 | Leaving a graph takes me back to the list I picked it from | SR-0063, SR-0064 |
 <!-- tl:end -->
 

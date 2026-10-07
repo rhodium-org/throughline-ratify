@@ -226,14 +226,27 @@ def terminal(monkeypatch):
     return opened
 
 
+def _picking(monkeypatch, *indexes):
+    """Stand in for the selection screen: the reviewer picks these candidates in
+    turn, and leaves without choosing once they run out."""
+    class Scripted:
+        def __init__(self, candidates):
+            self.picks = [candidates[i] for i in indexes]
+
+        def choose(self):
+            return self.picks.pop(0) if self.picks else None
+
+    monkeypatch.setattr(tui, "ProjectChooser", Scripted)
+
+
 def test_the_picked_graph_is_the_one_opened(multi_project, terminal, monkeypatch):
-    monkeypatch.setattr(tui, "choose_project", lambda candidates: candidates[1])
+    _picking(monkeypatch, 1)
     assert cli.main(["-C", str(multi_project)]) == 0
     assert terminal["root"] == multi_project / "beta"
 
 
 def test_leaving_without_choosing_opens_nothing(multi_project, terminal, monkeypatch):
-    monkeypatch.setattr(tui, "choose_project", lambda candidates: None)
+    _picking(monkeypatch)
     assert cli.main(["-C", str(multi_project)]) == 0
     assert terminal == {}
 
@@ -244,7 +257,7 @@ def test_a_chosen_graph_that_will_not_open_says_so(multi_project, capfd, termina
     graph whose sources cannot be resolved looks sound until it is chosen, so the
     failure has to arrive legibly at that moment rather than as a traceback."""
     monkeypatch.setattr(cli.sys.stdout, "isatty", lambda: True, raising=False)
-    monkeypatch.setattr(tui, "choose_project", lambda candidates: candidates[0])
+    _picking(monkeypatch, 0)
     monkeypatch.setattr(core, "open_root", lambda root: (_ for _ in ()).throw(
         core.RatifierError("source 'base' could not be resolved")))
     rc = cli.main(["-C", str(multi_project)])
@@ -370,10 +383,10 @@ def test_ctrl_c_at_the_picker_takes_no_decision(monkeypatch):
     restored by curses.wrapper and nothing is opened."""
     monkeypatch.setattr(tui.curses, "wrapper",
                         lambda fn, *a: (_ for _ in ()).throw(KeyboardInterrupt))
-    assert tui.choose_project([]) is None
+    assert tui.ProjectChooser([]).choose() is None
 
 
-def test_choose_project_runs_the_picker_inside_curses(multi_project, monkeypatch):
+def test_the_chooser_runs_the_picker_inside_curses(multi_project, monkeypatch):
     """The wrapper is what restores the terminal on any exit, so the picker must be
     reached through it rather than beside it."""
     monkeypatch.setattr(tui, "_init_colours", lambda: None)
@@ -382,7 +395,8 @@ def test_choose_project_runs_the_picker_inside_curses(multi_project, monkeypatch
     monkeypatch.setattr(tui, "_attr", lambda name, bold=False: 0)
     monkeypatch.setattr(tui.curses, "wrapper",
                         lambda fn, *a: fn(FakeScreen(24, 80, [ord("j"), ord("\n")]), *a))
-    assert tui.choose_project(core.discover_projects(multi_project)).name == "Beta Graph"
+    assert tui.ProjectChooser(core.discover_projects(multi_project)).choose().name \
+        == "Beta Graph"
 
 
 # --------------------------------------------------------------------------- #
@@ -524,7 +538,7 @@ def test_choosing_the_broken_graph_fails_with_its_reason(multi_project, capfd,
     monkeypatch.setattr(cli.sys.stdout, "isatty", lambda: True, raising=False)
     (multi_project / "beta" / "requirements" / "FR-0001.yml").write_text(
         "uid: [unclosed\n", encoding="utf-8")
-    monkeypatch.setattr(tui, "choose_project", lambda candidates: candidates[1])
+    _picking(monkeypatch, 1)
     assert cli.main(["-C", str(multi_project)]) == 2
     assert "beta" in capfd.readouterr().err
     assert terminal == {}

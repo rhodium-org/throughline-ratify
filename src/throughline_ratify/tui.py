@@ -14,6 +14,7 @@ import curses
 import re
 import textwrap
 from dataclasses import dataclass
+from pathlib import Path
 
 from throughline import ADDED, RECORD, REMOVED, diff_prose, is_prose, wrap_words
 
@@ -176,8 +177,12 @@ IDLE_MS = 2000
 
 class App:
     def __init__(self, stdscr, session: Session, ratifier: str, log=None,
-                 ratifier_id: str | None = None):
+                 ratifier_id: str | None = None, quit_leads_to: str = "quit"):
         self.scr = stdscr
+        # What the quit key is called on this screen (SR-0063). It ends the
+        # program unless this graph was picked from a list, and then it goes
+        # back to the list; the caller knows which, and the legend says so.
+        self.quit_leads_to = quit_leads_to
         self.session = session
         self.ratifier = ratifier
         # The optional stable identifier recorded beside the name (SR-0028).
@@ -271,7 +276,10 @@ class App:
             self.flash = _Flash("the graph changed on disk and has been reloaded", "warn")
 
     # -- main loop ----------------------------------------------------------
-    def run(self) -> None:
+    def run(self) -> bool:
+        """Run until the reviewer leaves. True when they left with the quit key,
+        False when they interrupted — which ends the program wherever this graph
+        was opened from (SR-0063)."""
         curses.curs_set(0)
         self.scr.keypad(True)
         while True:
@@ -281,15 +289,15 @@ class App:
             self.scr.timeout(IDLE_MS)
             try:
                 ch = self.scr.getch()
-            except KeyboardInterrupt:  # Ctrl-C — quit cleanly, like 'q'
-                return
+            except KeyboardInterrupt:  # Ctrl-C — leave cleanly, with no traceback
+                return False
             finally:
                 self.scr.timeout(-1)
             if ch == -1:               # no key: look at the disk, keep any message up
                 self.idle()
                 continue
             if ch in (ord("q"), ord("Q")):
-                return
+                return True
             self.handle(ch)
 
     def handle(self, ch: int) -> None:
@@ -951,13 +959,13 @@ class App:
         if self.focus == "detail":
             keys = [
                 ("j/k", "link"), ("e/\u21b5", "expand"), ("x", "remove"),
-                ("Tab", "list"), ("?", "help"), ("q", "quit"),
+                ("Tab", "list"), ("?", "help"), ("q", self.quit_leads_to),
             ]
         else:
             keys = [
                 ("j/k", "move"), ("r/\u21b5", "ratify"), ("x", "reject"),
                 ("Tab", "detail"), ("a", "all"), ("s", "sort"), ("/", "filter"),
-                ("R", "reload"), ("?", "help"), ("q", "quit"),
+                ("R", "reload"), ("?", "help"), ("q", self.quit_leads_to),
             ]
         x = 1
         for key, label in keys:
@@ -1061,7 +1069,7 @@ class App:
             "               (it also reloads by itself when the files change, and",
             "               never signs or rejects over a change it has not shown)",
             "  ?            this help",
-            "  q            quit",
+            f"  q            {self.quit_leads_to}",
             "",
             "detail pane:",
             "  Tab          focus the detail pane's links (Tab again \u2192 list)",
@@ -1123,11 +1131,13 @@ class _Picker:
     """
 
     def __init__(self, stdscr, candidates: list[core.Candidate],
-                 sort: str = core.PICKER_SORTS[0]) -> None:
+                 sort: str = core.PICKER_SORTS[0], at: Path | None = None) -> None:
         self.scr = stdscr
         self.sort = sort
         self.candidates = core.sort_candidates(candidates, sort)
-        self.pos = 0
+        # ``at`` is the graph the reviewer has just closed: the highlight comes
+        # back to it, so the next graph is one key away (SR-0064).
+        self.pos = next((i for i, c in enumerate(self.candidates) if c.root == at), 0)
         self.top = 0
 
     def choose(self) -> core.Candidate | None:
@@ -1237,31 +1247,52 @@ def _draw_reading(scr, done: int, total: int, candidate: core.Candidate) -> None
     curses.doupdate()
 
 
-def choose_project(candidates: list[core.Candidate]) -> core.Candidate | None:
-    """Ask which of ``candidates`` to open, returning ``None`` if the reviewer
-    leaves without choosing. Ctrl-C is the quit key here as it is in the cockpit
-    (SR-0016) — the terminal is restored and no decision is taken.
+class ProjectChooser:
+    """The selection screen over one sitting: asked once before the first graph is
+    opened, and again each time the reviewer closes one (SR-0063).
 
-    Each candidate is read for its ratification figure first, under a progress
-    display, because that reading is the only part of this screen that takes
-    long enough to be noticed (SR-0051)."""
-    def _main(stdscr):
-        _init_colours()
-        curses.curs_set(0)
-        described = core.describe_candidates(
-            candidates,
-            on_progress=lambda i, total, c: _draw_reading(stdscr, i, total, c))
-        return _Picker(stdscr, described).choose()
+    It holds what has to survive between those askings — the order the reviewer
+    last chose and the graph they last opened — so the screen comes back where
+    they left it (SR-0064). Neither outlives the program (SR-0052)."""
 
-    try:
-        return curses.wrapper(_main)
-    except KeyboardInterrupt:
-        return None
+    def __init__(self, candidates: list[core.Candidate]) -> None:
+        self.candidates = candidates
+        self.sort = core.PICKER_SORTS[0]
+        self.last: Path | None = None
+
+    def choose(self) -> core.Candidate | None:
+        """Ask which graph to open, returning ``None`` if the reviewer leaves
+        without choosing. Ctrl-C is the quit key here as it is in the cockpit
+        (SR-0016) — the terminal is restored and no decision is taken.
+
+        Each candidate is read for its ratification figure first, under a progress
+        display, because that reading is the only part of this screen that takes
+        long enough to be noticed (SR-0051). It is read on every asking, not once:
+        the reviewer has usually just signed items in one of these graphs, and its
+        row must not go on showing the figure from before (SR-0064)."""
+        def _main(stdscr):
+            _init_colours()
+            curses.curs_set(0)
+            described = core.describe_candidates(
+                self.candidates,
+                on_progress=lambda i, total, c: _draw_reading(stdscr, i, total, c))
+            picker = _Picker(stdscr, described, sort=self.sort, at=self.last)
+            chosen = picker.choose()
+            self.sort = picker.sort
+            if chosen is not None:
+                self.last = chosen.root
+            return chosen
+
+        try:
+            return curses.wrapper(_main)
+        except KeyboardInterrupt:
+            return None
 
 
 def run(session: Session, ratifier: str, log=None,
-        ratifier_id: str | None = None) -> None:
-    """Open the cockpit. ``log`` is an optional
+        ratifier_id: str | None = None, quit_leads_to: str = "quit") -> bool:
+    """Open the cockpit, returning True when the reviewer left it with the quit
+    key and False when they interrupted it (SR-0063). ``log`` is an optional
     :class:`throughline_ratify.report.DecisionLog`; when given, every decision the
     ratifier takes is appended to it as it is persisted, so the caller can render
     the sitting's account once curses has closed (SR-0021).
@@ -1271,11 +1302,12 @@ def run(session: Session, ratifier: str, log=None,
     full-screen view never decides any part of the record it displays (SR-0028)."""
     def _main(stdscr):
         _init_colours()
-        App(stdscr, session, ratifier, log, ratifier_id=ratifier_id).run()
+        return App(stdscr, session, ratifier, log, ratifier_id=ratifier_id,
+                   quit_leads_to=quit_leads_to).run()
 
     try:
         # curses.wrapper restores the terminal in its finally before re-raising,
         # so a Ctrl-C anywhere in the loop exits cleanly with no traceback.
-        curses.wrapper(_main)
+        return curses.wrapper(_main)
     except KeyboardInterrupt:
-        pass
+        return False
