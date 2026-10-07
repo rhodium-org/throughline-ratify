@@ -1049,6 +1049,19 @@ What the software must do to meet them.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:e76c6d0c67a2e3f49afb99088e85c848baa6234f7dbd785982aeb4f234febd09
 <!-- tl:end -->
 
+<!-- tl:item SR-0066 -->
+**SR-0066 — The full-screen view stays up between the list and a graph** — `system_requirement`, status `proposed`
+
+> Where a selection screen is shown, tl-ratify shall keep one full-screen view up from the first showing of that screen until the program ends. It shall not restore the terminal between the selection screen and a graph, in either direction. While a picked graph is being opened, the view shall say which graph is being opened. Where the picked graph cannot be opened, the terminal shall be restored first and the reason printed after, as SR-0048 requires.
+
+*Rationale:* Found on 7 October 2026, the day SR-0063 shipped. The selection screen and the worklist each started and ended a full-screen view of their own, so the terminal underneath was shown every time the reviewer moved from one to the other. Opening a graph composes its declared sources, which can take seconds, and all of that time was spent looking at the shell. A reviewer who presses the quit key and sees their prompt concludes the program has ended, which is the behaviour SR-0063 was written to remove. Before SR-0063 the gap was crossed once in a run and read as start-up. Going back to the list made it something the reviewer crosses twice for every graph. Saying which graph is being opened follows SR-0033: the view cannot answer the keyboard while it composes, and a screen that still shows the list while ignoring keys looks hung. The failure case keeps its present shape because a reason printed inside a full-screen view is gone the moment the view closes. Who pays: nobody. The reviewer sees one screen where they saw three.
+
+*Derives from:* UR-0018
+*Relates:* SR-0063, SR-0033
+
+**origin**: ai
+<!-- tl:end -->
+
 
 ## Traceability
 
@@ -1075,6 +1088,6 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053, SR-0056 |
 | UR-0016 | Upgrading throughline does not cost me a new cockpit | SR-0057, SR-0058, SR-0059, SR-0060 |
 | UR-0017 | A screen left open does not sign wording I was not shown | SR-0061, SR-0062 |
-| UR-0018 | Leaving a graph takes me back to the list I picked it from | SR-0063, SR-0064 |
+| UR-0018 | Leaving a graph takes me back to the list I picked it from | SR-0063, SR-0064, SR-0066 |
 <!-- tl:end -->
 

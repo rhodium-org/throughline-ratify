@@ -179,20 +179,20 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _work_through(tui, candidates: list[core.Candidate], sitting: "_Sitting") -> int:
-    """Ask which graph to open, open it, and ask again when it is closed, until
-    the reviewer leaves the list without choosing or interrupts (SR-0063)."""
-    chooser = tui.ProjectChooser(candidates)
-    while True:
-        chosen = chooser.choose()
-        if chosen is None:
-            return 0
-        try:
-            session = core.open_root(chosen.root)
-        except core.RatifierError as err:
-            print(f"tl-ratify: {err}", file=sys.stderr)
-            return 2
-        if not sitting.open(tui, session, quit_leads_to="projects"):
-            return 0
+    """Let the reviewer open one graph after another from the list (SR-0063),
+    settling for each the identity it is signed under before it is shown."""
+    def _open(candidate: core.Candidate):
+        session = core.open_root(candidate.root)
+        return (session, *sitting.enter(session))
+
+    try:
+        tui.work_through(candidates, _open, ratifier_id=sitting.ratifier_id)
+    except core.RatifierError as err:
+        # Raised through the full-screen view, which has restored the terminal
+        # by now, so the reason is printed where it stays readable (SR-0048).
+        print(f"tl-ratify: {err}", file=sys.stderr)
+        return 2
+    return 0
 
 
 class _Sitting:
@@ -213,9 +213,15 @@ class _Sitting:
         # order the graphs were first opened.
         self.accounts: dict = {}
 
-    def open(self, tui, session: core.Session, quit_leads_to: str = "quit") -> bool:
+    def open(self, tui, session: core.Session) -> bool:
         """Open the cockpit on ``session``; True when the reviewer left it with
         the quit key, False when they interrupted it."""
+        ratifier, log = self.enter(session)
+        return tui.run(session, ratifier, log, ratifier_id=self.ratifier_id)
+
+    def enter(self, session: core.Session):
+        """The ratifier ``session`` is signed as, and the account its decisions
+        go to (``None`` when no summary was asked for)."""
         # The name offered is throughline's, obtained by asking it about this
         # project rather than by deciding it here (SR-0027). Asked of the graph
         # that was opened rather than the path that was typed, so a picked
@@ -229,8 +235,7 @@ class _Sitting:
             log = self.accounts[session.root][0] if session.root in self.accounts \
                 else report.DecisionLog(ratifier)
             self.accounts[session.root] = (log, session)
-        return tui.run(session, ratifier, log, ratifier_id=self.ratifier_id,
-                       quit_leads_to=quit_leads_to)
+        return ratifier, log
 
     def report(self) -> None:
         written, rendered = None, 0

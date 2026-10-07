@@ -1249,7 +1249,8 @@ def _draw_reading(scr, done: int, total: int, candidate: core.Candidate) -> None
 
 class ProjectChooser:
     """The selection screen over one sitting: asked once before the first graph is
-    opened, and again each time the reviewer closes one (SR-0063).
+    opened, and again each time the reviewer closes one (SR-0063). It draws on
+    the screen it is given and never opens one of its own (SR-0066).
 
     It holds what has to survive between those askings — the order the reviewer
     last chose and the graph they last opened — so the screen comes back where
@@ -1260,38 +1261,83 @@ class ProjectChooser:
         self.sort = core.PICKER_SORTS[0]
         self.last: Path | None = None
 
-    def choose(self) -> core.Candidate | None:
-        """Ask which graph to open, returning ``None`` if the reviewer leaves
-        without choosing. Ctrl-C is the quit key here as it is in the cockpit
-        (SR-0016) — the terminal is restored and no decision is taken.
+    def ask(self, stdscr) -> core.Candidate | None:
+        """Ask which graph to open, on a screen that is already up, returning
+        ``None`` if the reviewer leaves without choosing.
 
         Each candidate is read for its ratification figure first, under a progress
         display, because that reading is the only part of this screen that takes
         long enough to be noticed (SR-0051). It is read on every asking, not once:
         the reviewer has usually just signed items in one of these graphs, and its
         row must not go on showing the figure from before (SR-0064)."""
-        def _main(stdscr):
-            _init_colours()
-            curses.curs_set(0)
-            described = core.describe_candidates(
-                self.candidates,
-                on_progress=lambda i, total, c: _draw_reading(stdscr, i, total, c))
-            picker = _Picker(stdscr, described, sort=self.sort, at=self.last)
-            chosen = picker.choose()
-            self.sort = picker.sort
-            if chosen is not None:
-                self.last = chosen.root
-            return chosen
+        curses.curs_set(0)
+        described = core.describe_candidates(
+            self.candidates,
+            on_progress=lambda i, total, c: _draw_reading(stdscr, i, total, c))
+        picker = _Picker(stdscr, described, sort=self.sort, at=self.last)
+        chosen = picker.choose()
+        self.sort = picker.sort
+        if chosen is not None:
+            self.last = chosen.root
+        return chosen
 
-        try:
-            return curses.wrapper(_main)
-        except KeyboardInterrupt:
-            return None
+
+def _draw_opening(scr, candidate: core.Candidate) -> None:
+    """Say which graph is being opened while it is composed (SR-0066).
+
+    Opening resolves the graph's declared sources and can take seconds. The
+    keys are not being read for that time, so the list must not stay on screen
+    looking as though they were (SR-0033)."""
+    scr.erase()
+    _, w = scr.getmaxyx()
+    _hline(scr, 0, 0, w, _attr("header", bold=True))
+    _safe_addstr(scr, 0, 0, f" tl-ratify {__version__} \u2502 opening a project",
+                 _attr("header", bold=True))
+    _safe_addstr(scr, 2, 1, f"opening {candidate.name}  {candidate.rel} \u2026",
+                 _attr("dim"))
+    scr.noutrefresh()
+    curses.doupdate()
+
+
+def work_through(candidates: list[core.Candidate], open_graph,
+                 ratifier_id: str | None = None) -> None:
+    """Ask which graph to open, open it, and ask again when it is closed, until
+    the reviewer leaves the list without choosing or interrupts (SR-0063).
+
+    The whole of it runs in one full-screen view (SR-0066). A view for each
+    screen handed the terminal back between them, so the reviewer looked at
+    their shell while a graph was composed and again on the way back, and a
+    prompt after the quit key reads as the program having ended.
+
+    ``open_graph`` is given the candidate picked and returns the session to
+    show, the ratifier it is signed as, and its decision log or ``None``: the
+    identity is settled by the caller, never in the view (SR-0028). Whatever it
+    raises leaves through ``curses.wrapper``, which restores the terminal first,
+    so the caller can print the reason where it will still be read (SR-0048).
+    Ctrl-C leaves the same way, taking no decision (SR-0016)."""
+    chooser = ProjectChooser(candidates)
+
+    def _main(stdscr):
+        _init_colours()
+        while True:
+            chosen = chooser.ask(stdscr)
+            if chosen is None:
+                return
+            _draw_opening(stdscr, chosen)
+            session, ratifier, log = open_graph(chosen)
+            if not App(stdscr, session, ratifier, log, ratifier_id=ratifier_id,
+                       quit_leads_to="projects").run():
+                return
+
+    try:
+        curses.wrapper(_main)
+    except KeyboardInterrupt:
+        pass
 
 
 def run(session: Session, ratifier: str, log=None,
-        ratifier_id: str | None = None, quit_leads_to: str = "quit") -> bool:
-    """Open the cockpit, returning True when the reviewer left it with the quit
+        ratifier_id: str | None = None) -> bool:
+    """Open the cockpit on one graph, in a full-screen view of its own, returning True when the reviewer left it with the quit
     key and False when they interrupted it (SR-0063). ``log`` is an optional
     :class:`throughline_ratify.report.DecisionLog`; when given, every decision the
     ratifier takes is appended to it as it is persisted, so the caller can render
@@ -1302,8 +1348,7 @@ def run(session: Session, ratifier: str, log=None,
     full-screen view never decides any part of the record it displays (SR-0028)."""
     def _main(stdscr):
         _init_colours()
-        return App(stdscr, session, ratifier, log, ratifier_id=ratifier_id,
-                   quit_leads_to=quit_leads_to).run()
+        return App(stdscr, session, ratifier, log, ratifier_id=ratifier_id).run()
 
     try:
         # curses.wrapper restores the terminal in its finally before re-raising,
