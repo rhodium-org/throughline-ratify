@@ -65,7 +65,16 @@ def sitting(multi_project, monkeypatch):
     chooses each time the list is shown; ``leaves`` is how they leave each graph,
     True for the quit key and False for an interrupt."""
     monkeypatch.setattr(cli.sys.stdout, "isatty", lambda: True, raising=False)
-    seen = {"asked": 0, "opened": [], "labels": []}
+    monkeypatch.setattr(tui, "_init_colours", lambda: None)
+    seen = {"asked": 0, "opened": [], "labels": [], "views": 0, "opening": []}
+
+    def _wrapper(fn, *a):
+        seen["views"] += 1
+        return fn(None, *a)
+
+    monkeypatch.setattr(tui.curses, "wrapper", _wrapper)
+    monkeypatch.setattr(tui, "_draw_opening",
+                        lambda scr, candidate: seen["opening"].append(candidate.root.name))
 
     def _start(picks, leaves=(), decide=None, argv=()):
         leaving = list(leaves)
@@ -74,19 +83,24 @@ def sitting(multi_project, monkeypatch):
             def __init__(self, candidates):
                 self.picks = [candidates[i] for i in picks]
 
-            def choose(self):
+            def ask(self, stdscr):
                 seen["asked"] += 1
                 return self.picks.pop(0) if self.picks else None
 
-        def _run(session, ratifier, log=None, ratifier_id=None, quit_leads_to="quit"):
-            seen["opened"].append(session.root.name)
-            seen["labels"].append(quit_leads_to)
-            if decide is not None:
-                decide(session, log)
-            return leaving.pop(0) if leaving else True
+        class Cockpit:
+            def __init__(self, stdscr, session, ratifier, log=None, ratifier_id=None,
+                         quit_leads_to="quit"):
+                self.session, self.log = session, log
+                seen["labels"].append(quit_leads_to)
+
+            def run(self):
+                seen["opened"].append(self.session.root.name)
+                if decide is not None:
+                    decide(self.session, self.log)
+                return leaving.pop(0) if leaving else True
 
         monkeypatch.setattr(tui, "ProjectChooser", Scripted)
-        monkeypatch.setattr(tui, "run", _run)
+        monkeypatch.setattr(tui, "App", Cockpit)
         return cli.main(["-C", str(multi_project), "--by", "Ada Lovelace", *argv])
 
     return _start, seen
@@ -128,11 +142,20 @@ def test_a_graph_that_was_not_picked_still_quits(demo_project, monkeypatch):
     monkeypatch.setattr(cli.sys.stdout, "isatty", lambda: True, raising=False)
     monkeypatch.setattr(tui, "ProjectChooser",
                         lambda c: pytest.fail("asked which graph, with one to open"))
-    calls = []
-    monkeypatch.setattr(tui, "run", lambda *a, **k: calls.append(k) or True)
+    labels = []
+
+    class Cockpit:
+        def __init__(self, *a, quit_leads_to="quit", **k):
+            labels.append(quit_leads_to)
+
+        def run(self):
+            return True
+
+    monkeypatch.setattr(tui, "App", Cockpit)
+    monkeypatch.setattr(tui, "_init_colours", lambda: None)
+    monkeypatch.setattr(tui.curses, "wrapper", lambda fn, *a: fn(None, *a))
     assert cli.main(["-C", str(demo_project), "--by", "Ada Lovelace"]) == 0
-    assert len(calls) == 1
-    assert calls[0].get("quit_leads_to", "quit") == "quit"
+    assert labels == ["quit"]
 
 
 def _app(root, monkeypatch, keys, **kwargs):
@@ -174,18 +197,10 @@ def test_the_legend_and_the_help_call_the_key_what_it_does(demo_project, monkeyp
 # --------------------------------------------------------------------------- #
 
 @pytest.fixture
-def chooser(multi_project, monkeypatch, no_curses):
-    screens = []
-
-    def _wrapper(fn, *a):
-        screens.append(Screen(_wrapper.keys))
-        return fn(screens[-1], *a)
-
-    monkeypatch.setattr(tui.curses, "wrapper", _wrapper)
-
+def chooser(multi_project, no_curses):
     def _choose(chooser_, keys):
-        _wrapper.keys = keys
-        return chooser_.choose(), screens[-1]
+        screen = Screen(keys)
+        return chooser_.ask(screen), screen
 
     return tui.ProjectChooser(core.discover_projects(multi_project)), _choose
 
@@ -333,11 +348,87 @@ def test_the_ratifier_offered_is_asked_of_each_graph(multi_project, monkeypatch)
         def __init__(self, candidates):
             self.picks = list(candidates)
 
-        def choose(self):
+        def ask(self, stdscr):
             return self.picks.pop(0) if self.picks else None
 
+    class Cockpit:
+        def __init__(self, stdscr, session, ratifier, *a, **k):
+            offered.append(ratifier)
+
+        def run(self):
+            return True
+
     monkeypatch.setattr(tui, "ProjectChooser", Scripted)
-    monkeypatch.setattr(tui, "run",
-                        lambda session, ratifier, *a, **k: offered.append(ratifier) or True)
+    monkeypatch.setattr(tui, "App", Cockpit)
+    monkeypatch.setattr(tui, "_init_colours", lambda: None)
+    monkeypatch.setattr(tui, "_draw_opening", lambda scr, candidate: None)
+    monkeypatch.setattr(tui.curses, "wrapper", lambda fn, *a: fn(None, *a))
     cli.main(["-C", str(multi_project)])
     assert offered == ["signer of alpha", "signer of beta"]
+
+
+# --------------------------------------------------------------------------- #
+# SR-0066 — one full-screen view for the whole sitting
+# --------------------------------------------------------------------------- #
+
+def test_the_terminal_is_not_handed_back_between_the_list_and_a_graph(sitting):
+    """The defect: a view for each screen, so the shell showed while a graph was
+    composed and again on the way back to the list."""
+    start, seen = sitting
+    start(picks=[1, 0, 1])
+    assert seen["opened"] == ["beta", "alpha", "beta"]
+    assert seen["views"] == 1
+
+
+def test_the_view_says_which_graph_it_is_opening_before_it_opens_it(
+        sitting, monkeypatch):
+    start, seen = sitting
+    opening = core.open_root
+    order = []
+
+    def _open(root):
+        order.append((root.name, list(seen["opening"])))
+        return opening(root)
+
+    monkeypatch.setattr(core, "open_root", _open)
+    start(picks=[1, 0])
+    assert order == [("beta", ["beta"]), ("alpha", ["beta", "alpha"])]
+
+
+def test_the_opening_screen_names_the_graph_and_its_path(multi_project, no_curses):
+    screen = Screen([])
+    beta = core.discover_projects(multi_project)[1]
+    tui._draw_opening(screen, beta)
+    assert "opening Beta Graph  beta" in screen.painted()
+
+
+def test_a_graph_that_will_not_open_is_reported_after_the_view_has_closed(
+        capfd, sitting, monkeypatch):
+    """The reason has to outlive the view, so it is printed once curses.wrapper
+    has returned and not drawn inside it (SR-0048)."""
+    start, seen = sitting
+    # capfd stands a stream of its own in for stdout, which is not a terminal.
+    monkeypatch.setattr("sys.stdout.isatty", lambda: True)
+    closed = []
+    wrapper = tui.curses.wrapper
+
+    def _wrapper(fn, *a):
+        try:
+            return wrapper(fn, *a)
+        finally:
+            closed.append(capfd.readouterr().err)
+
+    monkeypatch.setattr(tui.curses, "wrapper", _wrapper)
+    monkeypatch.setattr(core, "open_root", lambda root: (_ for _ in ()).throw(
+        core.RatifierError("source 'base' could not be resolved")))
+    assert start(picks=[0]) == 2
+    assert closed == [""], "nothing was printed while the view was up"
+    assert "source 'base' could not be resolved" in capfd.readouterr().err
+
+
+def test_an_interrupt_while_a_graph_is_opening_ends_cleanly(sitting, monkeypatch):
+    start, seen = sitting
+    monkeypatch.setattr(core, "open_root",
+                        lambda root: (_ for _ in ()).throw(KeyboardInterrupt))
+    assert start(picks=[0]) == 0
+    assert seen["opened"] == []

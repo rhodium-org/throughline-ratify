@@ -222,7 +222,19 @@ def terminal(monkeypatch):
     only the route through the picker is under test."""
     monkeypatch.setattr(cli.sys.stdout, "isatty", lambda: True, raising=False)
     opened = {}
-    monkeypatch.setattr(tui, "run", lambda session, *a, **k: opened.update(root=session.root))
+
+    class Cockpit:
+        def __init__(self, stdscr, session, *a, **k):
+            self.session = session
+
+        def run(self):
+            opened.update(root=self.session.root)
+            return False
+
+    monkeypatch.setattr(tui, "App", Cockpit)
+    monkeypatch.setattr(tui, "_init_colours", lambda: None)
+    monkeypatch.setattr(tui, "_draw_opening", lambda scr, candidate: None)
+    monkeypatch.setattr(tui.curses, "wrapper", lambda fn, *a: fn(None, *a))
     return opened
 
 
@@ -233,7 +245,7 @@ def _picking(monkeypatch, *indexes):
         def __init__(self, candidates):
             self.picks = [candidates[i] for i in indexes]
 
-        def choose(self):
+        def ask(self, stdscr):
             return self.picks.pop(0) if self.picks else None
 
     monkeypatch.setattr(tui, "ProjectChooser", Scripted)
@@ -378,25 +390,22 @@ def test_a_terminal_too_short_for_the_list_still_draws(multi_project, monkeypatc
     assert "leave without opening" in scr.painted()
 
 
-def test_ctrl_c_at_the_picker_takes_no_decision(monkeypatch):
+def test_ctrl_c_at_the_picker_takes_no_decision(multi_project, monkeypatch):
     """SR-0016 — the same answer quitting the worklist gives: the terminal is
     restored by curses.wrapper and nothing is opened."""
     monkeypatch.setattr(tui.curses, "wrapper",
                         lambda fn, *a: (_ for _ in ()).throw(KeyboardInterrupt))
-    assert tui.ProjectChooser([]).choose() is None
+    opened = []
+    tui.work_through(core.discover_projects(multi_project), opened.append)
+    assert opened == []
 
 
-def test_the_chooser_runs_the_picker_inside_curses(multi_project, monkeypatch):
-    """The wrapper is what restores the terminal on any exit, so the picker must be
-    reached through it rather than beside it."""
-    monkeypatch.setattr(tui, "_init_colours", lambda: None)
+def test_the_chooser_asks_on_the_screen_it_is_given(multi_project, monkeypatch):
     monkeypatch.setattr(tui.curses, "curs_set", lambda n: None)
     monkeypatch.setattr(tui.curses, "doupdate", lambda: None)
     monkeypatch.setattr(tui, "_attr", lambda name, bold=False: 0)
-    monkeypatch.setattr(tui.curses, "wrapper",
-                        lambda fn, *a: fn(FakeScreen(24, 80, [ord("j"), ord("\n")]), *a))
-    assert tui.ProjectChooser(core.discover_projects(multi_project)).choose().name \
-        == "Beta Graph"
+    chooser = tui.ProjectChooser(core.discover_projects(multi_project))
+    assert chooser.ask(FakeScreen(24, 80, [ord("j"), ord("\n")])).name == "Beta Graph"
 
 
 # --------------------------------------------------------------------------- #
