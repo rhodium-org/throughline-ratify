@@ -1050,7 +1050,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0066 -->
-**SR-0066 — The full-screen view stays up between the list and a graph** — `system_requirement`, status `proposed`
+**SR-0066 — The full-screen view stays up between the list and a graph** — `system_requirement`, status `ratified`
 
 > Where a selection screen is shown, tl-ratify shall keep one full-screen view up from the first showing of that screen until the program ends. It shall not restore the terminal between the selection screen and a graph, in either direction. While a picked graph is being opened, the view shall say which graph is being opened. Where the picked graph cannot be opened, the terminal shall be restored first and the reason printed after, as SR-0048 requires.
 
@@ -1059,7 +1059,7 @@ What the software must do to meet them.
 *Derives from:* UR-0018
 *Relates:* SR-0063, SR-0033
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:d0d16b40d61cbf926f4fe09fce0f44041d7f46f2273102796d58854030676658
 <!-- tl:end -->
 
 
