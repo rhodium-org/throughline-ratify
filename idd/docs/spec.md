@@ -1165,6 +1165,19 @@ What the software must do to meet them.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:4d526e6b910ef0a0dc52edf2a1c618a1181f9547647a0084ea3a60190a5d77c0
 <!-- tl:end -->
 
+<!-- tl:item SR-0075 -->
+**SR-0075 — The help screen scrolls, so every line of it can be read on any terminal the cockpit runs in** — `system_requirement`, status `proposed`
+
+> Where the help is longer than the screen is tall, the help screen shall open at the top and let the reviewer move through it a line at a time with the keys that move through the worklist, a screenful at a time with the page keys and the space bar, and to either end with the keys that jump to the ends of the worklist. Its last row shall say how to close it and how to scroll, and whether there is more above, below or both; where the screen is too narrow for all of that, how to close it shall be cut last. Where the whole help fits, the last row shall say only how to close it. The q key, Escape and the question mark shall close the help. Any other key shall leave it open and shall do nothing else. A change in the size of the terminal while the help is open shall leave every line reachable.
+
+*Rationale:* Found on 8 October 2026 while fixing the footer (SR-0073). The help is some 45 lines and was drawn from the top with nothing to move it. On a terminal 24 rows high, the default, it stopped just after the line for the quit key, so the keys of the detail pane and the legend that explains the worklist's icons were never shown and no key reached them. SR-0073 made that matter more: a narrow footer names keys by symbols and leaves some out, on the understanding that the help lists every key with its symbol. The operator chose scrolling over the alternatives. Two columns on a wide screen was rejected as two layouts to keep right, with scrolling still needed on a narrow one. Shortening the help to fit 24 rows was rejected because it loses the explanations and a shorter terminal still cuts it off. Showing only the keys of the pane in focus was rejected because the reviewer could no longer read everything in one place. The scroll keys are the worklist's own so there is nothing new to learn. Any key used to close the help. The operator chose that only q, Escape and the question mark close it, so that a stray key does not throw the reviewer out while they are reading. The question mark is included because it is the key that opened the help. Other keys do nothing because a key that acted on the worklist from behind the help would take a decision on an item the reviewer cannot see. How to close comes first on the last row because that row is cut at the right-hand edge on a narrow screen, as the footer was before SR-0073, and the way out is the part that must survive. Test: open the help on a screen 24 rows by 80 columns. Expect the first line of the help at the top, the last row to say there is more below and how to close, and the legend of concerns not to be shown. Page down until the end and expect every line of the help to have been shown, the detail pane's keys and the concerns among them. Expect the line keys to move one line, the ends to hold, and the last row to say which way there is more. Press a key that signs and expect the help still open and no file changed. Press q, Escape and the question mark in turn and expect each to close it. Open it on a screen taller than the help and expect it whole, with a last row that says only how to close it. Who pays: a reviewer used to closing the help with any key has to learn that three keys do.
+
+*Derives from:* UR-0004
+*Relates:* SR-0073, SR-0007
+
+**origin**: ai
+<!-- tl:end -->
+
 
 ## Traceability
 
@@ -1177,7 +1190,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0001 | See every item awaiting my ratification, most-actionable first | SR-0001, SR-0002, SR-0008, SR-0009, SR-0011, SR-0024, SR-0030, SR-0074 |
 | UR-0002 | Ratify or reject an item without leaving the full-screen view | SR-0003, SR-0004, SR-0005, SR-0012, SR-0013, SR-0014, SR-0022, SR-0023, SR-0025, SR-0026, SR-0027, SR-0028, SR-0029, SR-0037 |
 | UR-0003 | On a composed project, items grounded through a source are ratifiable | SR-0006 |
-| UR-0004 | Read the interface like htop, not a scrolling log | SR-0007, SR-0010, SR-0031, SR-0044, SR-0073 |
+| UR-0004 | Read the interface like htop, not a scrolling log | SR-0007, SR-0010, SR-0031, SR-0044, SR-0073, SR-0075 |
 | UR-0005 | Leave a ratification session with a written record of what I decided | SR-0021, SR-0065 |
 | UR-0006 | A contribution states the terms under which it is offered | — |
 | UR-0007 | Know that a reload is running, not that the tool has hung | SR-0033 |
@@ -1280,4 +1293,5 @@ checked by a workflow or a document, or not at all.
 | SR-0072 | The graph names the automated tests that check each requirement, and the suite fails when a named test is missing | TEST-0058 |
 | SR-0073 | The footer names its keys in the room there is, and never loses the help key or the quit key | TEST-0062 |
 | SR-0074 | Started in a directory that no longer exists, tl-ratify says so in one line | TEST-0063 |
+| SR-0075 | The help screen scrolls, so every line of it can be read on any terminal the cockpit runs in | TEST-0064 |
 <!-- tl:end -->
