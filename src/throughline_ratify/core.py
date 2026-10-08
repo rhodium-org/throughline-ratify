@@ -83,6 +83,27 @@ class RatifierError(RuntimeError):
     """A user-facing failure the TUI should surface without a traceback."""
 
 
+class GraphLostError(RatifierError):
+    """The graph an open cockpit holds is gone: its configuration file no longer
+    exists (SR-0067). The message is the one line the reviewer is shown, naming
+    the graph's path. ``undone`` is what the reviewer had asked for when the
+    loss was found (``"signed"``, ``"rejected"``), or ``None`` when they had
+    asked for nothing; ``said`` is the message without the path, for a screen
+    that names the graph in its own way."""
+
+    def __init__(self, root: Path, undone: str | None = None) -> None:
+        self.root, self.undone = root, undone
+        self.said = "the graph no longer exists" + (
+            f"; nothing was {undone}" if undone else "")
+        super().__init__(f"{root}: {self.said}")
+
+
+class GraphUnreadableError(RatifierError):
+    """The graph an open cockpit holds is still there and cannot be read
+    (SR-0071). The message is the reason, without the graph's path: the cockpit
+    showing it already names the graph."""
+
+
 # The attribute ``tl ratify`` stamps on an item to record who took accountability.
 # It is the durable proof an item was ratified: unlike the ``ratified`` *status*,
 # it survives the item advancing to ``implemented``/``verified``, so it — not the
@@ -634,6 +655,28 @@ def open_session(path: str | Path) -> Session:
 def open_root(root: Path) -> Session:
     """Open the graph rooted at ``root``, which is already decided."""
     return _open(root, compose=True)
+
+
+def reopen(session: Session) -> Session:
+    """Read again the graph ``session`` was opened on (SR-0067).
+
+    At the root it was opened from, and nowhere else. Resolving the path afresh
+    searches beneath it and then above it (SR-0045), and from the parent of a
+    directory that has gone, so a removed graph that sat beside or inside
+    another would be replaced on screen by one the reviewer never chose.
+
+    A graph whose configuration file has gone raises :class:`GraphLostError`
+    (SR-0067). One that is still there and will not open raises
+    :class:`GraphUnreadableError` (SR-0071): a file caught half-written or a
+    source that cannot be reached for a moment is not a graph that has gone."""
+    root = session.root
+    try:
+        return open_root(root)
+    except RatifierError as exc:
+        if not (root / CONFIG_NAME).exists():
+            raise GraphLostError(root) from exc
+        raise GraphUnreadableError(
+            _first_line(str(exc)).removeprefix(f"{root}: ")) from exc
 
 
 def _open(root: Path, compose: bool) -> Session:

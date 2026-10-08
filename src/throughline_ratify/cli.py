@@ -168,8 +168,14 @@ def main(argv: list[str] | None = None) -> int:
 
     sitting = _Sitting(args.by, ratifier_id, args.summary)
     if candidates is None:
-        sitting.open(tui, session)
-        rc = 0
+        try:
+            sitting.open(tui, session)
+            rc = 0
+        except core.GraphLostError as err:
+            # The graph went from under the open cockpit. The view has restored
+            # the terminal by now, so the line stays readable (SR-0067).
+            print(f"tl-ratify: {err}", file=sys.stderr)
+            rc = 2
     else:
         rc = _work_through(tui, candidates, sitting, base)
 

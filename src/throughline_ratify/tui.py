@@ -208,6 +208,7 @@ class App:
         # What the cockpit is doing while it cannot answer the keyboard (SR-0033).
         # Empty whenever it is idle, which is every moment a key can be pressed.
         self.busy = ""
+        self.unreadable = ""   # why the last reload failed, when it did (SR-0071)
         self.refresh_queue()
 
     # -- data ---------------------------------------------------------------
@@ -225,23 +226,35 @@ class App:
             return self.rows[self.sel]
         return None
 
-    def reload_from_disk(self) -> None:
+    def reload_from_disk(self) -> bool:
         """Re-read the graph, saying so while the read blocks (SR-0033).
 
-        ``open_session`` is synchronous and can take seconds — on a composed project
+        ``reopen`` is synchronous and can take seconds — on a composed project
         it resolves every source before it returns — and curses paints nothing on its
         own, so the only moment the cockpit can say it is working is *before* it
         starts. A flash set afterwards reports a reload that has already finished,
         which is why the wait used to look like a hang. Painted here it stands for
         the whole of the read, and the ``finally`` clears it even when the read
-        raises, so a failure never leaves the footer claiming work is under way."""
+        raises, so a failure never leaves the footer claiming work is under way.
+
+        Returns False when the graph is still there and cannot be read (SR-0071).
+        The screen then goes on showing the graph as last read and says why. The
+        session keeps the disk state it last read, so the files still differ from
+        it: the next interval tries again, and nothing is written meanwhile
+        (SR-0061). A graph that has gone is not caught here (SR-0067)."""
         self.busy = "reloading from disk…"
         self.flash = _Flash()
         was = self.current.uid if self.current else None
         try:
             self.draw()
-            self.session = core.open_session(self.session.root)
+            self.session = core.reopen(self.session)
             self.refresh_queue()
+        except core.GraphUnreadableError as exc:
+            self.unreadable = str(exc)
+            self.flash = _Flash(
+                "the graph cannot be read just now, so nothing can be written "
+                f"until it can: {exc}", "err")
+            return False
         finally:
             self.busy = ""
         # Stay on the item the reviewer was reading, when it is still listed: a
@@ -252,6 +265,7 @@ class App:
                     self.sel = i
                     break
         self.flash = _Flash("reloaded from disk", "ok")
+        return True
 
     def _moved_under_us(self, what: str) -> bool:
         """Before anything is written: has the graph changed on disk since this screen
@@ -262,17 +276,26 @@ class App:
         sign it: wording the reviewer was shown, but no longer what the item says."""
         if not core.changed_on_disk(self.session):
             return False
-        self.reload_from_disk()
-        self.flash = _Flash(
-            f"the graph changed on disk, so nothing was {what}. It has been reloaded: "
-            "read the item again and repeat the key", "warn")
+        try:
+            reloaded = self.reload_from_disk()
+        except core.GraphLostError as exc:
+            # The reviewer pressed a key that writes and the program is about to
+            # leave: say what became of the action as well as of the graph.
+            raise core.GraphLostError(exc.root, undone=what) from exc
+        if reloaded:
+            self.flash = _Flash(
+                f"the graph changed on disk, so nothing was {what}. It has been "
+                "reloaded: read the item again and repeat the key", "warn")
+        else:
+            self.flash = _Flash(
+                f"the graph cannot be read, so nothing was {what}: {self.unreadable}",
+                "err")
         return True
 
     def idle(self) -> None:
         """No key for a while: if the graph changed on disk, show the reviewer the
         graph as it now is, and say so (SR-0062)."""
-        if core.changed_on_disk(self.session):
-            self.reload_from_disk()
+        if core.changed_on_disk(self.session) and self.reload_from_disk():
             self.flash = _Flash("the graph changed on disk and has been reloaded", "warn")
 
     # -- main loop ----------------------------------------------------------
@@ -1132,12 +1155,12 @@ class _Picker:
 
     def __init__(self, stdscr, candidates: list[core.Candidate],
                  sort: str = core.PICKER_SORTS[0], at: Path | None = None,
-                 reload=None) -> None:
+                 reload=None, note: str = "") -> None:
         self.scr = stdscr
         self.sort = sort
         # ``reload`` returns the candidates as they now stand on disk (SR-0068).
         self._reload = reload
-        self.note = ""
+        self.note = note
         self.candidates = core.sort_candidates(candidates, sort)
         # ``at`` is the graph the reviewer has just closed: the highlight comes
         # back to it, so the next graph is one key away (SR-0064).
@@ -1221,10 +1244,13 @@ class _Picker:
         _hline(self.scr, 0, 0, w, _attr("header", bold=True))
         _safe_addstr(self.scr, 0, 0, f" tl-ratify {__version__} \u2502 choose a project",
                      _attr("header", bold=True))
-        note = f" \u2502 {self.note}" if self.note else ""
         _safe_addstr(self.scr, 2, 1,
                      f"{len(self.candidates)} throughline projects lie beneath the path "
-                     f"you gave. \u2502 sort:{self.sort}{note}", _attr("dim"))
+                     f"you gave. \u2502 sort:{self.sort}", _attr("dim"))
+        # On a row of its own: a note that names a graph by its path is as long
+        # as the screen is wide, and beside the count it would be cut short.
+        if self.note:
+            _safe_addstr(self.scr, 3, 1, self.note, _attr("warn"))
         self._draw_list(h, w)
         _hline(self.scr, h - 1, 0, w, _attr("header"))
         _safe_addstr(
@@ -1310,6 +1336,8 @@ class ProjectChooser:
         self.search = search
         self.sort = core.PICKER_SORTS[0]
         self.last: Path | None = None
+        # What the screen says when it is next shown, and only then (SR-0067).
+        self.note = ""
 
     def ask(self, stdscr) -> core.Candidate | None:
         """Ask which graph to open, on a screen that is already up, returning
@@ -1332,7 +1360,9 @@ class ProjectChooser:
                 self.candidates = self.search()
             return _read()
 
-        picker = _Picker(stdscr, _read(), sort=self.sort, at=self.last, reload=_reload)
+        picker = _Picker(stdscr, _read(), sort=self.sort, at=self.last, reload=_reload,
+                         note=self.note)
+        self.note = ""
         chosen = picker.choose()
         self.sort = picker.sort
         if chosen is not None:
@@ -1386,9 +1416,16 @@ def work_through(candidates: list[core.Candidate], open_graph,
                 return
             _draw_opening(stdscr, chosen)
             session, ratifier, log = open_graph(chosen)
-            if not App(stdscr, session, ratifier, log, ratifier_id=ratifier_id,
-                       quit_leads_to="projects").run():
-                return
+            try:
+                if not App(stdscr, session, ratifier, log, ratifier_id=ratifier_id,
+                           quit_leads_to="projects").run():
+                    return
+            except core.GraphLostError as lost:
+                # The graph went from under the open cockpit. The reviewer came
+                # from the list and the other graphs are still theirs to open,
+                # so the list is shown again and says which graph went (SR-0067).
+                # Named as its row names it: by the path relative to the one given.
+                chooser.note = f"{chosen.rel}: {lost.said}"
 
     try:
         curses.wrapper(_main)

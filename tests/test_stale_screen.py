@@ -135,7 +135,7 @@ def test_the_cockpits_own_writes_are_not_mistaken_for_somebody_elses(app, monkey
     assert not core.changed_on_disk(app.session)
 
     opened = []
-    monkeypatch.setattr(core, "open_session", lambda root: opened.append(root))
+    monkeypatch.setattr(core, "open_root", lambda root: opened.append(root))
     app.idle()
     assert opened == [], "the cockpit reloaded over its own signature"
     app.sel = next(i for i, r in enumerate(app.rows) if r.uid == "FR-0002")
@@ -155,7 +155,7 @@ def test_an_idle_cockpit_reloads_when_the_graph_changes_and_says_so(app):
 
 def test_an_idle_cockpit_with_nothing_changed_does_nothing(app, monkeypatch):
     opened = []
-    monkeypatch.setattr(core, "open_session", lambda root: opened.append(root))
+    monkeypatch.setattr(core, "open_root", lambda root: opened.append(root))
     app.flash = tui._Flash("kept", "ok")
     app.idle()
     assert opened == [] and app.flash.text == "kept"

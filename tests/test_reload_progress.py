@@ -8,7 +8,7 @@ that call came back, so for the whole of the wait the screen was indistinguishab
 from a hung terminal — the defect UR-0007 names.
 
 The obligation is therefore about *ordering*, not about wording, and these tests are
-written against it directly: the reload is driven with ``open_session`` replaced by a
+written against it directly: the reload is driven with ``open_root`` replaced by a
 probe that photographs the screen at the moment it is entered. What the probe sees is
 what the reviewer sees for the duration of a slow read.
 """
@@ -57,16 +57,16 @@ def test_the_notice_is_on_screen_while_the_read_blocks(app, monkeypatch):
     """The defect, stated as a test. The probe stands in for a slow read and looks at
     the screen from inside it — the one vantage point the old code left blank."""
     seen: list[str] = []
-    real = core.open_session
+    real = core.open_root
 
     def slow(root):
         seen.append(app.scr.painted())
         return real(root)
 
-    monkeypatch.setattr(core, "open_session", slow)
+    monkeypatch.setattr(core, "open_root", slow)
     app.reload_from_disk()
 
-    assert seen, "open_session was never reached"
+    assert seen, "open_root was never reached"
     assert "reloading" in seen[0].lower(), (
         "the reader was shown nothing while the read blocked:\n" + seen[0]
     )
@@ -87,7 +87,7 @@ def test_a_failed_reload_does_not_leave_the_footer_claiming_work(app, monkeypatc
     def boom(root):
         raise OSError("graph went away")
 
-    monkeypatch.setattr(core, "open_session", boom)
+    monkeypatch.setattr(core, "open_root", boom)
     with pytest.raises(OSError):
         app.reload_from_disk()
     assert app.busy == ""
