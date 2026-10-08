@@ -1185,14 +1185,14 @@ checked by a workflow or a document, or not at all.
 | SR-0003 | Ratify runs throughline's grounding gate then writes only the consumer register | TEST-0003 |
 | SR-0004 | Reject invalidates via throughline and cascades suspect to dependents | TEST-0004 |
 | SR-0005 | Status changes are config-driven; no status literal is hardcoded | TEST-0005 |
-| SR-0006 | Grounding is evaluated over the composed union when sources are declared | — |
-| SR-0007 | A full-screen curses cockpit with header, summary, list, detail and footer | — |
+| SR-0006 | Grounding is evaluated over the composed union when sources are declared | TEST-0059 |
+| SR-0007 | A full-screen curses cockpit with header, summary, list, detail and footer | TEST-0060 |
 | SR-0008 | A non-interactive --list mode prints the same worklist | TEST-0006 |
 | SR-0009 | Opening a project that cannot be ratified against fails with clear guidance, not a traceback | TEST-0007 |
 | SR-0010 | The summary shows ratification progress and marks ratified items distinctly from ready ones | TEST-0008 |
 | SR-0011 | The worklist can be ordered by grounding depth, roots-first or leaves-first | TEST-0009 |
 | SR-0012 | The detail pane resolves each link to its referenced title and content, including items from composed sources | TEST-0010 |
-| SR-0013 | The detail pane is focusable and its links can be navigated and expanded to read referenced content | — |
+| SR-0013 | The detail pane is focusable and its links can be navigated and expanded to read referenced content | TEST-0061 |
 | SR-0014 | A link can be removed from a local item in the cockpit, refused when removal would leave the item ungrounded | TEST-0011 |
 | SR-0015 | A composed link shows the target's authoritative source reference, not just its namespace | TEST-0012 |
 | SR-0016 | Interrupting the cockpit with Ctrl-C exits cleanly, without a traceback | TEST-0013 |
