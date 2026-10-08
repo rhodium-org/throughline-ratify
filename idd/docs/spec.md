@@ -1062,6 +1062,19 @@ What the software must do to meet them.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:d0d16b40d61cbf926f4fe09fce0f44041d7f46f2273102796d58854030676658
 <!-- tl:end -->
 
+<!-- tl:item SR-0068 -->
+**SR-0068 — The reviewer can reload the selection screen from disk** — `system_requirement`, status `ratified`
+
+> When the reviewer presses R on the selection screen, tl-ratify shall repeat the search beneath the path the reviewer gave and read each candidate's ratification figure again from its own registers, under the same progress display as the first reading. The screen shall then list the candidates found, in the order in force, with the highlight on the graph it was on. Where that graph is no longer found, the highlight shall stay on the row it occupied, or on the last row where the list is now shorter. The screen shall say that it has been reloaded until the next key is pressed. Where the search finds no graph, the screen shall stay up with an empty list and the key that opens a graph shall do nothing. Where the path the reviewer gave is no longer a directory, the search shall find no graph and shall not look anywhere else. No candidate's declared sources shall be resolved by a reload. The footer of the selection screen shall name the key.
+
+*Rationale:* Asked for by the operator on 8 October 2026. The selection screen is often left open while an agent proposes items into the graphs it lists, or adds a graph or removes a worktree beneath the path. The figures are read when the screen is drawn and never again while it stays up, so the only way to see the present state was to open a graph and close it, or to start the program again. R is the key the worklist already binds for reloading (SR-0033), so the reviewer has one key to learn for both screens. Only the capital is bound, as on the worklist, where the small letter signs an item. The search is repeated here although SR-0064 forbids repeating it when the screen comes back after a graph is closed. That rule spares the reviewer a wait they did not ask for. Here the reviewer has asked, and a graph added or removed since the program started is one of the things they may be asking about. SR-0064 gives starting the program again as the remedy for a changed set of graphs, and this key is that remedy without losing the order and the place. The path that is no longer a directory is named because the search starts from the parent of a path that is not a directory, which would list graphs the reviewer never pointed at. SR-0067 records the same hazard for a graph that vanishes under an open worklist. Test: open the selection screen on a tree of two graphs, sign an item in one from outside, press R, and expect that row's figure to have gone up by one and the screen to say it was reloaded. Add a third graph, press R, and expect three rows with the highlight on the graph it was on. Remove the highlighted graph, press R, and expect it gone and the highlight still on a listed row. Remove the tree, press R, and expect an empty list on which Enter does nothing. Expect no declared source to be resolved by any of these. Who pays: the reviewer waits for every candidate to be read again, and for the one process the search starts to ask version control what it ignores. They pay it only when they press the key.
+
+*Derives from:* UR-0014
+*Relates:* SR-0064, SR-0050, SR-0033, SR-0048
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:a8f547c9fcff61521afeb96c1590e09fcb615bf65da31114df83ac34c3853c82
+<!-- tl:end -->
+
 
 ## Traceability
 
@@ -1084,7 +1097,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0011 | The published distribution passes the suite it ships | SR-0040, SR-0041, SR-0055 |
 | UR-0012 | The requirements this tool is built to can be read, and read whole | SR-0042 |
 | UR-0013 | Choose which graph to open when the path I give holds more than one | SR-0045, SR-0047, SR-0048 |
-| UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052 |
+| UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052, SR-0068 |
 | UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053, SR-0056 |
 | UR-0016 | Upgrading throughline does not cost me a new cockpit | SR-0057, SR-0058, SR-0059, SR-0060 |
 | UR-0017 | A screen left open does not sign wording I was not shown | SR-0061, SR-0062 |
