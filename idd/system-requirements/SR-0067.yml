@@ -1,6 +1,6 @@
 uid: SR-0067
 type: system_requirement
-status: proposed
+status: ratified
 title: A graph that is gone from under an open cockpit ends the sitting with one
   line, or returns the reviewer to the list
 text: When the cockpit reloads the graph it has open and that graph's throughline.toml
@@ -55,3 +55,22 @@ links:
   type: relates
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:7274e3aa3adb24fa379013f61dd4c3d27897e01399faf845d035bc6b8afc6ea9
+  ratified_content:
+    type: system_requirement
+    text: When the cockpit reloads the graph it has open and that graph's throughline.toml
+      is gone, the cockpit shall close the graph and write nothing to it. Where the
+      graph was not picked from the selection screen, tl-ratify shall restore the
+      terminal and then print one line on standard error that names the graph's path
+      and says that the graph no longer exists, shall exit with a non-zero status,
+      and shall print no traceback. Where the graph was picked from the selection
+      screen, tl-ratify shall show that screen again, and the screen shall name the
+      graph by its path relative to the path the reviewer gave and say that it no
+      longer exists, until the next key is pressed. Where the reload came before
+      a signature, a rejection or the removal of a link, the line or the screen shall
+      also say that nothing was signed, rejected or removed. Decisions already taken
+      in the sitting shall be reported as SR-0021 and SR-0065 require.
+    normative: true
+    derived: false
+    attrs: {}

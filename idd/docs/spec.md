@@ -1063,7 +1063,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0067 -->
-**SR-0067 — A graph that is gone from under an open cockpit ends the sitting with one line, or returns the reviewer to the list** — `system_requirement`, status `proposed`
+**SR-0067 — A graph that is gone from under an open cockpit ends the sitting with one line, or returns the reviewer to the list** — `system_requirement`, status `ratified`
 
 > When the cockpit reloads the graph it has open and that graph's throughline.toml is gone, the cockpit shall close the graph and write nothing to it. Where the graph was not picked from the selection screen, tl-ratify shall restore the terminal and then print one line on standard error that names the graph's path and says that the graph no longer exists, shall exit with a non-zero status, and shall print no traceback. Where the graph was picked from the selection screen, tl-ratify shall show that screen again, and the screen shall name the graph by its path relative to the path the reviewer gave and say that it no longer exists, until the next key is pressed. Where the reload came before a signature, a rejection or the removal of a link, the line or the screen shall also say that nothing was signed, rejected or removed. Decisions already taken in the sitting shall be reported as SR-0021 and SR-0065 require.
 
@@ -1072,7 +1072,7 @@ What the software must do to meet them.
 *Derives from:* UR-0017
 *Relates:* SR-0062, SR-0061, SR-0065, SR-0016, SR-0021, SR-0048, SR-0063, SR-0068, SR-0069, SR-0071, UR-0018
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:7274e3aa3adb24fa379013f61dd4c3d27897e01399faf845d035bc6b8afc6ea9
 <!-- tl:end -->
 
 <!-- tl:item SR-0068 -->
@@ -1102,7 +1102,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0070 -->
-**SR-0070 — A reload reopens the graph at the root it was opened from** — `system_requirement`, status `proposed`
+**SR-0070 — A reload reopens the graph at the root it was opened from** — `system_requirement`, status `ratified`
 
 > When the cockpit reloads the graph it has open, it shall open the graph at the root it was opened from. It shall not resolve the path again, and it shall never show a different graph in place of the one the reviewer opened.
 
@@ -1111,11 +1111,11 @@ What the software must do to meet them.
 *Derives from:* UR-0017
 *Relates:* SR-0045, SR-0067
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:c00e9ec47b5637eeaca02ff8490866427fbff4d0cdc6a099ea4c10893cbf56b5
 <!-- tl:end -->
 
 <!-- tl:item SR-0071 -->
-**SR-0071 — A graph that cannot be read keeps the cockpit up, and nothing is written until it can be** — `system_requirement`, status `proposed`
+**SR-0071 — A graph that cannot be read keeps the cockpit up, and nothing is written until it can be** — `system_requirement`, status `ratified`
 
 > When the cockpit reloads the graph it has open and the graph's throughline.toml is still there but the graph cannot be opened, the cockpit shall stay up, go on showing the graph as it last read it, and say that the graph cannot be read and why. While that is so it shall sign nothing, reject nothing and remove no link, and shall say so when the reviewer asks for one of them. It shall try to read the graph again at each interval while it waits for a key, and when the graph can be read it shall reload it and say that it has reloaded.
 
@@ -1124,7 +1124,7 @@ What the software must do to meet them.
 *Derives from:* UR-0017
 *Relates:* SR-0062, SR-0061, SR-0067
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:3e5e0485746e1ed2c16d9892e949b63f46c1d18433d813e8a28fb28b7764f2fc
 <!-- tl:end -->
 
 
