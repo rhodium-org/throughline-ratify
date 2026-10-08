@@ -1,0 +1,35 @@
+uid: TEST-0062
+type: test
+status: ratified
+title: 'Tests of SR-0073: The footer names its keys in the room there is, and never
+  loses the help key or the quit key'
+text: The shipped pytest suite checks SR-0073 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0073
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_footer_fits.py::test_a_wide_footer_names_every_key_in_words
+    tests/test_footer_fits.py::test_the_words_are_kept_up_to_the_last_column_they_fit_in
+    tests/test_footer_fits.py::test_a_longer_name_for_the_quit_key_needs_more_room
+    tests/test_footer_fits.py::test_at_eighty_columns_every_key_is_named_and_help_and_quit_are_in_words
+    tests/test_footer_fits.py::test_the_symbols_are_all_or_nothing
+    tests/test_footer_fits.py::test_every_symbol_is_one_cell_wide
+    tests/test_footer_fits.py::test_the_footer_always_fits_and_always_names_help_and_quit
+    tests/test_footer_fits.py::test_moving_signing_and_rejecting_are_never_left_out
+    tests/test_footer_fits.py::test_keys_are_left_out_in_a_fixed_order_reload_first
+    tests/test_footer_fits.py::test_a_key_left_out_of_the_footer_still_works
+    tests/test_footer_fits.py::test_the_detail_panes_legend_follows_the_same_rule
+    tests/test_footer_fits.py::test_the_help_screen_shows_each_symbol_beside_its_key
+    tests/test_footer_fits.py::test_the_legend_is_decided_without_a_screen
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:88d2019a1406db995bf669aeda3d075eb3155de26e0aaf29d9b24f44a8d20877
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0073 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

@@ -581,7 +581,17 @@ def resolve_root(path: str | Path) -> Path:
     an empty result falls back to the upward walk that lets the tool run from
     anywhere inside a project.
     """
-    start = Path(path).resolve()
+    try:
+        start = Path(path).resolve()
+    except OSError as exc:
+        # A relative path is resolved against the directory the program was
+        # started in. Where that directory has since been removed there is
+        # nothing to resolve against, and the reviewer needs to be told so in
+        # words they can act on, not shown a traceback (SR-0074).
+        raise RatifierError(
+            f"cannot resolve the path {str(path)!r}: the directory tl-ratify was "
+            "started in no longer exists. Change to a directory that exists, "
+            "or give an absolute path with -C") from exc
     base = start if start.is_dir() else start.parent
     if (base / CONFIG_NAME).exists():
         return base
