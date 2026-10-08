@@ -1,0 +1,38 @@
+uid: TEST-0064
+type: test
+status: ratified
+title: 'Tests of SR-0075: The help screen scrolls, so every line of it can be read
+  on any terminal the cockpit runs in'
+text: The shipped pytest suite checks SR-0075 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0075
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_help_scrolls.py::test_the_help_is_longer_than_a_default_terminal
+    tests/test_help_scrolls.py::test_a_short_terminal_opens_at_the_top_and_says_there_is_more
+    tests/test_help_scrolls.py::test_every_line_can_be_reached_by_paging
+    tests/test_help_scrolls.py::test_every_line_can_be_reached_a_line_at_a_time
+    tests/test_help_scrolls.py::test_the_detail_panes_keys_and_the_concerns_can_be_read_at_24_rows
+    tests/test_help_scrolls.py::test_the_line_keys_move_one_line
+    tests/test_help_scrolls.py::test_the_page_keys_move_a_screenful
+    tests/test_help_scrolls.py::test_the_ends_hold
+    tests/test_help_scrolls.py::test_home_and_end_go_to_the_top_and_the_bottom
+    tests/test_help_scrolls.py::test_the_last_row_says_which_way_there_is_more
+    tests/test_help_scrolls.py::test_the_last_row_always_says_how_to_leave_and_how_to_scroll
+    tests/test_help_scrolls.py::test_a_terminal_tall_enough_shows_it_all_and_offers_no_scrolling
+    tests/test_help_scrolls.py::test_these_keys_close_the_help
+    tests/test_help_scrolls.py::test_any_other_key_leaves_the_help_open_and_does_nothing
+    tests/test_help_scrolls.py::test_a_terminal_that_shrinks_while_the_help_is_open_still_reaches_the_end
+    tests/test_help_scrolls.py::test_a_terminal_that_grows_shows_no_gap_below_the_last_line
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:04029057b6fc66bc37c27e399b595929f01a0473d8bf20526df7fbb9493a020f
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0075 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

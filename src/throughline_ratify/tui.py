@@ -1124,7 +1124,7 @@ class App:
             "  R            [\u21bb] reload the graph from disk",
             "               (it also reloads by itself when the files change, and",
             "               never signs or rejects over a change it has not shown)",
-            "  ?            this help",
+            "  ?            this help; it scrolls with the keys above, and q, Esc or ? closes it",
             f"  q            {self.quit_leads_to}",
             "",
             "detail pane:",
@@ -1148,16 +1148,55 @@ class App:
             "",
             "sort roots\u2193 orders shallowest-first (closest to intent);",
             "leaves\u2191 orders deepest-first. ungrounded items sort last.",
-            "",
-            "  press any key to return",
         ]
-        self.scr.erase()
-        for i, ln in enumerate(lines):
-            attr = _attr("key", bold=True) if i == 0 else _attr("dim")
-            _safe_addstr(self.scr, i + 1, 2, ln, attr)
-        self.scr.noutrefresh()
-        curses.doupdate()
-        self.scr.getch()
+        # The help is longer than most terminals are tall, so it scrolls (SR-0075).
+        # Every wait here is for the reviewer: the interval that bounds the wait at
+        # the worklist was cleared before this was reached (SR-0062).
+        top = 0
+        while True:
+            h, w = self.scr.getmaxyx()
+            page = max(1, h - 3)                 # a blank row above, two rows below
+            last = max(0, len(lines) - page)
+            top = max(0, min(top, last))
+            self.scr.erase()
+            for row, ln in enumerate(lines[top:top + page]):
+                attr = _attr("key", bold=True) if top + row == 0 else _attr("dim")
+                _safe_addstr(self.scr, row + 1, 2, ln, attr)
+            _hline(self.scr, h - 1, 0, w, _attr("footer"))
+            _safe_addstr(self.scr, h - 1, 0, " " + _help_footer(top, last),
+                         _attr("footer"))
+            self.scr.noutrefresh()
+            curses.doupdate()
+            ch = self.scr.getch()
+            if ch in (ord("q"), ord("Q"), 27, ord("?")):
+                return
+            if ch in (curses.KEY_DOWN, ord("j")):
+                top += 1
+            elif ch in (curses.KEY_UP, ord("k")):
+                top -= 1
+            elif ch in (curses.KEY_NPAGE, ord(" ")):
+                top += page
+            elif ch == curses.KEY_PPAGE:
+                top -= page
+            elif ch in (curses.KEY_HOME, ord("g")):
+                top = 0
+            elif ch in (curses.KEY_END, ord("G")):
+                # Past the end, and brought back to it when the screen is next
+                # measured: the size may have changed since this frame was drawn.
+                top = len(lines)
+            # Any other key is ignored, so a stray one does not close the help
+            # under the reviewer while they are reading it.
+
+
+def _help_footer(top: int, last: int) -> str:
+    """What the last row of the help says: whether there is more, in which
+    direction, and how to leave (SR-0075)."""
+    if last == 0:
+        return "q close"
+    more = ("\u2193 more" if top == 0 else
+            "\u2191 more" if top >= last else "\u2191\u2193 more")
+    # How to leave comes first, so it is the last thing a narrow screen cuts off.
+    return f"q close \u00b7 j/k scroll \u00b7 {more} \u00b7 PgUp/PgDn page"
 
 
 _PICKER_TOP = 4                    # first list row, below the header and the count line

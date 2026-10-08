@@ -185,9 +185,10 @@ def test_an_interrupt_at_the_curses_boundary_is_an_interrupt_too(demo_project,
 @pytest.mark.parametrize("label", ["quit", "projects"])
 def test_the_legend_and_the_help_call_the_key_what_it_does(demo_project, monkeypatch,
                                                            no_curses, label):
-    app = _app(demo_project, monkeypatch, [ord("x")], quit_leads_to=label)
+    app = _app(demo_project, monkeypatch, [ord("q")], quit_leads_to=label)
     app._draw_footer(0, 120)
     assert f"q:{label}" in app.scr.painted().replace(" ", "")
+    app.scr.h = 60          # tall enough for the whole help, which scrolls (SR-0075)
     app.show_help()
     assert f"q            {label}" in app.scr.painted()
 

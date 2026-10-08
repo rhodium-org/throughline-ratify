@@ -156,7 +156,7 @@ def test_the_help_screen_shows_each_symbol_beside_its_key(demo_project, monkeypa
 
     class Tall(FakeScreen):
         def getch(self):
-            return ord("x")
+            return ord("q")
 
     app = tui.App(Tall(60, 100), core.open_session(demo_project), "Ada Lovelace", None)
     app.show_help()
