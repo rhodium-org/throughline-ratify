@@ -1,0 +1,24 @@
+uid: TEST-0043
+type: test
+status: ratified
+title: 'Tests of SR-0060: The floor and the pin move together, to the edition that
+  publishes what is used'
+text: The shipped pytest suite checks SR-0060 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0060
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_core.py::test_a_path_source_is_composed_through_the_real_seam
+    tests/test_core.py::test_composition_is_the_tools_own_resolution
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:52ff00c799acf97ea1bea1004c36852ae8cad0e57e807a4fc8fd00c94c453608
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0060 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

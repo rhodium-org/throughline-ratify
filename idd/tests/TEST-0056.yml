@@ -1,0 +1,51 @@
+uid: TEST-0056
+type: test
+status: ratified
+title: 'Tests of UR-0005: Leave a ratification session with a written record of what
+  I decided'
+text: The shipped pytest suite checks UR-0005 with the test functions this item lists.
+normative: false
+links:
+- target: UR-0005
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_report.py::test_a_re_signature_past_ratified_walks_no_route
+    tests/test_report.py::test_a_refused_action_records_nothing
+    tests/test_report.py::test_a_sitting_with_no_decisions_produces_no_report
+    tests/test_report.py::test_emit_to_a_path_writes_the_file
+    tests/test_report.py::test_emit_to_stdout_writes_the_report
+    tests/test_report.py::test_entries_appear_in_the_order_taken
+    tests/test_report.py::test_every_entry_names_the_item_and_its_title
+    tests/test_report.py::test_header_distinguishes_a_composed_scope
+    tests/test_report.py::test_header_names_project_scope_ratifier_and_end_time
+    tests/test_report.py::test_link_removal_distinguishes_a_grounding_link
+    tests/test_report.py::test_long_titles_wrap_rather_than_running_off_the_line
+    tests/test_report.py::test_no_summary_asked_for_writes_nothing
+    tests/test_report.py::test_ratifying_records_the_decision_and_the_graph_agrees
+    tests/test_report.py::test_rejection_names_the_reason_and_the_cascade
+    tests/test_report.py::test_rejection_without_a_reason_says_so_rather_than_printing_nothing
+    tests/test_report.py::test_removing_a_link_records_it_as_a_link_removal
+    tests/test_report.py::test_report_ends_with_a_commit_ready_trailer_of_decided_uids
+    tests/test_report.py::test_report_is_ascii_so_it_survives_any_locale_on_the_way_to_a_commit
+    tests/test_report.py::test_reratification_names_the_route_walked
+    tests/test_report.py::test_reratifying_records_the_route_core_actually_walked
+    tests/test_report.py::test_summary_defaults_to_stdout_when_no_path_is_given
+    tests/test_report.py::test_summary_does_not_swallow_the_next_option
+    tests/test_report.py::test_summary_is_a_usage_error_alongside_list
+    tests/test_report.py::test_summary_is_off_unless_asked_for
+    tests/test_report.py::test_summary_takes_an_optional_path
+    tests/test_report.py::test_summary_with_a_path_is_also_refused_alongside_list
+    tests/test_report.py::test_tally_counts_each_kind_and_omits_kinds_that_did_not_occur
+    tests/test_report.py::test_the_cockpit_runs_unchanged_without_a_log
+    tests/test_report.py::test_the_report_says_whose_signature_was_replaced
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:e2a7ce38341693fbef865abea7fb9806a82b53dc29b450088ea72e35b544938c
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks UR-0005 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

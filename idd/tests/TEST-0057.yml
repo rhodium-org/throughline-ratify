@@ -1,0 +1,24 @@
+uid: TEST-0057
+type: test
+status: ratified
+title: 'Tests of UR-0014: Tell me enough about each graph to choose between them'
+text: The shipped pytest suite checks UR-0014 with the test functions this item lists.
+normative: false
+links:
+- target: UR-0014
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_project_selection.py::test_nothing_is_indicated_when_the_whole_list_is_on_screen
+    tests/test_project_selection.py::test_scrolling_back_up_reaches_the_first_candidate_again
+    tests/test_project_selection.py::test_the_screen_says_the_list_runs_on_above_and_below
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:a6af4daf1cf89498c32632be88ce1568b9f428a4cbb645cd1dc4bc0379e088f7
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks UR-0014 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

@@ -1,0 +1,26 @@
+uid: TEST-0011
+type: test
+status: ratified
+title: 'Tests of SR-0014: A link can be removed from a local item in the cockpit,
+  refused when removal would leave the item ungrounded'
+text: The shipped pytest suite checks SR-0014 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0014
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_core.py::test_remove_informational_link_persists
+    tests/test_core.py::test_remove_link_refuses_orphaning
+    tests/test_core.py::test_remove_link_rejects_bad_index
+    tests/test_core.py::test_remove_link_still_grounded_after_dropping_grounding_link
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:1271ca97348e414d4a4dc5159b9a8709a0c710efa8e6eb40286a303bc77e93b4
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0014 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

@@ -1,0 +1,52 @@
+uid: SR-0072
+type: system_requirement
+status: ratified
+title: The graph names the automated tests that check each requirement, and the suite
+  fails when a named test is missing
+text: For each requirement that the shipped pytest suite checks, this project's graph
+  shall hold a test item that verifies the requirement and names each test function
+  that checks it, by the path of its file and the name of the function. The names
+  shall be held in an attribute of the test item that is not part of the content
+  a signature covers. The suite shall fail when a test item names a function that
+  does not exist, when a live test item verifies no live requirement or names no
+  function, and when a test function in the suite is named by no live test item and
+  is not listed in the suite as checking no requirement of this project. A requirement
+  that is checked by other means, such as a workflow or a document, shall have no
+  test item.
+rationale: |-
+  Decided by the operator on 8 October 2026 after a challenge pass found that nothing in the graph said how any requirement was verified. The tests existed and cited requirements in docstrings and comments, but unevenly: about half the requirements were cited by no test although tests for most of them were in the suite. A reader of the graph, or a tool reading it, could not tell a requirement with twenty tests from one with none.
+
+  A test item per requirement, not per test function, because the question the graph has to answer is whether a requirement is checked and where to look. The suite has over three hundred functions, and an item for each would be a second copy of the suite that a reviewer is asked to sign.
+
+  The suite checks the names because a list of test names kept by hand goes stale the first time a test is renamed. Failing on a test that no item names is what keeps a new test from being added without saying which requirement it is for. The list of tests that check no requirement of this project is there for tests of an upstream clause this graph does not restate, and it is kept in the suite where a reviewer of the change sees it.
+
+  Requirements checked by a workflow or a document have no test item because a test item claiming a pytest function for them would be false. They read as having no automated test, which is true of this suite.
+
+  Test: rename a function a test item names and expect the suite to fail naming the item. Add a test function without adding it to an item and expect the suite to fail naming the function. Point a test item at a deleted requirement and expect the suite to fail naming the item.
+
+  The names sit outside the signed content because what a reviewer signs is the claim that the requirement is checked by the suite. Were the list signed, every new or renamed test would make an item stale and ask for a signature on a line the suite has already checked.
+
+  Who pays: whoever adds or renames a test edits a test item in the same change. A reviewer signs a test item once, and its list of names can then change without them.
+normative: true
+links:
+- target: UR-0008
+  type: derives_from
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:9d1b9b352ac20bb3fad8c2cbfe3fcd569ce63bd0b47dac46df2c9bae6a2b2594
+  ratified_content:
+    type: system_requirement
+    text: For each requirement that the shipped pytest suite checks, this project's
+      graph shall hold a test item that verifies the requirement and names each test
+      function that checks it, by the path of its file and the name of the function.
+      The names shall be held in an attribute of the test item that is not part of
+      the content a signature covers. The suite shall fail when a test item names
+      a function that does not exist, when a live test item verifies no live requirement
+      or names no function, and when a test function in the suite is named by no
+      live test item and is not listed in the suite as checking no requirement of
+      this project. A requirement that is checked by other means, such as a workflow
+      or a document, shall have no test item.
+    normative: true
+    derived: false
+    attrs: {}

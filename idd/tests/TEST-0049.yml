@@ -1,0 +1,25 @@
+uid: TEST-0049
+type: test
+status: ratified
+title: 'Tests of SR-0066: The full-screen view stays up between the list and a graph'
+text: The shipped pytest suite checks SR-0066 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0066
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_back_to_the_list.py::test_an_interrupt_while_a_graph_is_opening_ends_cleanly
+    tests/test_back_to_the_list.py::test_the_opening_screen_names_the_graph_and_its_path
+    tests/test_back_to_the_list.py::test_the_terminal_is_not_handed_back_between_the_list_and_a_graph
+    tests/test_back_to_the_list.py::test_the_view_says_which_graph_it_is_opening_before_it_opens_it
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:89bce7f7c66604cc0f4f2ab59990ca82eb6c77df75f256e93b07c89a629adabb
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0066 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

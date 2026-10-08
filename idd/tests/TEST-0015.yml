@@ -1,0 +1,28 @@
+uid: TEST-0015
+type: test
+status: ratified
+title: 'Tests of SR-0019: Overshot items can be retrospectively ratified via a config-computed
+  route'
+text: The shipped pytest suite checks SR-0019 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0019
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_core.py::test_a_stamped_item_that_moved_on_stays_out_of_the_worklist
+    tests/test_core.py::test_overshot_item_is_blocked_with_computed_reratify_route
+    tests/test_core.py::test_reratify_records_signoff_and_restores_status
+    tests/test_core.py::test_reratify_refuses_when_the_config_offers_no_route
+    tests/test_prompt.py::test_a_stale_overshoot_is_not_told_it_was_never_ratified
+    tests/test_prompt.py::test_an_unsigned_overshoot_still_reads_as_a_missed_signature
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:6148d1a3650557c61adda76535d9536cfb29c03678676562535f9f1aecf75b27
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0019 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

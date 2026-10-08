@@ -1,0 +1,25 @@
+uid: TEST-0021
+type: test
+status: ratified
+title: 'Tests of SR-0025: A confirmation states the consequence it has actually computed'
+text: The shipped pytest suite checks SR-0025 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0025
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_core.py::test_preview_reject_excludes_dependents_that_cannot_become_suspect
+    tests/test_core.py::test_preview_reject_predicts_exactly_what_reject_does
+    tests/test_prompt.py::test_the_confirmation_says_only_the_name_when_there_is_no_identifier
+    tests/test_report.py::test_rejecting_records_the_reason_and_the_dependents_made_suspect
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:150b6096d56b5b93e5ee61afe7d67198f506780ce0ae878fa9cddcc174c723e5
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0025 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

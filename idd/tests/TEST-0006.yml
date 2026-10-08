@@ -1,0 +1,26 @@
+uid: TEST-0006
+type: test
+status: ratified
+title: 'Tests of SR-0008: A non-interactive --list mode prints the same worklist'
+text: The shipped pytest suite checks SR-0008 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0008
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_cli.py::test_list_all_includes_ratified
+    tests/test_cli.py::test_list_prints_pending
+    tests/test_cli.py::test_list_shows_progress
+    tests/test_cli.py::test_list_sort_roots
+    tests/test_cli.py::test_non_tty_without_list_is_error
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:788002aa998d1e64d1b99b0190765ec92e7e419db7cc261a348fbc48dfb00b7f
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0008 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

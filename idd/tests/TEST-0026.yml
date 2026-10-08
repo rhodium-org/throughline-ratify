@@ -1,0 +1,26 @@
+uid: TEST-0026
+type: test
+status: ratified
+title: 'Tests of SR-0031: The cockpit names the build it is, so a stale install cannot
+  pass for the current one'
+text: The shipped pytest suite checks SR-0031 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0031
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_prompt.py::test_a_narrow_header_keeps_the_version
+    tests/test_prompt.py::test_a_very_narrow_header_sheds_the_right_segment_before_the_version
+    tests/test_prompt.py::test_the_header_names_the_running_version
+    tests/test_prompt.py::test_the_header_version_is_the_imported_packages_own
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:9bc2acd61ebbbd7fd289f7113a05a2c72cf63a4df4a2387183910f882134575b
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0031 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

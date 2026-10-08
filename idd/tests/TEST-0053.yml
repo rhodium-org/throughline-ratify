@@ -1,0 +1,24 @@
+uid: TEST-0053
+type: test
+status: ratified
+title: 'Tests of SR-0070: A reload reopens the graph at the root it was opened from'
+text: The shipped pytest suite checks SR-0070 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0070
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_vanished_graph.py::test_a_graph_removed_from_inside_another_is_not_replaced_by_it
+    tests/test_vanished_graph.py::test_a_graph_that_still_opens_is_reloaded_as_before
+    tests/test_vanished_graph.py::test_a_reload_opens_the_root_it_was_opened_from
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:23eae7af0eace882b098fb0f1ae2f7c6805e9f8b60958a1e156256d147c7cad6
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0070 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

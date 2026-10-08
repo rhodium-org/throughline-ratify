@@ -1,0 +1,30 @@
+uid: TEST-0031
+type: test
+status: ratified
+title: 'Tests of SR-0045: Project resolution searches beneath the given path before
+  it searches above it'
+text: The shipped pytest suite checks SR-0045 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0045
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_core.py::test_open_session_finds_project_from_subdir
+    tests/test_project_selection.py::test_a_graph_named_directly_is_its_own_candidate
+    tests/test_project_selection.py::test_a_path_holding_two_graphs_is_the_reviewers_to_settle
+    tests/test_project_selection.py::test_a_path_naming_a_file_is_read_as_the_directory_holding_it
+    tests/test_project_selection.py::test_no_graph_anywhere_names_all_three_directions
+    tests/test_project_selection.py::test_nothing_beneath_still_walks_upward
+    tests/test_project_selection.py::test_one_graph_beneath_the_path_is_opened_without_asking
+    tests/test_project_selection.py::test_pointing_at_a_graph_settles_it
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:6f40786ec86d4a6d3009e6fd422c5678896f91a8ae40b2b42670cc3cbcc702b4
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0045 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

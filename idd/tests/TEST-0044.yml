@@ -1,0 +1,33 @@
+uid: TEST-0044
+type: test
+status: ratified
+title: 'Tests of SR-0061: Nothing is written over a graph that changed on disk since
+  the screen read it'
+text: The shipped pytest suite checks SR-0061 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0061
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_stale_screen.py::test_a_change_made_while_the_question_is_up_is_caught
+    tests/test_stale_screen.py::test_a_link_is_not_removed_over_a_changed_file
+    tests/test_stale_screen.py::test_a_new_item_appears_without_a_key
+    tests/test_stale_screen.py::test_a_rejection_over_a_changed_file_is_not_taken
+    tests/test_stale_screen.py::test_a_signature_over_a_changed_file_is_not_taken
+    tests/test_stale_screen.py::test_an_idle_cockpit_reloads_when_the_graph_changes_and_says_so
+    tests/test_stale_screen.py::test_an_idle_cockpit_with_nothing_changed_does_nothing
+    tests/test_stale_screen.py::test_the_cockpits_own_writes_are_not_mistaken_for_somebody_elses
+    tests/test_stale_screen.py::test_the_same_key_then_signs_the_wording_now_shown
+    tests/test_stale_screen.py::test_the_wait_is_bounded_only_between_keys_never_inside_a_question
+    tests/test_vanished_graph.py::test_a_key_that_writes_says_nothing_was_written
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:bebacec1f6153abb2d8632ee40b81fecf70505f2d40f4b257b615a63b1431162
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0061 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

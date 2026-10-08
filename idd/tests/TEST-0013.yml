@@ -1,0 +1,25 @@
+uid: TEST-0013
+type: test
+status: ratified
+title: 'Tests of SR-0016: Interrupting the cockpit with Ctrl-C exits cleanly, without
+  a traceback'
+text: The shipped pytest suite checks SR-0016 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0016
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_back_to_the_list.py::test_an_interrupt_at_the_curses_boundary_is_an_interrupt_too
+    tests/test_project_selection.py::test_a_terminal_too_short_for_the_list_still_draws
+    tests/test_project_selection.py::test_ctrl_c_at_the_picker_takes_no_decision
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:376b2fdeef618f378792d9be6cc8e030b32dfad532da817d9731faaae284e6a8
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0016 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

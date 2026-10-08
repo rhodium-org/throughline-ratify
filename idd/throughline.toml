@@ -55,7 +55,8 @@ root_types = ["intent", "non_goal"]
 # non-goal is negative space, so nothing derives from it and it is never flagged
 # unserved. It is passive: the tool never tries to detect items that 'violate' one.
 delivery_roots = ["intent"]
-ground_link_types = ["derives_from", "refines"]
+# verifies is how a test reaches a root: through the requirement it checks.
+ground_link_types = ["derives_from", "refines", "verifies"]
 ai_origins = ["ai", "hybrid"]
 
 [types.intent]
@@ -80,10 +81,22 @@ attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
 [types.system_requirement]
 attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
 
+# A test item names the automated tests that check one requirement (SR-0072). It
+# states no obligation of its own, so it is not normative and need not appear in
+# the published specification, which lists it against its requirement instead.
+[types.test]
+normative = false
+attrs.origin = { type = "enum", values = ["human", "ai", "hybrid"] }
+# One test per line, as the path of its file, two colons and the function's name.
+# Not normative, so adding or renaming a test does not disturb the signature on
+# the item: what was signed is that the requirement is checked, and the suite
+# itself checks that every name here is a test that exists (SR-0072).
+attrs.checks = { type = "text" }
+
 [links]
 # satisfies is the borrowed-clause link — one of our requirements tracks a clause
 # of the source's, and is the whole reason this graph composes anything at all.
-types = ["derives_from", "refines", "relates", "satisfies"]
+types = ["derives_from", "refines", "relates", "satisfies", "verifies"]
 
 [link_rules]
 derives_from = { from = ["user_requirement", "system_requirement"], to = ["intent", "user_requirement"] }
@@ -93,6 +106,7 @@ refines      = { from = ["system_requirement"], to = ["system_requirement"] }
 # through the source. What satisfies records is that the two are talking about the
 # same obligation, so a reader can go and read the other half of it.
 satisfies    = { from = ["system_requirement"], to = ["system_requirement", "user_requirement"] }
+verifies     = { from = ["test"], to = ["system_requirement", "user_requirement"] }
 
 [status]
 values = ["proposed", "draft", "approved", "ratified", "implemented",

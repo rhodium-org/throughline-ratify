@@ -1,0 +1,26 @@
+uid: TEST-0027
+type: test
+status: ratified
+title: 'Tests of SR-0033: A reload shows itself before it blocks, not after it returns'
+text: The shipped pytest suite checks SR-0033 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0033
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_reload_progress.py::test_a_failed_reload_does_not_leave_the_footer_claiming_work
+    tests/test_reload_progress.py::test_an_idle_cockpit_shows_no_notice
+    tests/test_reload_progress.py::test_the_notice_is_gone_once_the_reload_returns
+    tests/test_reload_progress.py::test_the_notice_is_on_screen_while_the_read_blocks
+    tests/test_reload_progress.py::test_the_notice_outranks_the_key_legend
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:4e7a2e194ef5ea6428ab5a4d5acbc3747fd07035163567c50cbb582a4eea3933
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0033 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

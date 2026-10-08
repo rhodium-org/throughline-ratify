@@ -1,0 +1,21 @@
+uid: TEST-0055
+type: test
+status: ratified
+title: 'Tests of UR-0004: Read the interface like htop, not a scrolling log'
+text: The shipped pytest suite checks UR-0004 with the test functions this item lists.
+normative: false
+links:
+- target: UR-0004
+  type: verifies
+attrs:
+  checks: tests/test_prompt.py::test_the_panel_grows_upward_one_line_at_a_time
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:2982198d994f4560206a51f57aaa4b37d03bf293259250749278141e3797113f
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks UR-0004 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

@@ -1,0 +1,30 @@
+uid: TEST-0038
+type: test
+status: ratified
+title: 'Tests of SR-0052: The reviewer can change the order the candidates are listed
+  in'
+text: The shipped pytest suite checks SR-0052 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0052
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_project_selection.py::test_a_file_with_no_timestamp_to_offer_is_passed_over
+    tests/test_project_selection.py::test_every_order_settles_ties_by_path
+    tests/test_project_selection.py::test_reordering_keeps_the_highlight_on_the_graph_it_was_on
+    tests/test_project_selection.py::test_s_cycles_the_order_and_names_the_one_in_force
+    tests/test_project_selection.py::test_sorting_by_outstanding_puts_the_most_unsigned_first
+    tests/test_project_selection.py::test_sorting_by_recency_puts_the_newest_first
+    tests/test_project_selection.py::test_sorting_leaves_the_list_it_was_given_alone
+    tests/test_project_selection.py::test_the_default_order_is_by_path
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:ac138f766b8ff0aa775335cb6c0b4dd9d2eb3921ad380bcaa2743d73337819dc
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0052 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

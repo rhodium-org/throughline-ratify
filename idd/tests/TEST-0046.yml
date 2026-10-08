@@ -1,0 +1,30 @@
+uid: TEST-0046
+type: test
+status: ratified
+title: 'Tests of SR-0063: Quitting a graph that was picked from the selection screen
+  returns to that screen'
+text: The shipped pytest suite checks SR-0063 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0063
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_back_to_the_list.py::test_a_graph_that_was_not_picked_still_quits
+    tests/test_back_to_the_list.py::test_a_picked_graph_names_the_quit_key_by_where_it_leads
+    tests/test_back_to_the_list.py::test_an_interrupt_in_a_picked_graph_ends_the_program
+    tests/test_back_to_the_list.py::test_quitting_a_picked_graph_shows_the_list_again
+    tests/test_back_to_the_list.py::test_the_cockpit_says_it_was_interrupted
+    tests/test_back_to_the_list.py::test_the_cockpit_says_it_was_left_with_the_quit_key
+    tests/test_back_to_the_list.py::test_the_legend_and_the_help_call_the_key_what_it_does
+    tests/test_back_to_the_list.py::test_the_same_graph_can_be_opened_twice
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:ee4aaacd44b69b13eb5b1e918e182b5aa14a8e9b816a3ec75ef74806bbcbc403
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0063 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

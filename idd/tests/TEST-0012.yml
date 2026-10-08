@@ -1,0 +1,22 @@
+uid: TEST-0012
+type: test
+status: ratified
+title: 'Tests of SR-0015: A composed link shows the target''s authoritative source
+  reference, not just its namespace'
+text: The shipped pytest suite checks SR-0015 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0015
+  type: verifies
+attrs:
+  checks: tests/test_core.py::test_links_carry_target_source_ref
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:a7bef2d01185c2d97e694448f603446bf030327eb37fd7bfc38c05f93f990a62
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0015 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

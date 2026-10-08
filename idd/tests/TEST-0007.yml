@@ -1,0 +1,24 @@
+uid: TEST-0007
+type: test
+status: ratified
+title: 'Tests of SR-0009: Opening a project that cannot be ratified against fails
+  with clear guidance, not a traceback'
+text: The shipped pytest suite checks SR-0009 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0009
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_cli.py::test_no_project_returns_error
+    tests/test_core.py::test_open_session_without_status_roles_errors_cleanly
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:676c7a03357df3009f53bc7c5ae71a3d8e55b3667a96aad222077f0d0593fa59
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0009 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

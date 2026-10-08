@@ -1,0 +1,28 @@
+uid: TEST-0047
+type: test
+status: ratified
+title: 'Tests of SR-0064: The selection screen comes back where the reviewer left
+  it, with its figures read again'
+text: The shipped pytest suite checks SR-0064 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0064
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_back_to_the_list.py::test_leaving_the_list_without_choosing_keeps_the_place
+    tests/test_back_to_the_list.py::test_showing_the_list_again_composes_nothing
+    tests/test_back_to_the_list.py::test_showing_the_list_again_does_not_search_again
+    tests/test_back_to_the_list.py::test_the_figure_is_read_again_each_time_the_list_is_shown
+    tests/test_back_to_the_list.py::test_the_highlight_comes_back_to_the_graph_just_closed
+    tests/test_back_to_the_list.py::test_the_order_the_reviewer_chose_is_kept
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:61ecd6295aa518718fa4c9a3d4915d68b01f1e6d5575b8fa803d12fae409967a
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0064 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

@@ -1,0 +1,26 @@
+uid: TEST-0008
+type: test
+status: ratified
+title: 'Tests of SR-0010: The summary shows ratification progress and marks ratified
+  items distinctly from ready ones'
+text: The shipped pytest suite checks SR-0010 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0010
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_cli.py::test_list_shows_progress
+    tests/test_core.py::test_progress_climbs_as_items_are_ratified
+    tests/test_core.py::test_ratification_progress_counts_whole_project
+    tests/test_core.py::test_ratified_items_get_their_own_concern
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:964998eafa024340deb8cdc76585d676cef63dcf78f20d78cecffd6e5b6baa75
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0010 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

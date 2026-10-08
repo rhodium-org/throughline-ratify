@@ -1,0 +1,26 @@
+uid: TEST-0028
+type: test
+status: ratified
+title: 'Tests of SR-0037: A rejection reports the dependents it could not flag'
+text: The shipped pytest suite checks SR-0037 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0037
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_core.py::test_preview_reject_is_read_only
+    tests/test_core.py::test_preview_reject_refuses_an_unknown_uid
+    tests/test_core.py::test_preview_reject_says_nothing_is_affected_when_nothing_is
+    tests/test_core.py::test_reject_does_not_report_an_already_dead_dependent_as_refused
+    tests/test_core.py::test_reject_names_the_dependents_it_could_not_flag
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:4be8deceef0066786b92f380d00d7b3e184c87017ea48e039c2630db93817926
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0037 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}
