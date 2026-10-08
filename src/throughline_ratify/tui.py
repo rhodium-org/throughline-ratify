@@ -228,19 +228,23 @@ class App:
     def reload_from_disk(self) -> None:
         """Re-read the graph, saying so while the read blocks (SR-0033).
 
-        ``open_session`` is synchronous and can take seconds — on a composed project
+        ``reopen`` is synchronous and can take seconds — on a composed project
         it resolves every source before it returns — and curses paints nothing on its
         own, so the only moment the cockpit can say it is working is *before* it
         starts. A flash set afterwards reports a reload that has already finished,
         which is why the wait used to look like a hang. Painted here it stands for
         the whole of the read, and the ``finally`` clears it even when the read
-        raises, so a failure never leaves the footer claiming work is under way."""
+        raises, so a failure never leaves the footer claiming work is under way.
+
+        A graph that can no longer be opened is not caught here. It leaves through
+        ``curses.wrapper``, which restores the terminal, and the caller says what
+        became of the graph where the line will still be read (SR-0067)."""
         self.busy = "reloading from disk…"
         self.flash = _Flash()
         was = self.current.uid if self.current else None
         try:
             self.draw()
-            self.session = core.open_session(self.session.root)
+            self.session = core.reopen(self.session)
             self.refresh_queue()
         finally:
             self.busy = ""

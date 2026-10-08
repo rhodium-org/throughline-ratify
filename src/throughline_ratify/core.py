@@ -83,6 +83,12 @@ class RatifierError(RuntimeError):
     """A user-facing failure the TUI should surface without a traceback."""
 
 
+class GraphLostError(RatifierError):
+    """The graph an open cockpit holds can no longer be opened (SR-0067). The
+    message is the one line the reviewer is shown: the graph's path and what
+    became of it."""
+
+
 # The attribute ``tl ratify`` stamps on an item to record who took accountability.
 # It is the durable proof an item was ratified: unlike the ``ratified`` *status*,
 # it survives the item advancing to ``implemented``/``verified``, so it — not the
@@ -634,6 +640,28 @@ def open_session(path: str | Path) -> Session:
 def open_root(root: Path) -> Session:
     """Open the graph rooted at ``root``, which is already decided."""
     return _open(root, compose=True)
+
+
+def reopen(session: Session) -> Session:
+    """Read again the graph ``session`` was opened on (SR-0067).
+
+    At the root it was opened from, and nowhere else. Resolving the path afresh
+    searches beneath it and then above it (SR-0045), and from the parent of a
+    directory that has gone, so a removed graph that sat beside or inside
+    another would be replaced on screen by one the reviewer never chose.
+
+    A graph that will not open raises :class:`GraphLostError`. The cockpit
+    writes from the copy it holds, and a copy of a graph that can no longer be
+    read is not one to sign from, so there is no staying up on the old one."""
+    root = session.root
+    try:
+        return open_root(root)
+    except RatifierError as exc:
+        if not (root / CONFIG_NAME).exists():
+            raise GraphLostError(f"{root}: the graph no longer exists") from exc
+        reason = _first_line(str(exc)).removeprefix(f"{root}: ")
+        raise GraphLostError(
+            f"{root}: the graph can no longer be read: {reason}") from exc
 
 
 def _open(root: Path, compose: bool) -> Session:

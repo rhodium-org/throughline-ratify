@@ -1062,6 +1062,19 @@ What the software must do to meet them.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:d0d16b40d61cbf926f4fe09fce0f44041d7f46f2273102796d58854030676658
 <!-- tl:end -->
 
+<!-- tl:item SR-0067 -->
+**SR-0067 — A graph that vanishes under an open cockpit ends the sitting with one line, not a traceback** — `system_requirement`, status `proposed`
+
+> When the cockpit reloads the graph it has open and that graph can no longer be opened, tl-ratify shall restore the terminal and then print one line on standard error that names the graph's path and says that the graph no longer exists, where its throughline.toml is gone, or otherwise that it can no longer be read and why. It shall then exit with a non-zero status and print no traceback. Decisions already taken in the sitting shall be reported as SR-0021 and SR-0065 require. A reload shall reopen the graph at the root it was opened from, and shall never open a different graph in its place.
+
+*Rationale:* Found on 8 October 2026: a git worktree was removed by another process while a cockpit was open on its graph. The idle reload (SR-0062) asked for the graph again, nothing between the reload and the edge of the program caught the refusal, and the reviewer was shown a Python traceback. The reload that precedes a write (SR-0061) takes the same path. The sitting ends because the cockpit writes from the copy of the graph it holds, and a copy of a graph that can no longer be read is what UR-0017 says must not be signed from. Staying up on the old copy was rejected for that reason. Returning to the selection screen was rejected because whatever removes one graph, a worktree or a checkout, usually removes its neighbours, and one behaviour is easier to rely on than two. The reload must reopen the same root because it used to resolve the path afresh, and that resolution searches beneath the path and then above it (SR-0045). When the directory is gone the search starts from its parent, so a removed graph that sat beside or inside another one would be replaced on screen by a graph the reviewer never chose. Test: open the cockpit on a graph with --summary, take one decision, remove the graph's directory and let the idle interval pass. The program exits non-zero, standard error holds one line that names the path and says the graph no longer exists, there is no traceback, and the account of the decision is still rendered. A second test removes a graph that sits inside another project and expects the same line, not the enclosing graph's worklist. A third breaks throughline.toml in place and expects the line to say the graph cannot be read, with the reason. Who pays: a reviewer whose graph is unreadable for a moment, for instance a file caught half-written, loses the screen and has to open it again. Decisions already taken are on disk and in the summary, so what is lost is the place in the list.
+
+*Derives from:* UR-0017
+*Relates:* SR-0062, SR-0061, SR-0065, SR-0016
+
+**origin**: ai
+<!-- tl:end -->
+
 <!-- tl:item SR-0068 -->
 **SR-0068 — The reviewer can reload the selection screen from disk** — `system_requirement`, status `ratified`
 
@@ -1113,7 +1126,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052, SR-0068, SR-0069 |
 | UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053, SR-0056 |
 | UR-0016 | Upgrading throughline does not cost me a new cockpit | SR-0057, SR-0058, SR-0059, SR-0060 |
-| UR-0017 | A screen left open does not sign wording I was not shown | SR-0061, SR-0062 |
+| UR-0017 | A screen left open does not sign wording I was not shown | SR-0061, SR-0062, SR-0067 |
 | UR-0018 | Leaving a graph takes me back to the list I picked it from | SR-0063, SR-0064, SR-0066 |
 <!-- tl:end -->
 
