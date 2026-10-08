@@ -280,6 +280,8 @@ class Candidate:
     gradable: int | None = None   # local items that can be signed off
     modified: float = 0.0         # newest mtime among its own item files
     error: str | None = None      # why it could not be read, if it could not
+    watched: tuple[Path, ...] | None = None  # its register folders, once read
+    seen: tuple = ()              # its files as they stood when it was read (SR-0069)
 
     @property
     def described(self) -> bool:
@@ -491,13 +493,45 @@ def describe_candidates(
             # benefit of a caller that has nothing else to locate the graph by is
             # only noise here.
             reason = _first_line(str(exc)).removeprefix(f"{candidate.root}: ")
-            described.append(replace(candidate, error=reason))
+            unread = replace(candidate, error=reason, watched=None)
+            described.append(replace(unread, seen=_candidate_state(unread)))
             continue
         ratified, gradable = ratification_progress(session)
-        described.append(replace(
-            candidate, ratified=ratified, gradable=gradable,
-            modified=_latest_change(session.project)))
+        read = replace(
+            candidate, ratified=ratified, gradable=gradable, error=None,
+            modified=_latest_change(session.project),
+            watched=tuple(sorted({r.path for r in session.project.registers.values()
+                                  if r.path is not None})))
+        described.append(replace(read, seen=_candidate_state(read)))
     return described
+
+
+def _candidate_state(candidate: Candidate) -> tuple:
+    """The candidate's own files as they stand now: its configuration, and every
+    item file and manifest in its register folders (SR-0069).
+
+    A graph that could not be read has no known registers, because reading it is
+    what failed, so every YAML file beneath it is watched instead. Nothing is
+    parsed here: the screen asks this of every candidate at each interval, and
+    loading forty graphs to learn that none has moved would be most of the cost
+    of the reload it is deciding whether to do."""
+    files = [candidate.root / CONFIG_NAME]
+    if candidate.watched is None:
+        try:
+            files.extend(sorted(candidate.root.rglob("*.yml")))
+        except OSError:
+            pass
+    else:
+        for folder in candidate.watched:
+            files.extend(sorted(folder.glob("*.yml")))
+            files.append(folder / ".register.yml")
+    return _files_state(files)
+
+
+def candidate_changed(candidate: Candidate) -> bool:
+    """True when the candidate's own files differ from what its row was read from
+    (SR-0069). A candidate not yet read has nothing to differ from."""
+    return candidate.described and _candidate_state(candidate) != candidate.seen
 
 
 def _first_line(message: str) -> str:
@@ -555,7 +589,6 @@ def disk_state(session: Session) -> tuple:
     that has no folder of its own, as a fetched source's may not, has no files to
     watch and is passed over. A file that vanishes between the listing and the stat
     simply drops out, and its absence is itself a difference from what was seen."""
-    state = []
     files = [session.root / CONFIG_NAME]
     seen_dirs: set[Path] = set()
     for project in (session.project, session.union):
@@ -565,6 +598,12 @@ def disk_state(session: Session) -> tuple:
             seen_dirs.add(register.path)
             files.extend(sorted(register.path.glob("*.yml")))
             files.append(register.path / ".register.yml")
+    return _files_state(files)
+
+
+def _files_state(files: list[Path]) -> tuple:
+    """Each of ``files`` that can be stat'd, with its size and modification time."""
+    state = []
     for f in files:
         try:
             st = f.stat()

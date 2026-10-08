@@ -1148,7 +1148,14 @@ class _Picker:
         curses.curs_set(0)
         while True:
             self.draw()
-            ch = self.scr.getch()
+            self.scr.timeout(IDLE_MS)
+            try:
+                ch = self.scr.getch()
+            finally:
+                self.scr.timeout(-1)
+            if ch == -1:               # no key: look at the disk, keep any note up
+                self.idle()
+                continue
             self.note = ""
             if ch in (curses.KEY_DOWN, ord("j")):
                 self.pos = max(0, min(self.pos + 1, len(self.candidates) - 1))
@@ -1178,6 +1185,24 @@ class _Picker:
         self.candidates = core.sort_candidates(self.candidates, self.sort)
         if held is not None:
             self.pos = self.candidates.index(held)
+
+    def idle(self) -> None:
+        """No key for a while: read again each listed graph whose files have
+        changed, and say so (SR-0069). Only those graphs are read, and without
+        the progress display: an agent writing items changes a graph every few
+        seconds, and a screen that blanked each time could not be read. The
+        search is not repeated, so a graph added since is found by R (SR-0068)."""
+        changed = {c.root for c in self.candidates if core.candidate_changed(c)}
+        if not changed:
+            return
+        held = self.candidates[self.pos].root
+        fresh = iter(core.describe_candidates(
+            [c for c in self.candidates if c.root in changed]))
+        self.candidates = core.sort_candidates(
+            [next(fresh) if c.root in changed else c for c in self.candidates],
+            self.sort)
+        self.pos = next(i for i, c in enumerate(self.candidates) if c.root == held)
+        self.note = "the list changed on disk and has been reloaded"
 
     def reload_from_disk(self) -> None:
         """Show the candidates as they now stand on disk (SR-0068), keeping the

@@ -1,0 +1,65 @@
+uid: SR-0069
+type: system_requirement
+status: ratified
+title: An idle selection screen reads a listed graph again when its files change,
+  and says so
+text: While it waits for a key, the selection screen shall look at the files of each
+  listed graph at the interval the worklist uses and, where a graph's configuration,
+  item files or register manifests differ from what its row was read from, read that
+  graph again and show its row as it now stands. It shall keep the order in force
+  and the highlight on the graph it was on, and shall say that the list has been
+  reloaded until the next key is pressed. Only the graphs whose files changed shall
+  be read again, and the progress display shall not be shown. A listed graph that
+  can no longer be read shall keep its row, which shall say why. The look shall read
+  file sizes and modification times alone and shall load no graph. The search beneath
+  the path shall not be repeated, no process shall be started and no declared source
+  shall be resolved. The screen shall do nothing when nothing has changed.
+rationale: |-
+  Asked for by the operator on 8 October 2026, the day SR-0068 gave the selection screen a reload key. The worklist already reloads by itself when its graph changes (SR-0062), and the operator asked for the list of graphs to do the same. The screen is left open while agents propose items into the graphs it lists, and a figure that is out of date sends the reviewer to the wrong graph.
+
+  Only the changed graphs are read, and without the progress display, because an agent writing items changes a graph every few seconds. Reading forty graphs and blanking the screen for each change would leave the reviewer unable to read the list. Reading one graph is quick enough that SR-0033 has nothing to announce.
+
+  The look reads sizes and times alone because it runs at every interval for every candidate. Loading each graph to learn that none had moved would cost as much as the reload it is deciding whether to do.
+
+  The search is not repeated because it starts a process to ask version control what it ignores, and walks the tree beneath the path, which is too much to do every two seconds for as long as the screen is open. A graph added beneath the path therefore appears when the reviewer presses R (SR-0068), or when the program is started again. The README says so.
+
+  A graph that has gone keeps its row with the reason, as SR-0051 requires of any candidate that cannot be read, so the reviewer sees that it went and does not wonder where the row is. R drops it.
+
+  Test: open the selection screen on a tree of two graphs, sign an item in one from outside, let the interval pass, and expect that row's figure to have gone up by one, the other row unchanged, and the screen to say the list was reloaded. Expect the unchanged graph not to have been read. Let the interval pass with nothing changed and expect nothing read and nothing said. Remove a listed graph and expect its row to stay and say why. Add a graph and expect no new row until R. Expect no search, no process and no resolved source in any of these.
+
+  Who pays: the machine stats every item file of every listed graph every two seconds while the screen is open. A reviewer who adds a graph still has to press R.
+normative: true
+links:
+- target: UR-0014
+  type: derives_from
+- target: SR-0062
+  type: relates
+- target: SR-0068
+  type: relates
+- target: SR-0050
+  type: relates
+- target: SR-0051
+  type: relates
+- target: SR-0048
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:0522d3697a0dfbe6e4027326f7b0dd8563b986c11963be7227d1c8595d523cbf
+  ratified_content:
+    type: system_requirement
+    text: While it waits for a key, the selection screen shall look at the files
+      of each listed graph at the interval the worklist uses and, where a graph's
+      configuration, item files or register manifests differ from what its row was
+      read from, read that graph again and show its row as it now stands. It shall
+      keep the order in force and the highlight on the graph it was on, and shall
+      say that the list has been reloaded until the next key is pressed. Only the
+      graphs whose files changed shall be read again, and the progress display shall
+      not be shown. A listed graph that can no longer be read shall keep its row,
+      which shall say why. The look shall read file sizes and modification times
+      alone and shall load no graph. The search beneath the path shall not be repeated,
+      no process shall be started and no declared source shall be resolved. The screen
+      shall do nothing when nothing has changed.
+    normative: true
+    derived: false
+    attrs: {}

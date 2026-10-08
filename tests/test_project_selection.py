@@ -311,6 +311,9 @@ class FakeScreen:
     def getch(self):
         return self.keys.pop(0)
 
+    def timeout(self, ms):
+        pass
+
     def noutrefresh(self):
         pass
 
