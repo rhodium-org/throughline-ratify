@@ -1166,7 +1166,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0075 -->
-**SR-0075 — The help screen scrolls, so every line of it can be read on any terminal the cockpit runs in** — `system_requirement`, status `proposed`
+**SR-0075 — The help screen scrolls, so every line of it can be read on any terminal the cockpit runs in** — `system_requirement`, status `ratified`
 
 > Where the help is longer than the screen is tall, the help screen shall open at the top and let the reviewer move through it a line at a time with the keys that move through the worklist, a screenful at a time with the page keys and the space bar, and to either end with the keys that jump to the ends of the worklist. Its last row shall say how to close it and how to scroll, and whether there is more above, below or both; where the screen is too narrow for all of that, how to close it shall be cut last. Where the whole help fits, the last row shall say only how to close it. The q key, Escape and the question mark shall close the help. Any other key shall leave it open and shall do nothing else. A change in the size of the terminal while the help is open shall leave every line reachable.
 
@@ -1175,7 +1175,7 @@ What the software must do to meet them.
 *Derives from:* UR-0004
 *Relates:* SR-0073, SR-0007
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:c7397df6f3bdfafe3366a78e50eec2609a0c12aebdd5e94cb29ea6f588834da3
 <!-- tl:end -->
 
 
