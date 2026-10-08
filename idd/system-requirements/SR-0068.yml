@@ -21,7 +21,7 @@ rationale: |-
 
   The search is repeated here although SR-0064 forbids repeating it when the screen comes back after a graph is closed. That rule spares the reviewer a wait they did not ask for. Here the reviewer has asked, and a graph added or removed since the program started is one of the things they may be asking about. SR-0064 gives starting the program again as the remedy for a changed set of graphs, and this key is that remedy without losing the order and the place.
 
-  The path that is no longer a directory is named because the search starts from the parent of a path that is not a directory, which would list graphs the reviewer never pointed at. SR-0067 records the same hazard for a graph that vanishes under an open worklist.
+  The path that is no longer a directory is named because the search starts from the parent of a path that is not a directory, which would list graphs the reviewer never pointed at. SR-0070 closes the same hazard for a graph that vanishes under an open worklist.
 
   Test: open the selection screen on a tree of two graphs, sign an item in one from outside, press R, and expect that row's figure to have gone up by one and the screen to say it was reloaded. Add a third graph, press R, and expect three rows with the highlight on the graph it was on. Remove the highlighted graph, press R, and expect it gone and the highlight still on a listed row. Remove the tree, press R, and expect an empty list on which Enter does nothing. Expect no declared source to be resolved by any of these.
 
@@ -38,7 +38,7 @@ links:
   type: relates
 - target: SR-0048
   type: relates
-- target: SR-0067
+- target: SR-0070
   type: relates
 attrs:
   origin: ai

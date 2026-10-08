@@ -1,0 +1,36 @@
+uid: SR-0071
+type: system_requirement
+status: proposed
+title: A graph that cannot be read keeps the cockpit up, and nothing is written until
+  it can be
+text: When the cockpit reloads the graph it has open and the graph's throughline.toml
+  is still there but the graph cannot be opened, the cockpit shall stay up, go on
+  showing the graph as it last read it, and say that the graph cannot be read and
+  why. While that is so it shall sign nothing, reject nothing and remove no link,
+  and shall say so when the reviewer asks for one of them. It shall try to read the
+  graph again at each interval while it waits for a key, and when the graph can be
+  read it shall reload it and say that it has reloaded.
+rationale: |-
+  Decided by the operator on 8 October 2026 in place of ending the sitting. The cockpit reloads whenever a file of the graph changes (SR-0062), which is exactly when the graph is most likely to be caught part-way through a change: an agent writing an item, a checkout in progress, or a declared source that cannot be reached for a moment. Ending the sitting for each of those would close the cockpit in the circumstances SR-0062 exists to serve.
+
+  Nothing is written because the cockpit writes from the copy of the graph it holds, and that copy is older than the files (UR-0017). SR-0061 already refuses a write while the files differ from what was read, and a graph that cannot be read leaves them differing, so the refusal holds for as long as the graph is unreadable.
+
+  The graph as last read stays on screen so the reviewer can go on reading while they wait. The message says it cannot be acted on.
+
+  Ending the sitting after a fixed number of failed attempts was rejected: a graph that stays broken is one the reviewer may be about to mend, and the quit key is there when they are not.
+
+  Test: open the cockpit, break throughline.toml in place and let the interval pass. The program is still running, the screen says the graph cannot be read and gives the reason, and standard error is empty. Press the key that signs and expect no file to change and the screen to say nothing was signed. Let further intervals pass and expect one attempt to read at each. Mend the file, let the interval pass, and expect the screen to say it has reloaded and the key that signs to work. A further test breaks one item file and expects the same.
+
+  Who pays: the machine reads the whole graph, and resolves its declared sources, every interval for as long as the graph is unreadable. A reviewer facing a graph that stays broken sees a cockpit they cannot act in until they leave it.
+normative: true
+links:
+- target: UR-0017
+  type: derives_from
+- target: SR-0062
+  type: relates
+- target: SR-0061
+  type: relates
+- target: SR-0067
+  type: relates
+attrs:
+  origin: ai

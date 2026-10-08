@@ -105,7 +105,7 @@ themselves remain the only source of truth.
 | `?` | help |
 | `q` | quit |
 
-The cockpit watches the graph's files while it is open. If something else changes them, it reloads by itself and says so, and it never signs, rejects or unlinks over a change it has not shown you: the action is refused, the graph is reloaded, and you repeat the key once you have read the item as it now stands. If the graph itself goes while the cockpit is open (its folder is removed, or it can no longer be read), the cockpit closes, prints one line naming the graph and what became of it, and exits with a non-zero status. Decisions you had already taken are on disk, and in the `--summary` if you asked for one.
+The cockpit watches the graph's files while it is open. If something else changes them, it reloads by itself and says so, and it never signs, rejects or unlinks over a change it has not shown you: the action is refused, the graph is reloaded, and you repeat the key once you have read the item as it now stands. If the graph cannot be read for a moment (a file caught half-written, a checkout in progress), the cockpit stays up, says why, signs nothing, and tries again every couple of seconds until it can. If the graph's folder is removed altogether, the cockpit closes it: you go back to the list of graphs if you picked it from one, and otherwise the program prints one line naming the graph and exits with a non-zero status. Either way it says so if a key you had just pressed wrote nothing. Decisions you had already taken are on disk, and in the `--summary` if you asked for one.
 
 ### A path that holds more than one graph
 

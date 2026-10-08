@@ -1,26 +1,32 @@
 uid: SR-0067
 type: system_requirement
 status: proposed
-title: A graph that vanishes under an open cockpit ends the sitting with one line,
-  not a traceback
-text: When the cockpit reloads the graph it has open and that graph can no longer
-  be opened, tl-ratify shall restore the terminal and then print one line on standard
-  error that names the graph's path and says that the graph no longer exists, where
-  its throughline.toml is gone, or otherwise that it can no longer be read and why.
-  It shall then exit with a non-zero status and print no traceback. Decisions already
-  taken in the sitting shall be reported as SR-0021 and SR-0065 require. A reload
-  shall reopen the graph at the root it was opened from, and shall never open a different
-  graph in its place.
+title: A graph that is gone from under an open cockpit ends the sitting with one
+  line, or returns the reviewer to the list
+text: When the cockpit reloads the graph it has open and that graph's throughline.toml
+  is gone, the cockpit shall close the graph and write nothing to it. Where the graph
+  was not picked from the selection screen, tl-ratify shall restore the terminal
+  and then print one line on standard error that names the graph's path and says
+  that the graph no longer exists, shall exit with a non-zero status, and shall print
+  no traceback. Where the graph was picked from the selection screen, tl-ratify shall
+  show that screen again, and the screen shall name the graph by its path relative
+  to the path the reviewer gave and say that it no longer exists, until the next
+  key is pressed. Where the reload came before a signature, a rejection or the removal
+  of a link, the line or the screen shall also say that nothing was signed, rejected
+  or removed. Decisions already taken in the sitting shall be reported as SR-0021
+  and SR-0065 require.
 rationale: |-
   Found on 8 October 2026: a git worktree was removed by another process while a cockpit was open on its graph. The idle reload (SR-0062) asked for the graph again, nothing between the reload and the edge of the program caught the refusal, and the reviewer was shown a Python traceback. The reload that precedes a write (SR-0061) takes the same path.
 
-  The sitting ends because the cockpit writes from the copy of the graph it holds, and a copy of a graph that can no longer be read is what UR-0017 says must not be signed from. Staying up on the old copy was rejected for that reason. Returning to the selection screen, where the graph was picked from one, was rejected so that a graph that cannot be opened ends the program however the reviewer met it. A picked graph that will not open already does (SR-0048), and a graph opened directly has no screen to return to, so going back would be a second behaviour for the same failure.
+  The graph is closed because the cockpit writes from the copy of the graph it holds, and there is no longer a graph to write to. A graph that is still there and cannot be read is a different case with a different answer (SR-0071).
 
-  The reload must reopen the same root because it used to resolve the path afresh, and that resolution searches beneath the path and then above it (SR-0045). When the directory is gone the search starts from its parent, so a removed graph that sat beside or inside another one would be replaced on screen by a graph the reviewer never chose.
+  A reviewer who picked the graph from the selection screen goes back to it because the other graphs are still theirs to open, which is what UR-0018 asks for, and because that screen copes with a listed graph that has gone: its row stays and says why (SR-0069), and the reload key drops it (SR-0068). Ending the program however the graph was opened was rejected: it matches what a picked graph that will not open does (SR-0048), but it costs the reviewer the sitting for the loss of one graph. A graph opened directly has no screen to return to, so the program ends, as the quit key does there (SR-0063).
 
-  Test: open the cockpit on a graph with --summary, take one decision, remove the graph's directory and let the idle interval pass. The program exits non-zero, standard error holds one line that names the path and says the graph no longer exists, there is no traceback, and the account of the decision is still rendered. A second test removes a graph that sits inside another project and expects the same line, not the enclosing graph's worklist. A third breaks throughline.toml in place and expects the line to say the graph cannot be read, with the reason.
+  Saying that nothing was written is for the reviewer who pressed a key and saw the screen change or the program end. Without it they cannot tell whether the signature was taken.
 
-  Who pays: a reviewer whose graph is unreadable for a moment, for instance a file caught half-written, loses the screen and has to open it again. Decisions already taken are on disk and in the summary, so what is lost is the place in the list.
+  Test: open the cockpit on a graph with --summary, take one decision, remove the graph's directory and let the idle interval pass. The program exits non-zero, standard error holds one line that names the path and says the graph no longer exists, there is no traceback, and the account of the decision is still rendered. A second test removes the directory and presses the key that signs, and expects the line to end by saying nothing was signed. A third picks a graph from the selection screen, removes it, lets the interval pass, and expects the selection screen with a note naming that graph, no line on standard error, and the other graph still openable.
+
+  Who pays: a reviewer who opened one graph directly loses the screen. A reviewer who came from the selection screen meets two behaviours for one failure, depending on how they arrived.
 normative: true
 links:
 - target: UR-0017
@@ -35,9 +41,17 @@ links:
   type: relates
 - target: SR-0021
   type: relates
-- target: SR-0045
-  type: relates
 - target: SR-0048
+  type: relates
+- target: SR-0063
+  type: relates
+- target: SR-0068
+  type: relates
+- target: SR-0069
+  type: relates
+- target: SR-0071
+  type: relates
+- target: UR-0018
   type: relates
 attrs:
   origin: ai

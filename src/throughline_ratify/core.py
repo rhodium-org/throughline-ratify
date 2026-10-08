@@ -84,9 +84,24 @@ class RatifierError(RuntimeError):
 
 
 class GraphLostError(RatifierError):
-    """The graph an open cockpit holds can no longer be opened (SR-0067). The
-    message is the one line the reviewer is shown: the graph's path and what
-    became of it."""
+    """The graph an open cockpit holds is gone: its configuration file no longer
+    exists (SR-0067). The message is the one line the reviewer is shown, naming
+    the graph's path. ``undone`` is what the reviewer had asked for when the
+    loss was found (``"signed"``, ``"rejected"``), or ``None`` when they had
+    asked for nothing; ``said`` is the message without the path, for a screen
+    that names the graph in its own way."""
+
+    def __init__(self, root: Path, undone: str | None = None) -> None:
+        self.root, self.undone = root, undone
+        self.said = "the graph no longer exists" + (
+            f"; nothing was {undone}" if undone else "")
+        super().__init__(f"{root}: {self.said}")
+
+
+class GraphUnreadableError(RatifierError):
+    """The graph an open cockpit holds is still there and cannot be read
+    (SR-0071). The message is the reason, without the graph's path: the cockpit
+    showing it already names the graph."""
 
 
 # The attribute ``tl ratify`` stamps on an item to record who took accountability.
@@ -650,18 +665,18 @@ def reopen(session: Session) -> Session:
     directory that has gone, so a removed graph that sat beside or inside
     another would be replaced on screen by one the reviewer never chose.
 
-    A graph that will not open raises :class:`GraphLostError`. The cockpit
-    writes from the copy it holds, and a copy of a graph that can no longer be
-    read is not one to sign from, so there is no staying up on the old one."""
+    A graph whose configuration file has gone raises :class:`GraphLostError`
+    (SR-0067). One that is still there and will not open raises
+    :class:`GraphUnreadableError` (SR-0071): a file caught half-written or a
+    source that cannot be reached for a moment is not a graph that has gone."""
     root = session.root
     try:
         return open_root(root)
     except RatifierError as exc:
         if not (root / CONFIG_NAME).exists():
-            raise GraphLostError(f"{root}: the graph no longer exists") from exc
-        reason = _first_line(str(exc)).removeprefix(f"{root}: ")
-        raise GraphLostError(
-            f"{root}: the graph can no longer be read: {reason}") from exc
+            raise GraphLostError(root) from exc
+        raise GraphUnreadableError(
+            _first_line(str(exc)).removeprefix(f"{root}: ")) from exc
 
 
 def _open(root: Path, compose: bool) -> Session:

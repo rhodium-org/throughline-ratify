@@ -1,0 +1,25 @@
+uid: SR-0070
+type: system_requirement
+status: proposed
+title: A reload reopens the graph at the root it was opened from
+text: When the cockpit reloads the graph it has open, it shall open the graph at
+  the root it was opened from. It shall not resolve the path again, and it shall
+  never show a different graph in place of the one the reviewer opened.
+rationale: |-
+  The reload used to resolve the path afresh, and that resolution searches beneath the path and then above it (SR-0045). When the graph's directory is gone the search starts from its parent, so a removed graph that sat beside or inside another one was replaced on screen by a graph the reviewer never chose. Its worklist looks like any other, and the reviewer would sign items in a graph they had not opened.
+
+  The root is fixed when the graph is opened because that is the moment the reviewer chose it, by pointing at it or by picking it from the selection screen.
+
+  Test: open the cockpit on a graph that sits inside another project, remove the inner graph's directory, let the idle interval pass, and expect the enclosing graph's worklist never to be shown. A second test replaces the path resolution with one that fails and expects a reload to succeed without calling it.
+
+  Who pays: nobody. A reviewer who wants the other graph opens it.
+normative: true
+links:
+- target: UR-0017
+  type: derives_from
+- target: SR-0045
+  type: relates
+- target: SR-0067
+  type: relates
+attrs:
+  origin: ai
