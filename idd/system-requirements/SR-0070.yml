@@ -1,6 +1,6 @@
 uid: SR-0070
 type: system_requirement
-status: proposed
+status: ratified
 title: A reload reopens the graph at the root it was opened from
 text: When the cockpit reloads the graph it has open, it shall open the graph at
   the root it was opened from. It shall not resolve the path again, and it shall
@@ -23,3 +23,13 @@ links:
   type: relates
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:c00e9ec47b5637eeaca02ff8490866427fbff4d0cdc6a099ea4c10893cbf56b5
+  ratified_content:
+    type: system_requirement
+    text: When the cockpit reloads the graph it has open, it shall open the graph
+      at the root it was opened from. It shall not resolve the path again, and it
+      shall never show a different graph in place of the one the reviewer opened.
+    normative: true
+    derived: false
+    attrs: {}

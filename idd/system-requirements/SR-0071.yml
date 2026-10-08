@@ -1,6 +1,6 @@
 uid: SR-0071
 type: system_requirement
-status: proposed
+status: ratified
 title: A graph that cannot be read keeps the cockpit up, and nothing is written until
   it can be
 text: When the cockpit reloads the graph it has open and the graph's throughline.toml
@@ -34,3 +34,17 @@ links:
   type: relates
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:3e5e0485746e1ed2c16d9892e949b63f46c1d18433d813e8a28fb28b7764f2fc
+  ratified_content:
+    type: system_requirement
+    text: When the cockpit reloads the graph it has open and the graph's throughline.toml
+      is still there but the graph cannot be opened, the cockpit shall stay up, go
+      on showing the graph as it last read it, and say that the graph cannot be read
+      and why. While that is so it shall sign nothing, reject nothing and remove
+      no link, and shall say so when the reviewer asks for one of them. It shall
+      try to read the graph again at each interval while it waits for a key, and
+      when the graph can be read it shall reload it and say that it has reloaded.
+    normative: true
+    derived: false
+    attrs: {}
