@@ -38,6 +38,8 @@ links:
   type: relates
 - target: SR-0048
   type: relates
+- target: SR-0067
+  type: relates
 attrs:
   origin: ai
   ratified_by: Henry Grech-Cini

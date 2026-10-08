@@ -14,7 +14,7 @@ text: When the cockpit reloads the graph it has open and that graph can no longe
 rationale: |-
   Found on 8 October 2026: a git worktree was removed by another process while a cockpit was open on its graph. The idle reload (SR-0062) asked for the graph again, nothing between the reload and the edge of the program caught the refusal, and the reviewer was shown a Python traceback. The reload that precedes a write (SR-0061) takes the same path.
 
-  The sitting ends because the cockpit writes from the copy of the graph it holds, and a copy of a graph that can no longer be read is what UR-0017 says must not be signed from. Staying up on the old copy was rejected for that reason. Returning to the selection screen was rejected because whatever removes one graph, a worktree or a checkout, usually removes its neighbours, and one behaviour is easier to rely on than two.
+  The sitting ends because the cockpit writes from the copy of the graph it holds, and a copy of a graph that can no longer be read is what UR-0017 says must not be signed from. Staying up on the old copy was rejected for that reason. Returning to the selection screen, where the graph was picked from one, was rejected so that a graph that cannot be opened ends the program however the reviewer met it. A picked graph that will not open already does (SR-0048), and a graph opened directly has no screen to return to, so going back would be a second behaviour for the same failure.
 
   The reload must reopen the same root because it used to resolve the path afresh, and that resolution searches beneath the path and then above it (SR-0045). When the directory is gone the search starts from its parent, so a removed graph that sat beside or inside another one would be replaced on screen by a graph the reviewer never chose.
 
@@ -32,6 +32,12 @@ links:
 - target: SR-0065
   type: relates
 - target: SR-0016
+  type: relates
+- target: SR-0021
+  type: relates
+- target: SR-0045
+  type: relates
+- target: SR-0048
   type: relates
 attrs:
   origin: ai
