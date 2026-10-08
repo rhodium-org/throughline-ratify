@@ -1140,7 +1140,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0073 -->
-**SR-0073 — The footer names its keys in the room there is, and never loses the help key or the quit key** — `system_requirement`, status `proposed`
+**SR-0073 — The footer names its keys in the room there is, and never loses the help key or the quit key** — `system_requirement`, status `ratified`
 
 > The footer of the worklist and of the detail pane shall name each key by a word where every key so named fits in the width of the screen. Where the words do not fit, it shall name every key by a single-cell symbol in place of its word, except the help key and the quit key, which shall keep their words. Where the symbols do not fit either, it shall leave keys out one at a time until the rest fit, in this order on the worklist: reload, filter, sort, the wide view, the detail pane; and on the detail pane, the removal of a link. It shall never leave out the help key, the quit key, the keys that move, or on the worklist the keys that sign and reject. A key left out of the footer shall still work. The help screen shall show each symbol beside the key it stands for.
 
@@ -1149,7 +1149,20 @@ What the software must do to meet them.
 *Derives from:* UR-0004
 *Relates:* SR-0063, SR-0007, SR-0062
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:f19ae5ecf117e1a96ea4d3814c74b8758856b3be063b963c4da1fd9eaae731d0
+<!-- tl:end -->
+
+<!-- tl:item SR-0074 -->
+**SR-0074 — Started in a directory that no longer exists, tl-ratify says so in one line** — `system_requirement`, status `ratified`
+
+> Where tl-ratify is given a relative path, or none, and the directory it was started in no longer exists, it shall print one line on standard error that names the path it was given, says that the directory it was started in no longer exists, and says to change to a directory that exists or to give an absolute path. It shall exit with a non-zero status and print no traceback, with or without --list. Where it is given an absolute path to a graph, it shall open that graph as it would from any other directory.
+
+*Rationale:* Found on 8 October 2026. A git worktree was removed while a shell was sitting inside it, and the next tl-ratify -C . in that shell ended in a traceback from the standard library's path resolution, which says nothing a reviewer can act on. SR-0067 covers a graph that goes from under an open cockpit. This is the same removal met one step later, by the shell that was left behind. It is refused where the path is resolved, because that is the first place the missing directory can be detected, and every way of starting the program passes through it. The line names the path given because a reviewer who typed a relative path may not see at once that the fault is where they are standing, not what they typed. An absolute path is still honoured because nothing is wrong with the graph it names. Test: make a directory, change into it, remove it, and run tl-ratify with no path, with -C ., with -C idd, and each with --list. Each exits non-zero with one line on standard error that says the directory no longer exists, and no traceback. Run it again from there with an absolute path to a graph and --list, and expect the worklist. Who pays: nobody. The reviewer sees one line where they saw a traceback.
+
+*Derives from:* UR-0001
+*Relates:* SR-0009, SR-0067
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:4d526e6b910ef0a0dc52edf2a1c618a1181f9547647a0084ea3a60190a5d77c0
 <!-- tl:end -->
 
 
@@ -1161,7 +1174,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 <!-- tl:matrix incoming:derives_from type == 'user_requirement' -->
 | UID | Title | Derives_from (incoming) |
 |---|---|---|
-| UR-0001 | See every item awaiting my ratification, most-actionable first | SR-0001, SR-0002, SR-0008, SR-0009, SR-0011, SR-0024, SR-0030 |
+| UR-0001 | See every item awaiting my ratification, most-actionable first | SR-0001, SR-0002, SR-0008, SR-0009, SR-0011, SR-0024, SR-0030, SR-0074 |
 | UR-0002 | Ratify or reject an item without leaving the full-screen view | SR-0003, SR-0004, SR-0005, SR-0012, SR-0013, SR-0014, SR-0022, SR-0023, SR-0025, SR-0026, SR-0027, SR-0028, SR-0029, SR-0037 |
 | UR-0003 | On a composed project, items grounded through a source are ratifiable | SR-0006 |
 | UR-0004 | Read the interface like htop, not a scrolling log | SR-0007, SR-0010, SR-0031, SR-0044, SR-0073 |
@@ -1266,4 +1279,5 @@ checked by a workflow or a document, or not at all.
 | SR-0071 | A graph that cannot be read keeps the cockpit up, and nothing is written until it can be | TEST-0054 |
 | SR-0072 | The graph names the automated tests that check each requirement, and the suite fails when a named test is missing | TEST-0058 |
 | SR-0073 | The footer names its keys in the room there is, and never loses the help key or the quit key | TEST-0062 |
+| SR-0074 | Started in a directory that no longer exists, tl-ratify says so in one line | TEST-0063 |
 <!-- tl:end -->

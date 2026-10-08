@@ -1,0 +1,26 @@
+uid: TEST-0063
+type: test
+status: ratified
+title: 'Tests of SR-0074: Started in a directory that no longer exists, tl-ratify
+  says so in one line'
+text: The shipped pytest suite checks SR-0074 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0074
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_started_nowhere.py::test_a_relative_path_fails_with_one_line_and_no_traceback
+    tests/test_started_nowhere.py::test_the_line_names_the_path_given_and_says_what_to_do
+    tests/test_started_nowhere.py::test_an_absolute_path_still_opens_from_there
+    tests/test_started_nowhere.py::test_the_refusal_is_raised_where_the_path_is_resolved
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:eeccc387567d2cd16b67d45614e7dae7ad77acbdcecd9424c2962daa6761d99c
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0074 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

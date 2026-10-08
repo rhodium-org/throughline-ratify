@@ -1,0 +1,47 @@
+uid: SR-0074
+type: system_requirement
+status: ratified
+title: Started in a directory that no longer exists, tl-ratify says so in one line
+text: Where tl-ratify is given a relative path, or none, and the directory it was
+  started in no longer exists, it shall print one line on standard error that names
+  the path it was given, says that the directory it was started in no longer exists,
+  and says to change to a directory that exists or to give an absolute path. It shall
+  exit with a non-zero status and print no traceback, with or without --list. Where
+  it is given an absolute path to a graph, it shall open that graph as it would from
+  any other directory.
+rationale: |-
+  Found on 8 October 2026. A git worktree was removed while a shell was sitting inside it, and the next tl-ratify -C . in that shell ended in a traceback from the standard library's path resolution, which says nothing a reviewer can act on. SR-0067 covers a graph that goes from under an open cockpit. This is the same removal met one step later, by the shell that was left behind.
+
+  It is refused where the path is resolved, because that is the first place the missing directory can be detected, and every way of starting the program passes through it.
+
+  The line names the path given because a reviewer who typed a relative path may not see at once that the fault is where they are standing, not what they typed.
+
+  An absolute path is still honoured because nothing is wrong with the graph it names.
+
+  Test: make a directory, change into it, remove it, and run tl-ratify with no path, with -C ., with -C idd, and each with --list. Each exits non-zero with one line on standard error that says the directory no longer exists, and no traceback. Run it again from there with an absolute path to a graph and --list, and expect the worklist.
+
+  Who pays: nobody. The reviewer sees one line where they saw a traceback.
+normative: true
+links:
+- target: UR-0001
+  type: derives_from
+- target: SR-0009
+  type: relates
+- target: SR-0067
+  type: relates
+attrs:
+  origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:4d526e6b910ef0a0dc52edf2a1c618a1181f9547647a0084ea3a60190a5d77c0
+  ratified_content:
+    type: system_requirement
+    text: Where tl-ratify is given a relative path, or none, and the directory it
+      was started in no longer exists, it shall print one line on standard error
+      that names the path it was given, says that the directory it was started in
+      no longer exists, and says to change to a directory that exists or to give
+      an absolute path. It shall exit with a non-zero status and print no traceback,
+      with or without --list. Where it is given an absolute path to a graph, it shall
+      open that graph as it would from any other directory.
+    normative: true
+    derived: false
+    attrs: {}

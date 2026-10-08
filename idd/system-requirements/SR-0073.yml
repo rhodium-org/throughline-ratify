@@ -1,6 +1,6 @@
 uid: SR-0073
 type: system_requirement
-status: proposed
+status: ratified
 title: The footer names its keys in the room there is, and never loses the help key
   or the quit key
 text: 'The footer of the worklist and of the detail pane shall name each key by a
@@ -41,3 +41,21 @@ links:
   type: relates
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:f19ae5ecf117e1a96ea4d3814c74b8758856b3be063b963c4da1fd9eaae731d0
+  ratified_content:
+    type: system_requirement
+    text: 'The footer of the worklist and of the detail pane shall name each key
+      by a word where every key so named fits in the width of the screen. Where the
+      words do not fit, it shall name every key by a single-cell symbol in place
+      of its word, except the help key and the quit key, which shall keep their words.
+      Where the symbols do not fit either, it shall leave keys out one at a time
+      until the rest fit, in this order on the worklist: reload, filter, sort, the
+      wide view, the detail pane; and on the detail pane, the removal of a link.
+      It shall never leave out the help key, the quit key, the keys that move, or
+      on the worklist the keys that sign and reject. A key left out of the footer
+      shall still work. The help screen shall show each symbol beside the key it
+      stands for.'
+    normative: true
+    derived: false
+    attrs: {}
