@@ -1,0 +1,17 @@
+uid: TEST-0018
+type: test
+status: proposed
+title: 'Tests of SR-0022: Ratification is recorded through throughline''s own ratify,
+  never a copy of it'
+text: The shipped pytest suite checks SR-0022 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0022
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_change_pane.py::test_an_unknown_uid_resolves_to_nothing
+    tests/test_change_pane.py::test_the_difference_is_resolved_by_throughline_and_memoised
+    tests/test_core.py::test_ratifying_binds_the_signature_to_the_content_signed
+    tests/test_core.py::test_reratify_surfaces_throughlines_own_refusal_and_leaves_the_item_alone
+  origin: ai

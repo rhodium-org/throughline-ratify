@@ -1,0 +1,18 @@
+uid: TEST-0037
+type: test
+status: proposed
+title: 'Tests of SR-0051: Reading the candidates is visible, and one bad graph does
+  not withhold the rest'
+text: The shipped pytest suite checks SR-0051 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0051
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_project_selection.py::test_a_graph_that_cannot_be_read_says_so_and_stays_selectable
+    tests/test_project_selection.py::test_a_graph_that_could_not_be_read_does_not_crowd_out_the_work
+    tests/test_project_selection.py::test_choosing_the_broken_graph_fails_with_its_reason
+    tests/test_project_selection.py::test_reading_reports_its_progress_over_every_candidate
+    tests/test_project_selection.py::test_the_progress_screen_names_the_graph_it_is_reading
+  origin: ai

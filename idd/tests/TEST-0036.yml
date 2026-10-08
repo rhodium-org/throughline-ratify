@@ -1,0 +1,15 @@
+uid: TEST-0036
+type: test
+status: proposed
+title: 'Tests of SR-0050: Each candidate shows how far it has been signed off'
+text: The shipped pytest suite checks SR-0050 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0050
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_project_selection.py::test_a_row_says_how_far_its_graph_has_been_signed_off
+    tests/test_project_selection.py::test_an_undescribed_candidate_still_lists
+    tests/test_project_selection.py::test_the_figure_on_the_row_is_the_one_the_cockpit_shows
+  origin: ai

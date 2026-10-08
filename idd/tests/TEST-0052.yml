@@ -1,0 +1,24 @@
+uid: TEST-0052
+type: test
+status: proposed
+title: 'Tests of SR-0069: An idle selection screen reads a listed graph again when
+  its files change, and says so'
+text: The shipped pytest suite checks SR-0069 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0069
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_back_to_the_list.py::test_a_change_is_read_once_not_at_every_interval
+    tests/test_back_to_the_list.py::test_a_graph_that_could_not_be_read_is_read_again_once_mended
+    tests/test_back_to_the_list.py::test_a_listed_graph_that_has_gone_keeps_its_row_and_says_why
+    tests/test_back_to_the_list.py::test_an_idle_list_does_not_search_or_compose
+    tests/test_back_to_the_list.py::test_an_idle_list_does_nothing_when_nothing_has_changed
+    tests/test_back_to_the_list.py::test_an_idle_list_reads_a_changed_graph_again_and_says_so
+    tests/test_back_to_the_list.py::test_an_idle_reload_keeps_the_highlight_when_the_order_moves
+    tests/test_back_to_the_list.py::test_looking_at_the_disk_loads_no_graph
+    tests/test_back_to_the_list.py::test_only_the_changed_graph_is_read_and_no_progress_is_shown
+    tests/test_back_to_the_list.py::test_the_note_stays_up_while_idle_and_goes_at_the_next_key
+    tests/test_back_to_the_list.py::test_the_wait_for_a_key_on_the_list_is_bounded_and_then_cleared
+  origin: ai

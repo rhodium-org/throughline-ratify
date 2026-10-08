@@ -1,0 +1,18 @@
+uid: TEST-0030
+type: test
+status: proposed
+title: 'Tests of SR-0044: An item''s paragraph breaks survive into the detail pane'
+text: The shipped pytest suite checks SR-0044 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0044
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_detail_pane.py::test_a_blank_line_separates_paragraphs_however_it_is_written
+    tests/test_detail_pane.py::test_a_field_with_no_blank_line_is_one_paragraph
+    tests/test_detail_pane.py::test_a_single_paragraph_field_gains_no_blank_line
+    tests/test_detail_pane.py::test_an_empty_field_is_still_one_paragraph_to_draw
+    tests/test_detail_pane.py::test_an_expanded_link_target_keeps_them_too
+    tests/test_detail_pane.py::test_text_and_rationale_keep_their_paragraph_breaks
+  origin: ai

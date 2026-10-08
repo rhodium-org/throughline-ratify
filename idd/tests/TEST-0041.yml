@@ -1,0 +1,24 @@
+uid: TEST-0041
+type: test
+status: proposed
+title: 'Tests of SR-0056: A changed prose field is shown as a diff in the pane, with
+  the words that moved marked'
+text: The shipped pytest suite checks SR-0056 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0056
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_change_pane.py::test_a_changed_paragraph_is_shown_sentence_by_sentence
+    tests/test_change_pane.py::test_a_plainly_painted_line_is_drawn_whole
+    tests/test_change_pane.py::test_a_span_painted_line_is_drawn_piece_by_piece_in_place
+    tests/test_change_pane.py::test_a_token_field_is_shown_as_was_and_now
+    tests/test_change_pane.py::test_an_absent_value_reads_as_unset_not_as_none
+    tests/test_change_pane.py::test_content_resolved_from_history_still_names_the_revision
+    tests/test_change_pane.py::test_nothing_is_shown_for_an_item_whose_signature_still_stands
+    tests/test_change_pane.py::test_removed_is_red_added_is_green_and_the_moved_words_are_marked
+    tests/test_change_pane.py::test_the_change_is_shown_above_the_wording_it_no_longer_covers
+    tests/test_change_pane.py::test_the_diff_is_wrapped_to_the_pane
+    tests/test_change_pane.py::test_the_revision_the_signed_content_came_from_is_named
+  origin: ai

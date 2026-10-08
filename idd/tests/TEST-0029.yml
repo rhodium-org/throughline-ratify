@@ -1,0 +1,17 @@
+uid: TEST-0029
+type: test
+status: proposed
+title: 'Tests of SR-0039: The decisions the cockpit offers are importable without
+  a terminal'
+text: The shipped pytest suite checks SR-0039 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0039
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_no_terminal.py::test_core_is_usable_with_no_curses_and_no_subprocess
+    tests/test_no_terminal.py::test_the_full_screen_view_is_the_only_thing_that_needs_a_terminal
+    tests/test_project_selection.py::test_describing_the_candidates_runs_no_process
+    tests/test_project_selection.py::test_nothing_to_ask_about_starts_no_process
+  origin: ai

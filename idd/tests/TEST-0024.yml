@@ -1,0 +1,21 @@
+uid: TEST-0024
+type: test
+status: proposed
+title: 'Tests of SR-0028: The cockpit accepts --by-id, and records everything a CLI
+  ratification would'
+text: The shipped pytest suite checks SR-0028 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0028
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_cli.py::test_a_malformed_by_id_is_refused_before_the_view_opens
+    tests/test_cli.py::test_a_well_formed_by_id_reaches_the_sitting
+    tests/test_cli.py::test_no_by_id_stays_none_all_the_way_through
+    tests/test_core.py::test_a_malformed_identifier_is_refused_in_throughlines_words
+    tests/test_core.py::test_a_stable_identifier_is_recorded_beside_the_name
+    tests/test_core.py::test_an_absent_identifier_stays_absent
+    tests/test_prompt.py::test_the_confirmation_says_only_the_name_when_there_is_no_identifier
+    tests/test_prompt.py::test_the_confirmation_shows_every_part_of_the_record
+  origin: ai

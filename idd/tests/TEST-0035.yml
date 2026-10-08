@@ -1,0 +1,17 @@
+uid: TEST-0035
+type: test
+status: proposed
+title: 'Tests of SR-0049: The selection screen can reach every candidate it found'
+text: The shipped pytest suite checks SR-0049 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0049
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_project_selection.py::test_nothing_is_indicated_when_the_whole_list_is_on_screen
+    tests/test_project_selection.py::test_scrolling_back_up_reaches_the_first_candidate_again
+    tests/test_project_selection.py::test_the_highlight_is_never_on_a_row_the_screen_is_not_drawing
+    tests/test_project_selection.py::test_the_last_candidate_can_be_reached_on_a_screen_that_does_not_hold_the_list
+    tests/test_project_selection.py::test_the_screen_says_the_list_runs_on_above_and_below
+  origin: ai

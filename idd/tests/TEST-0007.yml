@@ -1,0 +1,15 @@
+uid: TEST-0007
+type: test
+status: proposed
+title: 'Tests of SR-0009: Opening a project that cannot be ratified against fails
+  with clear guidance, not a traceback'
+text: The shipped pytest suite checks SR-0009 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0009
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_cli.py::test_no_project_returns_error
+    tests/test_core.py::test_open_session_without_status_roles_errors_cleanly
+  origin: ai

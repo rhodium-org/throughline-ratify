@@ -1,0 +1,33 @@
+uid: TEST-0025
+type: test
+status: proposed
+title: 'Tests of SR-0030: A ratification the content has outgrown returns to the
+  worklist as its own concern'
+text: The shipped pytest suite checks SR-0030 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0030
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_change_pane.py::test_a_stale_row_the_library_reports_settled_renders_no_block
+    tests/test_change_pane.py::test_an_unknown_uid_resolves_to_nothing
+    tests/test_change_pane.py::test_the_difference_is_resolved_by_throughline_and_memoised
+    tests/test_cli.py::test_list_marks_a_stale_item_as_stale_not_as_ratify_ready
+    tests/test_core.py::test_a_dead_item_is_dead_whatever_its_stamp_says
+    tests/test_core.py::test_a_ratified_item_whose_content_has_not_changed_is_refused
+    tests/test_core.py::test_a_signature_written_before_fingerprints_existed_is_not_stale
+    tests/test_core.py::test_a_stale_item_counts_as_outstanding_not_as_ratified
+    tests/test_core.py::test_a_stale_item_that_also_overshot_is_signed_where_it_stands
+    tests/test_core.py::test_a_stale_signature_returns_the_item_to_the_worklist
+    tests/test_core.py::test_an_unbound_signature_can_be_bound_without_changing_anything_else
+    tests/test_core.py::test_re_signing_a_stale_item_rebinds_it_and_clears_the_concern
+    tests/test_core.py::test_re_signing_a_stale_overshoot_restores_its_status
+    tests/test_core.py::test_reratifying_binds_the_signature_too_and_the_walk_does_not_stale_it
+    tests/test_core.py::test_stale_sorts_below_the_unsigned_backlog_but_above_what_must_be_fixed
+    tests/test_core.py::test_staleness_is_judged_by_throughlines_own_fingerprint
+    tests/test_core.py::test_the_stale_rows_are_exactly_what_throughline_calls_ratified_stale
+    tests/test_prompt.py::test_a_stale_item_is_never_offered_as_though_nobody_had_signed_it
+    tests/test_prompt.py::test_a_stale_overshoot_is_not_told_it_was_never_ratified
+    tests/test_report.py::test_a_re_signature_is_not_reported_as_a_missing_one
+  origin: ai

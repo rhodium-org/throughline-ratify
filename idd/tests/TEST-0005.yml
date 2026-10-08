@@ -1,0 +1,13 @@
+uid: TEST-0005
+type: test
+status: proposed
+title: 'Tests of SR-0005: Status changes are config-driven; no status literal is
+  hardcoded'
+text: The shipped pytest suite checks SR-0005 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0005
+  type: verifies
+attrs:
+  checks: tests/test_core.py::test_dead_items_get_role_derived_concern_and_are_not_actionable
+  origin: ai

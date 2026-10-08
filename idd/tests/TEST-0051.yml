@@ -1,0 +1,24 @@
+uid: TEST-0051
+type: test
+status: proposed
+title: 'Tests of SR-0068: The reviewer can reload the selection screen from disk'
+text: The shipped pytest suite checks SR-0068 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0068
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_back_to_the_list.py::test_a_path_that_has_gone_is_not_searched_from_its_parent
+    tests/test_back_to_the_list.py::test_a_reload_composes_nothing
+    tests/test_back_to_the_list.py::test_a_reload_drops_a_graph_that_has_gone
+    tests/test_back_to_the_list.py::test_a_reload_finds_a_graph_added_since_the_program_started
+    tests/test_back_to_the_list.py::test_a_reload_keeps_the_order_in_force
+    tests/test_back_to_the_list.py::test_a_reload_reads_the_figures_again
+    tests/test_back_to_the_list.py::test_a_reload_says_so_until_the_next_key
+    tests/test_back_to_the_list.py::test_a_reload_that_finds_nothing_leaves_an_empty_list_that_opens_nothing
+    tests/test_back_to_the_list.py::test_the_footer_of_the_list_names_the_key
+    tests/test_back_to_the_list.py::test_the_program_hands_the_list_the_search_beneath_the_path_given
+    tests/test_back_to_the_list.py::test_the_small_letter_does_not_reload
+    tests/test_back_to_the_list.py::test_without_a_reload_the_figure_stays_as_first_read
+  origin: ai

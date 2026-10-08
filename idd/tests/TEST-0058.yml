@@ -1,0 +1,25 @@
+uid: TEST-0058
+type: test
+status: proposed
+title: 'Tests of SR-0072: The graph names the automated tests that check each requirement,
+  and the suite fails when a named test is missing'
+text: The shipped pytest suite checks SR-0072 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0072
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_graph_names_its_tests.py::test_a_graph_that_agrees_with_its_suite_has_nothing_to_report
+    tests/test_graph_names_its_tests.py::test_a_renamed_test_is_reported_against_the_item_that_names_it
+    tests/test_graph_names_its_tests.py::test_a_new_test_that_no_item_names_is_reported
+    tests/test_graph_names_its_tests.py::test_a_test_listed_as_checking_no_requirement_here_is_not_reported
+    tests/test_graph_names_its_tests.py::test_an_item_whose_requirement_was_rejected_is_reported
+    tests/test_graph_names_its_tests.py::test_an_item_whose_requirement_is_not_in_the_graph_is_reported
+    tests/test_graph_names_its_tests.py::test_an_item_that_names_no_test_is_reported
+    tests/test_graph_names_its_tests.py::test_a_dead_item_claims_nothing_and_is_asked_nothing
+    tests/test_graph_names_its_tests.py::test_every_test_the_graph_names_exists
+    tests/test_graph_names_its_tests.py::test_every_test_item_verifies_a_live_requirement_and_names_a_test
+    tests/test_graph_names_its_tests.py::test_every_test_in_the_suite_is_named_by_an_item
+    tests/test_graph_names_its_tests.py::test_the_tests_listed_as_checking_no_requirement_here_all_exist
+  origin: ai

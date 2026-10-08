@@ -1,0 +1,19 @@
+uid: TEST-0009
+type: test
+status: proposed
+title: 'Tests of SR-0011: The worklist can be ordered by grounding depth, roots-first
+  or leaves-first'
+text: The shipped pytest suite checks SR-0011 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0011
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_cli.py::test_list_rejects_bad_sort
+    tests/test_cli.py::test_list_sort_roots
+    tests/test_core.py::test_build_queue_rejects_unknown_sort
+    tests/test_core.py::test_grounding_depth_on_rows
+    tests/test_core.py::test_sort_leaves_orders_deepest_first
+    tests/test_core.py::test_sort_roots_orders_shallowest_first
+  origin: ai

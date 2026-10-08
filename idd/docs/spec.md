@@ -1127,6 +1127,18 @@ What the software must do to meet them.
 **origin**: ai
 <!-- tl:end -->
 
+<!-- tl:item SR-0072 -->
+**SR-0072 — The graph names the automated tests that check each requirement, and the suite fails when a named test is missing** — `system_requirement`, status `proposed`
+
+> For each requirement that the shipped pytest suite checks, this project's graph shall hold a test item that verifies the requirement and names each test function that checks it, by the path of its file and the name of the function. The names shall be held in an attribute of the test item that is not part of the content a signature covers. The suite shall fail when a test item names a function that does not exist, when a live test item verifies no live requirement or names no function, and when a test function in the suite is named by no live test item and is not listed in the suite as checking no requirement of this project. A requirement that is checked by other means, such as a workflow or a document, shall have no test item.
+
+*Rationale:* Decided by the operator on 8 October 2026 after a challenge pass found that nothing in the graph said how any requirement was verified. The tests existed and cited requirements in docstrings and comments, but unevenly: about half the requirements were cited by no test although tests for most of them were in the suite. A reader of the graph, or a tool reading it, could not tell a requirement with twenty tests from one with none. A test item per requirement, not per test function, because the question the graph has to answer is whether a requirement is checked and where to look. The suite has over three hundred functions, and an item for each would be a second copy of the suite that a reviewer is asked to sign. The suite checks the names because a list of test names kept by hand goes stale the first time a test is renamed. Failing on a test that no item names is what keeps a new test from being added without saying which requirement it is for. The list of tests that check no requirement of this project is there for tests of an upstream clause this graph does not restate, and it is kept in the suite where a reviewer of the change sees it. Requirements checked by a workflow or a document have no test item because a test item claiming a pytest function for them would be false. They read as having no automated test, which is true of this suite. Test: rename a function a test item names and expect the suite to fail naming the item. Add a test function without adding it to an item and expect the suite to fail naming the function. Point a test item at a deleted requirement and expect the suite to fail naming the item. The names sit outside the signed content because what a reviewer signs is the claim that the requirement is checked by the suite. Were the list signed, every new or renamed test would make an item stale and ask for a signature on a line the suite has already checked. Who pays: whoever adds or renames a test edits a test item in the same change. A reviewer signs a test item once, and its list of names can then change without them.
+
+*Derives from:* UR-0008
+
+**origin**: ai
+<!-- tl:end -->
+
 
 ## Traceability
 
@@ -1143,7 +1155,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0005 | Leave a ratification session with a written record of what I decided | SR-0021, SR-0065 |
 | UR-0006 | A contribution states the terms under which it is offered | — |
 | UR-0007 | Know that a reload is running, not that the tool has hung | SR-0033 |
-| UR-0008 | A newcomer can set up, check and offer a change without asking | SR-0034, SR-0038 |
+| UR-0008 | A newcomer can set up, check and offer a change without asking | SR-0034, SR-0038, SR-0072 |
 | UR-0009 | A vulnerability can be reported without first disclosing it | SR-0035 |
 | UR-0010 | What is expected of participants, and where a breach is taken | SR-0036 |
 | UR-0011 | The published distribution passes the suite it ships | SR-0040, SR-0041, SR-0055 |
@@ -1156,3 +1168,88 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0018 | Leaving a graph takes me back to the list I picked it from | SR-0063, SR-0064, SR-0066 |
 <!-- tl:end -->
 
+
+## Verification
+
+Every system requirement and the test items that verify it. A test item names
+the functions in the shipped pytest suite that check its requirement, and the
+suite fails when a name it lists is not a test that exists (SR-0072). A row with
+an empty right-hand column is a requirement this suite does not check: it is
+checked by a workflow or a document, or not at all.
+
+<!-- tl:matrix incoming:verifies type == 'system_requirement' -->
+| UID | Title | Verifies (incoming) |
+|---|---|---|
+| SR-0001 | Queue lists local items that are neither ratified nor in a dead status | TEST-0001 |
+| SR-0002 | Each queued item carries a semantic concern driving colour and sort order | TEST-0002 |
+| SR-0003 | Ratify runs throughline's grounding gate then writes only the consumer register | TEST-0003 |
+| SR-0004 | Reject invalidates via throughline and cascades suspect to dependents | TEST-0004 |
+| SR-0005 | Status changes are config-driven; no status literal is hardcoded | TEST-0005 |
+| SR-0006 | Grounding is evaluated over the composed union when sources are declared | — |
+| SR-0007 | A full-screen curses cockpit with header, summary, list, detail and footer | — |
+| SR-0008 | A non-interactive --list mode prints the same worklist | TEST-0006 |
+| SR-0009 | Opening a project that cannot be ratified against fails with clear guidance, not a traceback | TEST-0007 |
+| SR-0010 | The summary shows ratification progress and marks ratified items distinctly from ready ones | TEST-0008 |
+| SR-0011 | The worklist can be ordered by grounding depth, roots-first or leaves-first | TEST-0009 |
+| SR-0012 | The detail pane resolves each link to its referenced title and content, including items from composed sources | TEST-0010 |
+| SR-0013 | The detail pane is focusable and its links can be navigated and expanded to read referenced content | — |
+| SR-0014 | A link can be removed from a local item in the cockpit, refused when removal would leave the item ungrounded | TEST-0011 |
+| SR-0015 | A composed link shows the target's authoritative source reference, not just its namespace | TEST-0012 |
+| SR-0016 | Interrupting the cockpit with Ctrl-C exits cleanly, without a traceback | TEST-0013 |
+| SR-0017 | The release workflow publishes to PyPI on a GitHub Release using supported, non-deprecated action runtimes | — |
+| SR-0018 | An item ratified then advanced beyond the ratified status is still treated as signed off | TEST-0014 |
+| SR-0019 | Overshot items can be retrospectively ratified via a config-computed route | TEST-0015 |
+| SR-0020 | Dead items stay visible under the wide (show-all) view | TEST-0016 |
+| SR-0021 | A session summary of every decision taken, ready to paste into a commit | TEST-0017 |
+| SR-0022 | Ratification is recorded through throughline's own ratify, never a copy of it | TEST-0018 |
+| SR-0023 | Text being typed at the prompt stays visible as it grows | TEST-0019 |
+| SR-0024 | An item made suspect returns to the worklist | TEST-0020 |
+| SR-0025 | A confirmation states the consequence it has actually computed | TEST-0021 |
+| SR-0026 | The assistant holds no configuration of its own | TEST-0022 |
+| SR-0027 | The ratifier the cockpit offers is throughline's, not a copy of it | TEST-0023 |
+| SR-0028 | The cockpit accepts --by-id, and records everything a CLI ratification would | TEST-0024 |
+| SR-0029 | This graph composes throughline's own, so a clause it depends on is a reference, not a quotation | — |
+| SR-0030 | A ratification the content has outgrown returns to the worklist as its own concern | TEST-0025 |
+| SR-0031 | The cockpit names the build it is, so a stale install cannot pass for the current one | TEST-0026 |
+| SR-0032 | An unsigned commit fails the build, and the failure carries its own remedy | — |
+| SR-0033 | A reload shows itself before it blocks, not after it returns | TEST-0027 |
+| SR-0034 | CONTRIBUTING.md carries the whole path from clone to pull request | — |
+| SR-0035 | SECURITY.md names a private reporting route and what it covers | — |
+| SR-0036 | CODE_OF_CONDUCT.md is the Contributor Covenant with a real contact on it | — |
+| SR-0037 | A rejection reports the dependents it could not flag | TEST-0028 |
+| SR-0038 | The declared dependency range is tested at both ends on a schedule | — |
+| SR-0039 | The decisions the cockpit offers are importable without a terminal | TEST-0029 |
+| SR-0040 | Shipped test fixtures travel in the published sdist | — |
+| SR-0041 | The gate that guards the published distribution runs against the artifact, before it ships | — |
+| SR-0042 | The graph is published as a document, and CI gates it fresh and complete | — |
+| SR-0043 | The declared dependency range admits no combination that cannot run | — |
+| SR-0044 | An item's paragraph breaks survive into the detail pane | TEST-0030 |
+| SR-0045 | Project resolution searches beneath the given path before it searches above it | TEST-0031 |
+| SR-0046 | Only a graph the reviewer could ratify against counts as a candidate | TEST-0032 |
+| SR-0047 | An ambiguous path that cannot be prompted fails with the commands that resolve it | TEST-0033 |
+| SR-0048 | The reviewer picks the graph from a list, and only the picked graph is opened | TEST-0034 |
+| SR-0049 | The selection screen can reach every candidate it found | TEST-0035 |
+| SR-0050 | Each candidate shows how far it has been signed off | TEST-0036 |
+| SR-0051 | Reading the candidates is visible, and one bad graph does not withhold the rest | TEST-0037 |
+| SR-0052 | The reviewer can change the order the candidates are listed in | TEST-0038 |
+| SR-0053 | The cockpit shows what moved since the signature, and says when it cannot | TEST-0039 |
+| SR-0054 | The compose seam reads the resolution field the pinned edition exports, and degrades to the public resolver when the private path fails | — |
+| SR-0055 | The shipped suite composes a real source through the seam, and the sdist suite runs the cockpit over this repository's own composed graph | TEST-0040 |
+| SR-0056 | A changed prose field is shown as a diff in the pane, with the words that moved marked | TEST-0041 |
+| SR-0057 | The cockpit stands on what throughline publishes, and on nothing else | TEST-0042 |
+| SR-0058 | The worklist the cockpit draws is throughline's, not a second copy of it | — |
+| SR-0059 | A name the cockpit needs and throughline does not publish is asked for, not reached for | — |
+| SR-0060 | The floor and the pin move together, to the edition that publishes what is used | TEST-0043 |
+| SR-0061 | Nothing is written over a graph that changed on disk since the screen read it | TEST-0044 |
+| SR-0062 | An idle cockpit reloads when the graph changes on disk, and says so | TEST-0045 |
+| SR-0063 | Quitting a graph that was picked from the selection screen returns to that screen | TEST-0046 |
+| SR-0064 | The selection screen comes back where the reviewer left it, with its figures read again | TEST-0047 |
+| SR-0065 | A sitting that spans several graphs is summarised one graph at a time | TEST-0048 |
+| SR-0066 | The full-screen view stays up between the list and a graph | TEST-0049 |
+| SR-0067 | A graph that is gone from under an open cockpit ends the sitting with one line, or returns the reviewer to the list | TEST-0050 |
+| SR-0068 | The reviewer can reload the selection screen from disk | TEST-0051 |
+| SR-0069 | An idle selection screen reads a listed graph again when its files change, and says so | TEST-0052 |
+| SR-0070 | A reload reopens the graph at the root it was opened from | TEST-0053 |
+| SR-0071 | A graph that cannot be read keeps the cockpit up, and nothing is written until it can be | TEST-0054 |
+| SR-0072 | The graph names the automated tests that check each requirement, and the suite fails when a named test is missing | TEST-0058 |
+<!-- tl:end -->

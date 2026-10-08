@@ -50,6 +50,13 @@ python -c "import throughline as a, throughline_ratify as b; \
 python -m pytest
 ```
 
+The graph names the tests that check each requirement. When you add or rename a
+test, add or change its line in the `checks` list of the test item for the
+requirement it checks, under [`idd/tests/`](idd/tests): one line for each test, as
+the path of its file, two colons and the function's name. The suite fails,
+naming the test, until you do. A test for a requirement that has no test item yet
+needs a new one (`tl -C idd new TEST --ground <UID> --ground-type verifies`).
+
 ## Run the requirements gate
 
 This repository manages its own requirements with the tool it serves — they live in

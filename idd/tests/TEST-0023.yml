@@ -1,0 +1,15 @@
+uid: TEST-0023
+type: test
+status: proposed
+title: 'Tests of SR-0027: The ratifier the cockpit offers is throughline''s, not
+  a copy of it'
+text: The shipped pytest suite checks SR-0027 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0027
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_core.py::test_default_ratifier_is_nonempty
+    tests/test_core.py::test_the_offered_ratifier_is_throughlines_answer_not_ours
+  origin: ai

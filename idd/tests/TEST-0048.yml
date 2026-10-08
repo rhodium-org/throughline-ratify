@@ -1,0 +1,21 @@
+uid: TEST-0048
+type: test
+status: proposed
+title: 'Tests of SR-0065: A sitting that spans several graphs is summarised one graph
+  at a time'
+text: The shipped pytest suite checks SR-0065 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0065
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_back_to_the_list.py::test_a_graph_where_nothing_was_decided_has_no_account
+    tests/test_back_to_the_list.py::test_a_sitting_with_no_decisions_anywhere_writes_no_file
+    tests/test_back_to_the_list.py::test_an_account_written_earlier_is_replaced_not_added_to
+    tests/test_back_to_the_list.py::test_decisions_already_taken_are_reported_when_a_later_graph_will_not_open
+    tests/test_back_to_the_list.py::test_each_graph_gets_its_own_account_in_the_order_opened
+    tests/test_back_to_the_list.py::test_the_accounts_go_to_stdout_one_after_another
+    tests/test_back_to_the_list.py::test_the_ratifier_offered_is_asked_of_each_graph
+    tests/test_back_to_the_list.py::test_two_visits_to_one_graph_are_one_account
+  origin: ai

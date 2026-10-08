@@ -1,0 +1,15 @@
+uid: TEST-0002
+type: test
+status: proposed
+title: 'Tests of SR-0002: Each queued item carries a semantic concern driving colour
+  and sort order'
+text: The shipped pytest suite checks SR-0002 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0002
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_core.py::test_concern_classification
+    tests/test_core.py::test_queue_sorted_most_actionable_first
+  origin: ai

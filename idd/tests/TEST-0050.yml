@@ -1,0 +1,19 @@
+uid: TEST-0050
+type: test
+status: proposed
+title: 'Tests of SR-0067: A graph that is gone from under an open cockpit ends the
+  sitting with one line, or returns the reviewer to the list'
+text: The shipped pytest suite checks SR-0067 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0067
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_vanished_graph.py::test_a_graph_removed_under_an_idle_cockpit_ends_with_one_line
+    tests/test_vanished_graph.py::test_a_picked_graph_lost_at_a_write_says_nothing_was_written
+    tests/test_vanished_graph.py::test_a_picked_graph_that_goes_returns_to_the_list_which_says_so
+    tests/test_vanished_graph.py::test_decisions_already_taken_are_still_reported
+    tests/test_vanished_graph.py::test_the_note_on_the_list_goes_at_the_next_key
+    tests/test_vanished_graph.py::test_the_reload_key_ends_the_same_way
+  origin: ai
