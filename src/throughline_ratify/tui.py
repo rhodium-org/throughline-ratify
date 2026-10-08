@@ -171,6 +171,32 @@ class _Flash:
     kind: str = "dim"  # ok | warn | err | dim
 
 
+def _legend(keys: list[tuple[str, str, str | None, int]], width: int) -> list[tuple[str, str]]:
+    """The footer's keys and what each is called, chosen to fit ``width`` (SR-0073).
+
+    Each entry is ``(key, word, symbol, rank)``. The words are used when the whole
+    legend fits. When it does not, every entry that has a symbol is called by it.
+    When that is still too wide, entries are left out one at a time, highest rank
+    first; rank 0 is never left out. A key that is not named still works, and the
+    help screen names every one."""
+    def fits(entries: list[tuple[str, str]]) -> bool:
+        # A leading space, then key, a colon, the name and two spaces for each.
+        # Strictly less: the last cell of the last row cannot be written.
+        return 1 + sum(len(k) + 1 + len(name) + 2 for k, name in entries) - 2 < width
+
+    words = [(key, word) for key, word, _, _ in keys]
+    if fits(words):
+        return words
+    to_go = sorted((e for e in keys if e[3] > 0), key=lambda e: -e[3])
+    left_out: set[str] = set()
+    while True:
+        named = [(key, symbol or word) for key, word, symbol, _ in keys
+                 if key not in left_out]
+        if fits(named) or not to_go:
+            return named
+        left_out.add(to_go.pop(0)[0])
+
+
 # How long the cockpit waits for a key before it looks at the disk again (SR-0062).
 IDLE_MS = 2000
 
@@ -979,19 +1005,26 @@ class App:
             _safe_addstr(self.scr, y, 0, " " + self.flash.text, _attr(self.flash.kind, bold=True)
                          | curses.A_REVERSE)
             return
+        # Key, its word, its symbol, and how soon it is left out when even the
+        # symbols do not fit (SR-0073). Help and quit have no symbol and are never
+        # left out: they are what a newcomer needs first, and the quit key has to
+        # say where it leads (SR-0063).
         if self.focus == "detail":
             keys = [
-                ("j/k", "link"), ("e/\u21b5", "expand"), ("x", "remove"),
-                ("Tab", "list"), ("?", "help"), ("q", self.quit_leads_to),
+                ("j/k", "link", "\u2195", 0), ("e/\u21b5", "expand", "\u25be", 0),
+                ("x", "remove", "\u2717", 1), ("Tab", "list", "\u21e5", 0),
+                ("?", "help", None, 0), ("q", self.quit_leads_to, None, 0),
             ]
         else:
             keys = [
-                ("j/k", "move"), ("r/\u21b5", "ratify"), ("x", "reject"),
-                ("Tab", "detail"), ("a", "all"), ("s", "sort"), ("/", "filter"),
-                ("R", "reload"), ("?", "help"), ("q", self.quit_leads_to),
+                ("j/k", "move", "\u2195", 0), ("r/\u21b5", "ratify", "\u2713", 0),
+                ("x", "reject", "\u2717", 0), ("Tab", "detail", "\u21e5", 1),
+                ("a", "all", "\u2200", 2), ("s", "sort", "\u21c5", 3),
+                ("/", "filter", "\u2315", 4), ("R", "reload", "\u21bb", 5),
+                ("?", "help", None, 0), ("q", self.quit_leads_to, None, 0),
             ]
         x = 1
-        for key, label in keys:
+        for key, label in _legend(keys, w):
             _safe_addstr(self.scr, y, x, key, _attr("footer", bold=True) | curses.A_REVERSE)
             x += len(key)
             seg = f":{label}  "
@@ -1071,33 +1104,33 @@ class App:
 
     def show_help(self) -> None:
         lines = [
-            "throughline-ratify",
+            "throughline-ratify   [x] is what a narrow footer calls the key",
             "",
-            "  j / \u2193        move down",
-            "  k / \u2191        move up",
+            "  j / \u2193        [\u2195] move down",
+            "  k / \u2191        [\u2195] move up",
             "  g / G        jump to top / bottom",
             "  PgUp/PgDn    page",
-            "  r / Enter    ratify the selected item; on a stale one, accept the",
+            "  r / Enter    [\u2713] ratify the selected item; on a stale one, accept the",
             "               wording that has changed since it was signed; on a",
             "               blocked item that overshot ratification, record the",
             "               missed sign-off. Where the item's status cannot reach",
             "               ratified directly, a route the project's transitions",
             "               permit carries it there and back",
-            "  x            reject (invalidate) the selected item",
-            "  a            toggle the wide view: also show already-ratified",
+            "  x            [\u2717] reject (invalidate) the selected item",
+            "  a            [\u2200] toggle the wide view: also show already-ratified",
             "               and dead (rejected/tombstoned) items",
-            "  s            cycle sort: concern \u2192 roots\u2193 \u2192 leaves\u2191",
-            "  /            filter by uid or title",
-            "  R            reload the graph from disk",
+            "  s            [\u21c5] cycle sort: concern \u2192 roots\u2193 \u2192 leaves\u2191",
+            "  /            [\u2315] filter by uid or title",
+            "  R            [\u21bb] reload the graph from disk",
             "               (it also reloads by itself when the files change, and",
             "               never signs or rejects over a change it has not shown)",
             "  ?            this help",
             f"  q            {self.quit_leads_to}",
             "",
             "detail pane:",
-            "  Tab          focus the detail pane's links (Tab again \u2192 list)",
+            "  Tab          [\u21e5] focus the detail pane's links (Tab again \u2192 list)",
             "  j / k        move between the focused item's links",
-            "  e / Enter    expand a link to read the referenced item",
+            "  e / Enter    [\u25be] expand a link to read the referenced item",
             "  x / d        remove a link (refused if it would un-ground)",
             "  Esc          return focus to the list",
             "",

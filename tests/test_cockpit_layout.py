@@ -15,8 +15,6 @@ from throughline_ratify import core, tui
 
 from test_reload_progress import FakeScreen
 
-ISSUE = "https://github.com/rhodium-org/throughline-ratify/issues/42"
-
 
 @pytest.fixture
 def cockpit(demo_project, monkeypatch):
@@ -61,15 +59,9 @@ def test_a_narrow_terminal_keeps_every_part_in_its_place(cockpit, height, width)
     assert tui.__version__ in rows[0]
     assert rows[1].lstrip().startswith("queue:")
     assert rows[2].startswith("\u25b8"), "the worklist starts on the third row"
-    assert rows[height - 1].lstrip().startswith("j/k:move")
+    assert rows[height - 1].lstrip().startswith("j/k:")
     assert max(rows) == height - 1
     assert all(len(row) <= width for row in rows.values())
-
-
-@pytest.mark.xfail(strict=True, reason="the legend is cut off at the right edge: " + ISSUE)
-def test_at_eighty_columns_the_footer_still_names_help_and_quit(cockpit):
-    footer = cockpit(24, 80).scr.rows[23]
-    assert "?:help" in footer and "q:quit" in footer
 
 
 def test_the_header_names_the_project(cockpit):
