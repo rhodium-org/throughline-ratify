@@ -1,6 +1,6 @@
 uid: TEST-0004
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0004: Reject invalidates via throughline and cascades suspect
   to dependents'
 text: The shipped pytest suite checks SR-0004 with the test functions this item lists.
@@ -11,3 +11,12 @@ links:
 attrs:
   checks: tests/test_core.py::test_reject_invalidates_and_persists
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:12c367770572afb79409787265df459a34933458df74893854e7cc16f4d1f95e
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0004 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

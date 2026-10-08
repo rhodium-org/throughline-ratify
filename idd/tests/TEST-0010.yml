@@ -1,6 +1,6 @@
 uid: TEST-0010
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0012: The detail pane resolves each link to its referenced title
   and content, including items from composed sources'
 text: The shipped pytest suite checks SR-0012 with the test functions this item lists.
@@ -11,3 +11,12 @@ links:
 attrs:
   checks: tests/test_core.py::test_links_resolve_titles
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:ec7f8f32d48378d0ddde4930ea84c31ebfcc24dc8299d8a0294e8773b63ede65
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0012 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

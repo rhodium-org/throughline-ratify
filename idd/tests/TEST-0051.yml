@@ -1,6 +1,6 @@
 uid: TEST-0051
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0068: The reviewer can reload the selection screen from disk'
 text: The shipped pytest suite checks SR-0068 with the test functions this item lists.
 normative: false
@@ -22,3 +22,12 @@ attrs:
     tests/test_back_to_the_list.py::test_the_small_letter_does_not_reload
     tests/test_back_to_the_list.py::test_without_a_reload_the_figure_stays_as_first_read
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:4abc83728be9cdc08374b72b14d88439c13bb1bc617ef50374e5cc726599f4e1
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0068 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

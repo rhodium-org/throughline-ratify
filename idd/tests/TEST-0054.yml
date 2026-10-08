@@ -1,6 +1,6 @@
 uid: TEST-0054
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0071: A graph that cannot be read keeps the cockpit up, and nothing
   is written until it can be'
 text: The shipped pytest suite checks SR-0071 with the test functions this item lists.
@@ -18,3 +18,12 @@ attrs:
     tests/test_vanished_graph.py::test_it_tries_again_at_each_interval
     tests/test_vanished_graph.py::test_nothing_is_written_while_the_graph_cannot_be_read
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:18c7951bd987c8982d04b342fa4c98edddde392b5b44fc29e57d3189445a340d
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0071 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

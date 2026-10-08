@@ -1,6 +1,6 @@
 uid: TEST-0032
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0046: Only a graph the reviewer could ratify against counts as
   a candidate'
 text: The shipped pytest suite checks SR-0046 with the test functions this item lists.
@@ -19,3 +19,12 @@ attrs:
     tests/test_project_selection.py::test_an_unreadable_directory_is_stepped_over
     tests/test_project_selection.py::test_discovery_survives_having_no_git
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:6e64b57b2340d24845aff62dfd20c53dedf44c01a60d378cc361a82b15c90b50
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0046 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

@@ -1,6 +1,6 @@
 uid: TEST-0039
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0053: The cockpit shows what moved since the signature, and says
   when it cannot'
 text: The shipped pytest suite checks SR-0053 with the test functions this item lists.
@@ -21,3 +21,12 @@ attrs:
     tests/test_change_pane.py::test_the_revision_the_signed_content_came_from_is_named
     tests/test_change_pane.py::test_which_words_moved_is_throughlines_answer_not_a_second_diff
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:2ef4d90b68fe343b8c3102f225bc66e8c8290925b3289bdf5a8d54460aa9626f
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0053 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

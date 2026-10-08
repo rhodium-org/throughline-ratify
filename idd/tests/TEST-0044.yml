@@ -1,6 +1,6 @@
 uid: TEST-0044
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0061: Nothing is written over a graph that changed on disk since
   the screen read it'
 text: The shipped pytest suite checks SR-0061 with the test functions this item lists.
@@ -22,3 +22,12 @@ attrs:
     tests/test_stale_screen.py::test_the_wait_is_bounded_only_between_keys_never_inside_a_question
     tests/test_vanished_graph.py::test_a_key_that_writes_says_nothing_was_written
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:bebacec1f6153abb2d8632ee40b81fecf70505f2d40f4b257b615a63b1431162
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0061 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

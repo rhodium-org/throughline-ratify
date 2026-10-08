@@ -1,6 +1,6 @@
 uid: TEST-0040
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0055: The shipped suite composes a real source through the seam,
   and the sdist suite runs the cockpit over this repository''s own composed graph'
 text: The shipped pytest suite checks SR-0055 with the test functions this item lists.
@@ -11,3 +11,12 @@ links:
 attrs:
   checks: tests/test_core.py::test_a_path_source_is_composed_through_the_real_seam
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:f160ff4c3300f6ebf45fea05b1f913bacd375a340d0323202a8c7e11abf4390b
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0055 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

@@ -1128,7 +1128,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0072 -->
-**SR-0072 — The graph names the automated tests that check each requirement, and the suite fails when a named test is missing** — `system_requirement`, status `proposed`
+**SR-0072 — The graph names the automated tests that check each requirement, and the suite fails when a named test is missing** — `system_requirement`, status `ratified`
 
 > For each requirement that the shipped pytest suite checks, this project's graph shall hold a test item that verifies the requirement and names each test function that checks it, by the path of its file and the name of the function. The names shall be held in an attribute of the test item that is not part of the content a signature covers. The suite shall fail when a test item names a function that does not exist, when a live test item verifies no live requirement or names no function, and when a test function in the suite is named by no live test item and is not listed in the suite as checking no requirement of this project. A requirement that is checked by other means, such as a workflow or a document, shall have no test item.
 
@@ -1136,7 +1136,7 @@ What the software must do to meet them.
 
 *Derives from:* UR-0008
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:9d1b9b352ac20bb3fad8c2cbfe3fcd569ce63bd0b47dac46df2c9bae6a2b2594
 <!-- tl:end -->
 
 

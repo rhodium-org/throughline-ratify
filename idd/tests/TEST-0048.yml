@@ -1,6 +1,6 @@
 uid: TEST-0048
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0065: A sitting that spans several graphs is summarised one graph
   at a time'
 text: The shipped pytest suite checks SR-0065 with the test functions this item lists.
@@ -19,3 +19,12 @@ attrs:
     tests/test_back_to_the_list.py::test_the_ratifier_offered_is_asked_of_each_graph
     tests/test_back_to_the_list.py::test_two_visits_to_one_graph_are_one_account
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:8e39c203aceb3bdc879826412562b9fcc0c86b423dff2faddd75ac4ca253d807
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0065 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

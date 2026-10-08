@@ -1,6 +1,6 @@
 uid: TEST-0016
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0020: Dead items stay visible under the wide (show-all) view'
 text: The shipped pytest suite checks SR-0020 with the test functions this item lists.
 normative: false
@@ -15,3 +15,12 @@ attrs:
     tests/test_core.py::test_reject_then_show_all_reveals_the_rejected_item
     tests/test_core.py::test_show_all_includes_ratified
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:06aa876f248c2da52f51f8d588b4f787c80457fba8e8de703dfbfbe35cbb47dd
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0020 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

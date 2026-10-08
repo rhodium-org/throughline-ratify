@@ -1,6 +1,6 @@
 uid: TEST-0029
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0039: The decisions the cockpit offers are importable without
   a terminal'
 text: The shipped pytest suite checks SR-0039 with the test functions this item lists.
@@ -15,3 +15,12 @@ attrs:
     tests/test_project_selection.py::test_describing_the_candidates_runs_no_process
     tests/test_project_selection.py::test_nothing_to_ask_about_starts_no_process
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:30a9ec54179b89d6023e824a1d67f63df89b61ccc2b7f594127d7f41c6bdcb5b
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0039 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

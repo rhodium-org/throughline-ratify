@@ -1,6 +1,6 @@
 uid: TEST-0036
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0050: Each candidate shows how far it has been signed off'
 text: The shipped pytest suite checks SR-0050 with the test functions this item lists.
 normative: false
@@ -13,3 +13,12 @@ attrs:
     tests/test_project_selection.py::test_an_undescribed_candidate_still_lists
     tests/test_project_selection.py::test_the_figure_on_the_row_is_the_one_the_cockpit_shows
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:969c0ddfc4457112af5ecc9d153d40c6b6452653db49d9f2d1cef4cdbf0895dc
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0050 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

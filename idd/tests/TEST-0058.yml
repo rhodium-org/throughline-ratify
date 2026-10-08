@@ -1,6 +1,6 @@
 uid: TEST-0058
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0072: The graph names the automated tests that check each requirement,
   and the suite fails when a named test is missing'
 text: The shipped pytest suite checks SR-0072 with the test functions this item lists.
@@ -23,3 +23,12 @@ attrs:
     tests/test_graph_names_its_tests.py::test_every_test_in_the_suite_is_named_by_an_item
     tests/test_graph_names_its_tests.py::test_the_tests_listed_as_checking_no_requirement_here_all_exist
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:259213684ec5912ed3bbcc6f0c24a5b56cc56caa2fe1585192ccfececba0a5c6
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0072 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

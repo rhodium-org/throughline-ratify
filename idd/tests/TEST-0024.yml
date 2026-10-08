@@ -1,6 +1,6 @@
 uid: TEST-0024
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0028: The cockpit accepts --by-id, and records everything a CLI
   ratification would'
 text: The shipped pytest suite checks SR-0028 with the test functions this item lists.
@@ -19,3 +19,12 @@ attrs:
     tests/test_prompt.py::test_the_confirmation_says_only_the_name_when_there_is_no_identifier
     tests/test_prompt.py::test_the_confirmation_shows_every_part_of_the_record
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:0b267a2a422fb2be28cdd6ddb6c222a15dc9a9d62db3bbfdc16d43cf6495a67a
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0028 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

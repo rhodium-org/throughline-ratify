@@ -1,6 +1,6 @@
 uid: TEST-0056
 type: test
-status: proposed
+status: ratified
 title: 'Tests of UR-0005: Leave a ratification session with a written record of what
   I decided'
 text: The shipped pytest suite checks UR-0005 with the test functions this item lists.
@@ -40,3 +40,12 @@ attrs:
     tests/test_report.py::test_the_cockpit_runs_unchanged_without_a_log
     tests/test_report.py::test_the_report_says_whose_signature_was_replaced
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:e2a7ce38341693fbef865abea7fb9806a82b53dc29b450088ea72e35b544938c
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks UR-0005 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

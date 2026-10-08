@@ -1,6 +1,6 @@
 uid: TEST-0014
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0018: An item ratified then advanced beyond the ratified status
   is still treated as signed off'
 text: The shipped pytest suite checks SR-0018 with the test functions this item lists.
@@ -11,3 +11,12 @@ links:
 attrs:
   checks: tests/test_core.py::test_ratified_then_advanced_item_is_done_not_pending
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:758782cb1c917b39b9c4d637c7263537082f16980de52e9d965f1f9bed7003ba
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0018 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

@@ -1,6 +1,6 @@
 uid: TEST-0003
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0003: Ratify runs throughline''s grounding gate then writes only
   the consumer register'
 text: The shipped pytest suite checks SR-0003 with the test functions this item lists.
@@ -14,3 +14,12 @@ attrs:
     tests/test_core.py::test_ratify_refuses_ambiguous
     tests/test_core.py::test_ratify_refuses_ungrounded
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:548657d3246537b7a165eab6e1c67da227bbc836ae72b936ddc55273f60375c7
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0003 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

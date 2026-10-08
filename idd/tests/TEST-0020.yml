@@ -1,6 +1,6 @@
 uid: TEST-0020
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0024: An item made suspect returns to the worklist'
 text: The shipped pytest suite checks SR-0024 with the test functions this item lists.
 normative: false
@@ -10,3 +10,12 @@ links:
 attrs:
   checks: tests/test_core.py::test_a_suspect_item_is_back_in_the_default_worklist
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:7863b063d776a4b2c921aaa5fbdfdf05fad5f4938b9824f45a92f0fd5b700ce0
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0024 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

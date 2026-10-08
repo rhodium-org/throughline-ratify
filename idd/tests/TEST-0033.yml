@@ -1,6 +1,6 @@
 uid: TEST-0033
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0047: An ambiguous path that cannot be prompted fails with the
   commands that resolve it'
 text: The shipped pytest suite checks SR-0047 with the test functions this item lists.
@@ -14,3 +14,12 @@ attrs:
     tests/test_project_selection.py::test_list_over_an_ambiguous_path_refuses_and_says_how
     tests/test_project_selection.py::test_refusing_opens_no_graph
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:28138cdc3d3558d8c01238260b05ee6ae05137bcb86f404faba3f1a61eeaba9b
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0047 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

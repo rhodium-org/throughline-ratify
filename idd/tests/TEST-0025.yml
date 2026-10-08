@@ -1,6 +1,6 @@
 uid: TEST-0025
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0030: A ratification the content has outgrown returns to the
   worklist as its own concern'
 text: The shipped pytest suite checks SR-0030 with the test functions this item lists.
@@ -31,3 +31,12 @@ attrs:
     tests/test_prompt.py::test_a_stale_overshoot_is_not_told_it_was_never_ratified
     tests/test_report.py::test_a_re_signature_is_not_reported_as_a_missing_one
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:7ee6fb3d96f2c89fbfc5e8aaf979443ce30a57d2d47fbf058b1223a8834c145c
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0030 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

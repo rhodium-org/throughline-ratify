@@ -1,6 +1,6 @@
 uid: TEST-0030
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0044: An item''s paragraph breaks survive into the detail pane'
 text: The shipped pytest suite checks SR-0044 with the test functions this item lists.
 normative: false
@@ -16,3 +16,12 @@ attrs:
     tests/test_detail_pane.py::test_an_expanded_link_target_keeps_them_too
     tests/test_detail_pane.py::test_text_and_rationale_keep_their_paragraph_breaks
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:c9d13d5e86e0ec9fd1498b3c5ee2a161b8f0821018b91208722cf09e30a72e31
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0044 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}
