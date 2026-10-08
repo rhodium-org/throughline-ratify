@@ -1076,7 +1076,7 @@ What the software must do to meet them.
 <!-- tl:end -->
 
 <!-- tl:item SR-0069 -->
-**SR-0069 — An idle selection screen reads a listed graph again when its files change, and says so** — `system_requirement`, status `proposed`
+**SR-0069 — An idle selection screen reads a listed graph again when its files change, and says so** — `system_requirement`, status `ratified`
 
 > While it waits for a key, the selection screen shall look at the files of each listed graph at the interval the worklist uses and, where a graph's configuration, item files or register manifests differ from what its row was read from, read that graph again and show its row as it now stands. It shall keep the order in force and the highlight on the graph it was on, and shall say that the list has been reloaded until the next key is pressed. Only the graphs whose files changed shall be read again, and the progress display shall not be shown. A listed graph that can no longer be read shall keep its row, which shall say why. The look shall read file sizes and modification times alone and shall load no graph. The search beneath the path shall not be repeated, no process shall be started and no declared source shall be resolved. The screen shall do nothing when nothing has changed.
 
@@ -1085,7 +1085,7 @@ What the software must do to meet them.
 *Derives from:* UR-0014
 *Relates:* SR-0062, SR-0068, SR-0050, SR-0051, SR-0048
 
-**origin**: ai
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:0522d3697a0dfbe6e4027326f7b0dd8563b986c11963be7227d1c8595d523cbf
 <!-- tl:end -->
 
 
