@@ -109,7 +109,7 @@ The cockpit watches the graph's files while it is open. If something else change
 
 ### A path that holds more than one graph
 
-Point `tl-ratify` at a tree that holds several graphs (`tl-ratify -C .` at the root of a repository with an anchor graph and one per component) and it lists them, each with how far it has been signed off. `Enter` opens the highlighted graph, `s` changes the order, `q` leaves.
+Point `tl-ratify` at a tree that holds several graphs (`tl-ratify -C .` at the root of a repository with an anchor graph and one per component) and it lists them, each with how far it has been signed off. `Enter` opens the highlighted graph, `s` changes the order, `q` leaves. `R` reloads the list from disk: it searches the path again, so a graph added or removed since you started shows up, and reads every figure again. The list also watches the graphs it shows: when the files of one change, its row is read again within a couple of seconds and the screen says so. It does not search for new graphs by itself, so a graph added beneath the path appears when you press `R`.
 
 In a graph opened from that list, `q` goes back to the list instead of ending the program, and the footer says `q:projects`. The list comes back with the highlight on the graph you just closed and its figure read again, so the next graph is one key away. The full-screen view stays up throughout: while a graph is being opened it says which one, and your shell is not shown until you leave. `q` on the list, or `Ctrl-C` anywhere, ends the program. With `--summary`, a sitting that took decisions in more than one graph gets one account for each, in the order you opened them, all in the one file.
 

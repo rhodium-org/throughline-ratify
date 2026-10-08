@@ -1062,6 +1062,32 @@ What the software must do to meet them.
 **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:d0d16b40d61cbf926f4fe09fce0f44041d7f46f2273102796d58854030676658
 <!-- tl:end -->
 
+<!-- tl:item SR-0068 -->
+**SR-0068 — The reviewer can reload the selection screen from disk** — `system_requirement`, status `ratified`
+
+> When the reviewer presses R on the selection screen, tl-ratify shall repeat the search beneath the path the reviewer gave and read each candidate's ratification figure again from its own registers, under the same progress display as the first reading. The screen shall then list the candidates found, in the order in force, with the highlight on the graph it was on. Where that graph is no longer found, the highlight shall stay on the row it occupied, or on the last row where the list is now shorter. The screen shall say that it has been reloaded until the next key is pressed. Where the search finds no graph, the screen shall stay up with an empty list and the key that opens a graph shall do nothing. Where the path the reviewer gave is no longer a directory, the search shall find no graph and shall not look anywhere else. No candidate's declared sources shall be resolved by a reload. The footer of the selection screen shall name the key.
+
+*Rationale:* Asked for by the operator on 8 October 2026. The selection screen is often left open while an agent proposes items into the graphs it lists, or adds a graph or removes a worktree beneath the path. The figures are read when the screen is drawn and never again while it stays up, so the only way to see the present state was to open a graph and close it, or to start the program again. R is the key the worklist already binds for reloading (SR-0033), so the reviewer has one key to learn for both screens. Only the capital is bound, as on the worklist, where the small letter signs an item. The search is repeated here although SR-0064 forbids repeating it when the screen comes back after a graph is closed. That rule spares the reviewer a wait they did not ask for. Here the reviewer has asked, and a graph added or removed since the program started is one of the things they may be asking about. SR-0064 gives starting the program again as the remedy for a changed set of graphs, and this key is that remedy without losing the order and the place. The path that is no longer a directory is named because the search starts from the parent of a path that is not a directory, which would list graphs the reviewer never pointed at. SR-0067 records the same hazard for a graph that vanishes under an open worklist. Test: open the selection screen on a tree of two graphs, sign an item in one from outside, press R, and expect that row's figure to have gone up by one and the screen to say it was reloaded. Add a third graph, press R, and expect three rows with the highlight on the graph it was on. Remove the highlighted graph, press R, and expect it gone and the highlight still on a listed row. Remove the tree, press R, and expect an empty list on which Enter does nothing. Expect no declared source to be resolved by any of these. Who pays: the reviewer waits for every candidate to be read again, and for the one process the search starts to ask version control what it ignores. They pay it only when they press the key.
+
+*Derives from:* UR-0014
+*Relates:* SR-0064, SR-0050, SR-0033, SR-0048
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:a8f547c9fcff61521afeb96c1590e09fcb615bf65da31114df83ac34c3853c82
+<!-- tl:end -->
+
+<!-- tl:item SR-0069 -->
+**SR-0069 — An idle selection screen reads a listed graph again when its files change, and says so** — `system_requirement`, status `ratified`
+
+> While it waits for a key, the selection screen shall look at the files of each listed graph at the interval the worklist uses and, where a graph's configuration, item files or register manifests differ from what its row was read from, read that graph again and show its row as it now stands. It shall keep the order in force and the highlight on the graph it was on, and shall say that the list has been reloaded until the next key is pressed. Only the graphs whose files changed shall be read again, and the progress display shall not be shown. A listed graph that can no longer be read shall keep its row, which shall say why. The look shall read file sizes and modification times alone and shall load no graph. The search beneath the path shall not be repeated, no process shall be started and no declared source shall be resolved. The screen shall do nothing when nothing has changed.
+
+*Rationale:* Asked for by the operator on 8 October 2026, the day SR-0068 gave the selection screen a reload key. The worklist already reloads by itself when its graph changes (SR-0062), and the operator asked for the list of graphs to do the same. The screen is left open while agents propose items into the graphs it lists, and a figure that is out of date sends the reviewer to the wrong graph. Only the changed graphs are read, and without the progress display, because an agent writing items changes a graph every few seconds. Reading forty graphs and blanking the screen for each change would leave the reviewer unable to read the list. Reading one graph is quick enough that SR-0033 has nothing to announce. The look reads sizes and times alone because it runs at every interval for every candidate. Loading each graph to learn that none had moved would cost as much as the reload it is deciding whether to do. The search is not repeated because it starts a process to ask version control what it ignores, and walks the tree beneath the path, which is too much to do every two seconds for as long as the screen is open. A graph added beneath the path therefore appears when the reviewer presses R (SR-0068), or when the program is started again. The README says so. A graph that has gone keeps its row with the reason, as SR-0051 requires of any candidate that cannot be read, so the reviewer sees that it went and does not wonder where the row is. R drops it. Test: open the selection screen on a tree of two graphs, sign an item in one from outside, let the interval pass, and expect that row's figure to have gone up by one, the other row unchanged, and the screen to say the list was reloaded. Expect the unchanged graph not to have been read. Let the interval pass with nothing changed and expect nothing read and nothing said. Remove a listed graph and expect its row to stay and say why. Add a graph and expect no new row until R. Expect no search, no process and no resolved source in any of these. Who pays: the machine stats every item file of every listed graph every two seconds while the screen is open. A reviewer who adds a graph still has to press R.
+
+*Derives from:* UR-0014
+*Relates:* SR-0062, SR-0068, SR-0050, SR-0051, SR-0048
+
+**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:0522d3697a0dfbe6e4027326f7b0dd8563b986c11963be7227d1c8595d523cbf
+<!-- tl:end -->
+
 
 ## Traceability
 
@@ -1084,7 +1110,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0011 | The published distribution passes the suite it ships | SR-0040, SR-0041, SR-0055 |
 | UR-0012 | The requirements this tool is built to can be read, and read whole | SR-0042 |
 | UR-0013 | Choose which graph to open when the path I give holds more than one | SR-0045, SR-0047, SR-0048 |
-| UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052 |
+| UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052, SR-0068, SR-0069 |
 | UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053, SR-0056 |
 | UR-0016 | Upgrading throughline does not cost me a new cockpit | SR-0057, SR-0058, SR-0059, SR-0060 |
 | UR-0017 | A screen left open does not sign wording I was not shown | SR-0061, SR-0062 |

@@ -242,7 +242,7 @@ def _picking(monkeypatch, *indexes):
     """Stand in for the selection screen: the reviewer picks these candidates in
     turn, and leaves without choosing once they run out."""
     class Scripted:
-        def __init__(self, candidates):
+        def __init__(self, candidates, search=None):
             self.picks = [candidates[i] for i in indexes]
 
         def ask(self, stdscr):
@@ -310,6 +310,9 @@ class FakeScreen:
 
     def getch(self):
         return self.keys.pop(0)
+
+    def timeout(self, ms):
+        pass
 
     def noutrefresh(self):
         pass

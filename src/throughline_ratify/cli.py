@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
 
 from throughline import distribution_version as _v
 
@@ -142,7 +143,7 @@ def main(argv: list[str] | None = None) -> int:
         if not interactive:
             _refuse_ambiguous(exc)
             return 2
-        session, candidates = None, exc.candidates
+        session, candidates, base = None, exc.candidates, exc.base
     except core.RatifierError as exc:
         print(f"tl-ratify: {exc}", file=sys.stderr)
         return 2
@@ -170,7 +171,7 @@ def main(argv: list[str] | None = None) -> int:
         sitting.open(tui, session)
         rc = 0
     else:
-        rc = _work_through(tui, candidates, sitting)
+        rc = _work_through(tui, candidates, sitting, base)
 
     # Rendered only now, with curses closed, so the output is redirectable and
     # pasteable rather than merely readable inside the full-screen view.
@@ -178,7 +179,15 @@ def main(argv: list[str] | None = None) -> int:
     return rc
 
 
-def _work_through(tui, candidates: list[core.Candidate], sitting: "_Sitting") -> int:
+def _search_beneath(base: Path) -> list[core.Candidate]:
+    """The graphs beneath ``base`` as they now stand, for a reload of the list
+    (SR-0068). A path that is gone holds none: ``discover_projects`` would search
+    its parent instead, and offer graphs the reviewer never pointed at."""
+    return core.discover_projects(base) if base.is_dir() else []
+
+
+def _work_through(tui, candidates: list[core.Candidate], sitting: "_Sitting",
+                  base: Path) -> int:
     """Let the reviewer open one graph after another from the list (SR-0063),
     settling for each the identity it is signed under before it is shown."""
     def _open(candidate: core.Candidate):
@@ -186,7 +195,8 @@ def _work_through(tui, candidates: list[core.Candidate], sitting: "_Sitting") ->
         return (session, *sitting.enter(session))
 
     try:
-        tui.work_through(candidates, _open, ratifier_id=sitting.ratifier_id)
+        tui.work_through(candidates, _open, ratifier_id=sitting.ratifier_id,
+                         search=lambda: _search_beneath(base))
     except core.RatifierError as err:
         # Raised through the full-screen view, which has restored the terminal
         # by now, so the reason is printed where it stays readable (SR-0048).

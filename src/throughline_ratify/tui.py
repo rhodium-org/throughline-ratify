@@ -1131,9 +1131,13 @@ class _Picker:
     """
 
     def __init__(self, stdscr, candidates: list[core.Candidate],
-                 sort: str = core.PICKER_SORTS[0], at: Path | None = None) -> None:
+                 sort: str = core.PICKER_SORTS[0], at: Path | None = None,
+                 reload=None) -> None:
         self.scr = stdscr
         self.sort = sort
+        # ``reload`` returns the candidates as they now stand on disk (SR-0068).
+        self._reload = reload
+        self.note = ""
         self.candidates = core.sort_candidates(candidates, sort)
         # ``at`` is the graph the reviewer has just closed: the highlight comes
         # back to it, so the next graph is one key away (SR-0064).
@@ -1144,15 +1148,27 @@ class _Picker:
         curses.curs_set(0)
         while True:
             self.draw()
-            ch = self.scr.getch()
+            self.scr.timeout(IDLE_MS)
+            try:
+                ch = self.scr.getch()
+            finally:
+                self.scr.timeout(-1)
+            if ch == -1:               # no key: look at the disk, keep any note up
+                self.idle()
+                continue
+            self.note = ""
             if ch in (curses.KEY_DOWN, ord("j")):
-                self.pos = min(self.pos + 1, len(self.candidates) - 1)
+                self.pos = max(0, min(self.pos + 1, len(self.candidates) - 1))
             elif ch in (curses.KEY_UP, ord("k")):
                 self.pos = max(self.pos - 1, 0)
             elif ch in (curses.KEY_ENTER, 10, 13, ord(" ")):
-                return self.candidates[self.pos]
+                # A reload can leave nothing to open (SR-0068).
+                if self.candidates:
+                    return self.candidates[self.pos]
             elif ch in (ord("s"), ord("S")):
                 self.resort()
+            elif ch == ord("R") and self._reload is not None:
+                self.reload_from_disk()
             elif ch in (ord("q"), 27):
                 # Leaving without choosing is as ordinary as quitting the
                 # worklist: this screen is where a reviewer learns they pointed
@@ -1170,20 +1186,50 @@ class _Picker:
         if held is not None:
             self.pos = self.candidates.index(held)
 
+    def idle(self) -> None:
+        """No key for a while: read again each listed graph whose files have
+        changed, and say so (SR-0069). Only those graphs are read, and without
+        the progress display: an agent writing items changes a graph every few
+        seconds, and a screen that blanked each time could not be read. The
+        search is not repeated, so a graph added since is found by R (SR-0068)."""
+        changed = {c.root for c in self.candidates if core.candidate_changed(c)}
+        if not changed:
+            return
+        held = self.candidates[self.pos].root
+        fresh = iter(core.describe_candidates(
+            [c for c in self.candidates if c.root in changed]))
+        self.candidates = core.sort_candidates(
+            [next(fresh) if c.root in changed else c for c in self.candidates],
+            self.sort)
+        self.pos = next(i for i, c in enumerate(self.candidates) if c.root == held)
+        self.note = "the list changed on disk and has been reloaded"
+
+    def reload_from_disk(self) -> None:
+        """Show the candidates as they now stand on disk (SR-0068), keeping the
+        highlight on the graph it was on. Where that graph is no longer there,
+        the highlight stays on the row it occupied, or the last row if the list
+        is now shorter."""
+        held = self.candidates[self.pos].root if self.candidates else None
+        self.candidates = core.sort_candidates(self._reload(), self.sort)
+        self.pos = next((i for i, c in enumerate(self.candidates) if c.root == held),
+                        max(0, min(self.pos, len(self.candidates) - 1)))
+        self.note = "reloaded from disk"
+
     def draw(self) -> None:
         self.scr.erase()
         h, w = self.scr.getmaxyx()
         _hline(self.scr, 0, 0, w, _attr("header", bold=True))
         _safe_addstr(self.scr, 0, 0, f" tl-ratify {__version__} \u2502 choose a project",
                      _attr("header", bold=True))
+        note = f" \u2502 {self.note}" if self.note else ""
         _safe_addstr(self.scr, 2, 1,
                      f"{len(self.candidates)} throughline projects lie beneath the path "
-                     f"you gave. \u2502 sort:{self.sort}", _attr("dim"))
+                     f"you gave. \u2502 sort:{self.sort}{note}", _attr("dim"))
         self._draw_list(h, w)
         _hline(self.scr, h - 1, 0, w, _attr("header"))
         _safe_addstr(
             self.scr, h - 1, 0,
-            " \u2191\u2193/jk move \u2502 s sort \u2502 enter open"
+            " \u2191\u2193/jk move \u2502 s sort \u2502 R reload \u2502 enter open"
             " \u2502 q leave without opening", _attr("header"))
         self.scr.noutrefresh()
         curses.doupdate()
@@ -1254,10 +1300,14 @@ class ProjectChooser:
 
     It holds what has to survive between those askings — the order the reviewer
     last chose and the graph they last opened — so the screen comes back where
-    they left it (SR-0064). Neither outlives the program (SR-0052)."""
+    they left it (SR-0064). Neither outlives the program (SR-0052).
 
-    def __init__(self, candidates: list[core.Candidate]) -> None:
+    ``search`` repeats the search beneath the path the reviewer gave. It is
+    called only when the reviewer asks for the list to be reloaded (SR-0068)."""
+
+    def __init__(self, candidates: list[core.Candidate], search=None) -> None:
         self.candidates = candidates
+        self.search = search
         self.sort = core.PICKER_SORTS[0]
         self.last: Path | None = None
 
@@ -1271,10 +1321,18 @@ class ProjectChooser:
         the reviewer has usually just signed items in one of these graphs, and its
         row must not go on showing the figure from before (SR-0064)."""
         curses.curs_set(0)
-        described = core.describe_candidates(
-            self.candidates,
-            on_progress=lambda i, total, c: _draw_reading(stdscr, i, total, c))
-        picker = _Picker(stdscr, described, sort=self.sort, at=self.last)
+
+        def _read() -> list[core.Candidate]:
+            return core.describe_candidates(
+                self.candidates,
+                on_progress=lambda i, total, c: _draw_reading(stdscr, i, total, c))
+
+        def _reload() -> list[core.Candidate]:
+            if self.search is not None:
+                self.candidates = self.search()
+            return _read()
+
+        picker = _Picker(stdscr, _read(), sort=self.sort, at=self.last, reload=_reload)
         chosen = picker.choose()
         self.sort = picker.sort
         if chosen is not None:
@@ -1300,7 +1358,7 @@ def _draw_opening(scr, candidate: core.Candidate) -> None:
 
 
 def work_through(candidates: list[core.Candidate], open_graph,
-                 ratifier_id: str | None = None) -> None:
+                 ratifier_id: str | None = None, search=None) -> None:
     """Ask which graph to open, open it, and ask again when it is closed, until
     the reviewer leaves the list without choosing or interrupts (SR-0063).
 
@@ -1314,8 +1372,11 @@ def work_through(candidates: list[core.Candidate], open_graph,
     identity is settled by the caller, never in the view (SR-0028). Whatever it
     raises leaves through ``curses.wrapper``, which restores the terminal first,
     so the caller can print the reason where it will still be read (SR-0048).
-    Ctrl-C leaves the same way, taking no decision (SR-0016)."""
-    chooser = ProjectChooser(candidates)
+    Ctrl-C leaves the same way, taking no decision (SR-0016).
+
+    ``search`` finds the candidates again when the reviewer reloads the list
+    (SR-0068)."""
+    chooser = ProjectChooser(candidates, search=search)
 
     def _main(stdscr):
         _init_colours()

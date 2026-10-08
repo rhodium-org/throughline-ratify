@@ -80,7 +80,7 @@ def sitting(multi_project, monkeypatch):
         leaving = list(leaves)
 
         class Scripted:
-            def __init__(self, candidates):
+            def __init__(self, candidates, search=None):
                 self.picks = [candidates[i] for i in picks]
 
             def ask(self, stdscr):
@@ -345,7 +345,7 @@ def test_the_ratifier_offered_is_asked_of_each_graph(multi_project, monkeypatch)
     offered = []
 
     class Scripted:
-        def __init__(self, candidates):
+        def __init__(self, candidates, search=None):
             self.picks = list(candidates)
 
         def ask(self, stdscr):
@@ -432,3 +432,292 @@ def test_an_interrupt_while_a_graph_is_opening_ends_cleanly(sitting, monkeypatch
                         lambda root: (_ for _ in ()).throw(KeyboardInterrupt))
     assert start(picks=[0]) == 0
     assert seen["opened"] == []
+
+
+# --------------------------------------------------------------------------- #
+# SR-0068 — R reloads the list from disk
+# --------------------------------------------------------------------------- #
+
+@pytest.fixture
+def reloading(multi_project, no_curses):
+    """The selection screen as the program builds it, with the search it repeats.
+    A key may be a callable, run when the screen asks for it and then passed over,
+    so the tree can change while the screen is up."""
+    class Changing(Screen):
+        def __init__(self, keys):
+            super().__init__(keys)
+            self.waits = []
+
+        def timeout(self, ms):
+            self.waits.append(ms)
+
+        def getch(self):
+            while callable(self.keys[0]) and self.keys[0] is not KeyboardInterrupt:
+                self.keys.pop(0)()
+            return super().getch()
+
+    projects = tui.ProjectChooser(
+        core.discover_projects(multi_project),
+        search=lambda: cli._search_beneath(multi_project))
+
+    def _choose(keys):
+        screen = Changing(keys)
+        return projects.ask(screen), screen
+
+    return _choose
+
+
+def _sign_one(root):
+    session = core.open_root(root)
+    row = next(r for r in core.build_queue(session) if r.ratifiable_now)
+    core.ratify_item(session, row.uid, "Ada Lovelace")
+    return core.ratification_progress(session)
+
+
+def test_a_reload_reads_the_figures_again(reloading, multi_project):
+    seen = {}
+
+    def _sign():
+        seen["now"] = _sign_one(multi_project / "alpha")
+
+    chosen, screen = reloading([_sign, ord("R"), ord("q")])
+    done, total = seen["now"]
+    assert chosen is None
+    assert f"{done}/{total} ratified" in screen.painted()
+    assert f"{done - 1}/{total} ratified" in screen.painted(), "beta is as it was"
+
+
+def test_without_a_reload_the_figure_stays_as_first_read(reloading, multi_project):
+    """The other half of the test above: the figure moves because R was pressed,
+    not because the screen was drawn again."""
+    seen = {}
+
+    def _sign():
+        seen["now"] = _sign_one(multi_project / "alpha")
+
+    _, screen = reloading([_sign, ord("j"), ord("q")])
+    done, total = seen["now"]
+    assert f"{done}/{total} ratified" not in screen.painted()
+
+
+def test_a_reload_finds_a_graph_added_since_the_program_started(reloading,
+                                                                multi_project):
+    from conftest import _named_project
+    chosen, screen = reloading([
+        ord("j"), lambda: _named_project(multi_project / "aardvark", "Aardvark Graph"),
+        ord("R"), ord("\n")])
+    assert "3 throughline projects" in screen.painted()
+    assert "Aardvark Graph" in screen.painted()
+    assert chosen.name == "Beta Graph", "the highlight stayed on the graph it was on"
+
+
+def test_a_reload_drops_a_graph_that_has_gone(reloading, multi_project):
+    import shutil
+    chosen, screen = reloading([
+        ord("j"), lambda: shutil.rmtree(multi_project / "beta"), ord("R"), ord("\n")])
+    assert "Beta Graph" not in screen.painted()
+    assert chosen.name == "Alpha Graph", "the highlight is on a row that is listed"
+
+
+def test_a_reload_says_so_until_the_next_key(reloading):
+    _, screen = reloading([ord("R"), ord("q")])
+    assert "reloaded from disk" in screen.painted()
+    _, screen = reloading([ord("R"), ord("j"), ord("q")])
+    # The last draw before q was read is the one after j.
+    assert "reloaded from disk" not in screen.painted()
+
+
+def test_a_reload_keeps_the_order_in_force(reloading):
+    _, screen = reloading([ord("s"), ord("R"), ord("q")])
+    assert f"sort:{core.PICKER_SORTS[1]}" in screen.painted()
+
+
+def test_a_reload_that_finds_nothing_leaves_an_empty_list_that_opens_nothing(
+        reloading, multi_project):
+    import shutil
+
+    def _empty():
+        shutil.rmtree(multi_project / "alpha")
+        shutil.rmtree(multi_project / "beta")
+
+    chosen, screen = reloading([_empty, ord("R"), ord("\n"), ord("j"), ord("k"),
+                                ord("s"), ord("R"), ord("q")])
+    assert chosen is None
+    assert "0 throughline projects" in screen.painted()
+
+
+def test_a_path_that_has_gone_is_not_searched_from_its_parent(reloading,
+                                                              multi_project):
+    """discover_projects searches the parent of a path that is not a directory.
+    A graph beside the path the reviewer gave is not one they pointed at."""
+    import shutil
+    from conftest import _named_project
+
+    def _replace():
+        shutil.rmtree(multi_project)
+        _named_project(multi_project.parent / "neighbour", "Neighbour Graph")
+
+    chosen, screen = reloading([_replace, ord("R"), ord("q")])
+    assert "Neighbour Graph" not in screen.painted()
+    assert "0 throughline projects" in screen.painted()
+
+
+def test_a_reload_composes_nothing(reloading, monkeypatch):
+    monkeypatch.setattr(
+        core, "_compose_if_declared",
+        lambda *a, **k: pytest.fail("composed a graph to reload the list"))
+    reloading([ord("R"), ord("q")])
+
+
+def test_the_small_letter_does_not_reload(reloading, monkeypatch):
+    monkeypatch.setattr(core, "discover_projects",
+                        lambda *a, **k: pytest.fail("searched on a key that is not R"))
+    _, screen = reloading([ord("r"), ord("q")])
+    assert "reloaded from disk" not in screen.painted()
+
+
+def test_the_footer_of_the_list_names_the_key(reloading):
+    _, screen = reloading([ord("q")])
+    assert "R reload" in screen.painted()
+
+
+def test_the_program_hands_the_list_the_search_beneath_the_path_given(
+        multi_project, monkeypatch):
+    monkeypatch.setattr(cli.sys.stdout, "isatty", lambda: True, raising=False)
+    found = []
+    monkeypatch.setattr(
+        tui, "work_through",
+        lambda candidates, open_graph, ratifier_id=None, search=None:
+        found.extend(search()))
+    assert cli.main(["-C", str(multi_project), "--by", "Ada Lovelace"]) == 0
+    assert [c.name for c in found] == ["Alpha Graph", "Beta Graph"]
+
+
+# --------------------------------------------------------------------------- #
+# SR-0069 — an idle list reads a changed graph again
+# --------------------------------------------------------------------------- #
+
+IDLE = -1   # what getch returns when the interval passes with no key
+
+
+@pytest.fixture
+def reads(monkeypatch):
+    """The graphs read, by folder name, in the order they were read."""
+    read = []
+    opening = core._open
+
+    def _open(root, compose):
+        read.append(root.name)
+        return opening(root, compose)
+
+    monkeypatch.setattr(core, "_open", _open)
+    return read
+
+
+def test_an_idle_list_reads_a_changed_graph_again_and_says_so(reloading,
+                                                              multi_project):
+    seen = {}
+
+    def _sign():
+        seen["now"] = _sign_one(multi_project / "alpha")
+
+    _, screen = reloading([_sign, IDLE, ord("q")])
+    done, total = seen["now"]
+    assert f"{done}/{total} ratified" in screen.painted()
+    assert f"{done - 1}/{total} ratified" in screen.painted(), "beta is as it was"
+    assert "the list changed on disk and has been reloaded" in screen.painted()
+
+
+def test_only_the_changed_graph_is_read_and_no_progress_is_shown(
+        reloading, multi_project, reads, monkeypatch):
+    def _change():
+        _sign_one(multi_project / "alpha")
+        del reads[:]
+        monkeypatch.setattr(tui, "_draw_reading",
+                            lambda *a: pytest.fail("showed the progress display"))
+
+    reloading([_change, IDLE, ord("q")])
+    assert reads == ["alpha"]
+
+
+def test_an_idle_list_does_nothing_when_nothing_has_changed(reloading, reads):
+    _, screen = reloading([lambda: reads.clear(), IDLE, IDLE, ord("q")])
+    assert reads == []
+    assert "reloaded" not in screen.painted()
+
+
+def test_a_change_is_read_once_not_at_every_interval(reloading, multi_project, reads):
+    def _change():
+        _sign_one(multi_project / "alpha")
+        del reads[:]
+
+    reloading([_change, IDLE, IDLE, IDLE, ord("q")])
+    assert reads == ["alpha"]
+
+
+def test_the_note_stays_up_while_idle_and_goes_at_the_next_key(reloading,
+                                                               multi_project):
+    _, screen = reloading([lambda: _sign_one(multi_project / "alpha"),
+                           IDLE, IDLE, ord("q")])
+    assert "has been reloaded" in screen.painted()
+    _, screen = reloading([lambda: _sign_one(multi_project / "alpha"),
+                           IDLE, ord("j"), ord("q")])
+    assert "has been reloaded" not in screen.painted()
+
+
+def test_an_idle_reload_keeps_the_highlight_when_the_order_moves(reloading,
+                                                                 multi_project):
+    """Sorted most outstanding first, a signature in the highlighted graph moves
+    its row down. The highlight has to go with it."""
+    chosen, _ = reloading([ord("s"), lambda: _sign_one(multi_project / "alpha"),
+                           IDLE, ord("\n")])
+    assert chosen.name == "Alpha Graph"
+
+
+def test_a_listed_graph_that_has_gone_keeps_its_row_and_says_why(reloading,
+                                                                 multi_project):
+    import shutil
+    _, screen = reloading([lambda: shutil.rmtree(multi_project / "beta"),
+                           IDLE, ord("q")])
+    row = next(ln for ln in screen.painted().splitlines() if "Beta Graph" in ln)
+    assert "ratified" not in row
+    assert "2 throughline projects" in screen.painted()
+
+
+def test_a_graph_that_could_not_be_read_is_read_again_once_mended(reloading,
+                                                                  multi_project):
+    item = next((multi_project / "beta").rglob("*-0001.yml"))
+    good = item.read_text(encoding="utf-8")
+    item.write_text("uid: [unclosed\n", encoding="utf-8")
+    _, screen = reloading([lambda: item.write_text(good, encoding="utf-8"),
+                           IDLE, ord("q")])
+    row = next(ln for ln in screen.painted().splitlines() if "Beta Graph" in ln)
+    assert "ratified" in row
+
+
+def test_an_idle_list_does_not_search_or_compose(reloading, multi_project,
+                                                 monkeypatch):
+    from conftest import _named_project
+
+    def _change():
+        _named_project(multi_project / "gamma", "Gamma Graph")
+        _sign_one(multi_project / "alpha")
+        monkeypatch.setattr(core, "discover_projects",
+                            lambda *a, **k: pytest.fail("searched while idle"))
+        monkeypatch.setattr(core, "_compose_if_declared",
+                            lambda *a, **k: pytest.fail("composed while idle"))
+
+    _, screen = reloading([_change, IDLE, ord("q")])
+    assert "Gamma Graph" not in screen.painted()
+
+
+def test_looking_at_the_disk_loads_no_graph(multi_project, monkeypatch):
+    described = core.describe_candidates(core.discover_projects(multi_project))
+    monkeypatch.setattr(core, "load_project",
+                        lambda *a, **k: pytest.fail("loaded a graph to look at it"))
+    assert not any(core.candidate_changed(c) for c in described)
+
+
+def test_the_wait_for_a_key_on_the_list_is_bounded_and_then_cleared(reloading):
+    _, screen = reloading([ord("q")])
+    assert screen.waits == [tui.IDLE_MS, -1]
