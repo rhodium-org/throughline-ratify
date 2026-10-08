@@ -1,6 +1,6 @@
 uid: TEST-0061
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0013: The detail pane is focusable and its links can be navigated
   and expanded to read referenced content'
 text: The shipped pytest suite checks SR-0013 with the test functions this item lists.
@@ -21,3 +21,12 @@ attrs:
     tests/test_detail_focus.py::test_a_borrowed_clause_is_read_in_place
     tests/test_detail_focus.py::test_moving_to_another_item_closes_what_was_expanded
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:cff6e83d2ad77f71590c21e036f1313c1c69a54f6b5d99af57ffa3f47c7134f9
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0013 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}
