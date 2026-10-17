@@ -428,7 +428,10 @@ def discover_projects(path: str | Path) -> list[Candidate]:
         if not children:
             break
         ignored = _vcs_ignored(base, children)
-        children = [c for c in children if c not in ignored]
+        # Both sides resolved: git echoes the path in its own spelling, and on
+        # Windows that differs from the walk's (separators, drive case, short
+        # names), so an unresolved child never matched and nothing was ignored.
+        children = [c for c in children if c.resolve() not in ignored]
         roots.extend(c for c in children if (c / CONFIG_NAME).exists())
         level = children
 

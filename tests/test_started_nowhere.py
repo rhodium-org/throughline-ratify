@@ -10,10 +10,18 @@ which says nothing about what to do.
 from __future__ import annotations
 
 import os
+import sys
 
 import pytest
 
 from throughline_ratify import cli, core
+
+# Windows refuses to remove a directory that is some process's working directory,
+# so the premise these tests build — a working directory that is gone — cannot
+# arise there, and the fixture's rmdir is what fails. The clause stands; the
+# condition does not exist on that platform.
+pytestmark = pytest.mark.skipif(
+    sys.platform == "win32", reason="Windows cannot remove a process's working directory")
 
 
 @pytest.fixture
