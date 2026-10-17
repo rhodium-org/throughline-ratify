@@ -142,6 +142,21 @@ def _addline(win, y: int, x: int, text: str, paint: _Paint) -> None:
         pos += length
 
 
+def _value_lines(value) -> list[str]:
+    """An attribute's value as the lines the pane draws it on (SR-0076): one for a
+    scalar, one per line for a block of text, one per element for a list and one
+    per key for a map, so a value written on several lines is read on several
+    lines and never run together. A scalar reads as :func:`_shown` reads it, so an
+    unset value and a flag are worded as the change pane words them."""
+    if isinstance(value, (list, tuple)):
+        return [_shown(v) for v in value] or ["(empty)"]
+    if isinstance(value, dict):
+        return [f"{k}: {_shown(v)}" for k, v in value.items()] or ["(empty)"]
+    if isinstance(value, str) and "\n" in value:
+        return [line.rstrip() for line in value.strip().splitlines()] or [""]
+    return [_shown(value)]
+
+
 def _paragraphs(text: str) -> list[str]:
     """Split a stored field on blank lines, so each paragraph can be wrapped alone.
 
@@ -897,7 +912,14 @@ class App:
 
         head = f"{item.icon} {item.uid}"
         add(head, _attr(item.concern, bold=True))
-        add(f"  {item.type}  \u2502  status: {item.status}", _attr("dim"))
+        meta = f"  {item.type}  \u2502  status: {item.status}"
+        # Both flags are read by the fingerprint, so both are signed content (SR-0076).
+        # The defaults are the common case and are left unsaid; a departure is not.
+        if not item.normative:
+            meta += "  \u2502  non-normative"
+        if item.derived:
+            meta += "  \u2502  derived"
+        add(meta, _attr("dim"))
         add()
         if item.title:
             wrap(item.title, _attr("dim", bold=True), indent="")
@@ -960,6 +982,22 @@ class App:
         if item.rationale:
             add("rationale", _attr("key"))
             wrap(item.rationale, 0)
+            add()
+        if item.attrs:
+            # Every attribute the author wrote, and which of them the signature
+            # covers (SR-0076). The Tool's own `tl ratify` names the normative ones
+            # to the signer; a cockpit that showed none asked for a signature over
+            # values the signer had not seen.
+            signed = [n for n in item.attrs if n in item.signed_attrs]
+            legend = "  (\u2713 covered by the signature)" if signed else ""
+            add(f"attributes{legend}", _attr("key"))
+            for name, value in item.attrs.items():
+                mark = "\u2713 " if name in item.signed_attrs else "  "
+                attr = _attr("key", bold=True) if name in item.signed_attrs else 0
+                first, *rest = _value_lines(value)
+                wrap(f"{mark}{name}: {first}", attr)
+                for line in rest:
+                    wrap(line, attr, indent="      ")
             add()
         if item.links:
             hint = "  (Tab to navigate)" if self.focus != "detail" else "  (\u25b8 j/k \u00b7 e expand \u00b7 x remove)"

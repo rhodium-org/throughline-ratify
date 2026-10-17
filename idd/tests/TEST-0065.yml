@@ -1,0 +1,25 @@
+uid: TEST-0065
+type: test
+status: proposed
+title: 'Tests of SR-0076: The detail pane shows every attribute the item carries,
+  and marks the ones the signature covers'
+text: The shipped pytest suite checks SR-0076 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0076
+  type: verifies
+attrs:
+  origin: ai
+  checks: |-
+    tests/test_attributes_in_the_pane.py::test_every_attribute_the_author_wrote_is_in_the_pane
+    tests/test_attributes_in_the_pane.py::test_an_item_without_attributes_draws_no_attributes_heading
+    tests/test_attributes_in_the_pane.py::test_a_value_on_several_lines_is_read_on_several_lines
+    tests/test_attributes_in_the_pane.py::test_a_list_value_is_one_element_per_line
+    tests/test_attributes_in_the_pane.py::test_the_attributes_the_signature_covers_are_marked
+    tests/test_attributes_in_the_pane.py::test_the_signed_names_are_the_schemas_normative_attributes
+    tests/test_attributes_in_the_pane.py::test_a_heading_without_a_marked_attribute_carries_no_legend
+    tests/test_attributes_in_the_pane.py::test_an_undeclared_attribute_is_shown_too
+    tests/test_attributes_in_the_pane.py::test_the_ratification_record_is_not_drawn_as_an_attribute
+    tests/test_attributes_in_the_pane.py::test_the_clarification_record_is_drawn
+    tests/test_attributes_in_the_pane.py::test_the_record_is_left_out_by_asking_the_tool_which_names_are_its
+    tests/test_attributes_in_the_pane.py::test_a_non_normative_or_derived_item_says_so_in_its_header

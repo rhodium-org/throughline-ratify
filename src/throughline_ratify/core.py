@@ -60,6 +60,7 @@ from throughline import (
     SchemaError,
     SourceError,
     WorklistEntry,
+    attribute_owner,
     build_union,
     change_since_ratification,
     depths_from_roots,
@@ -182,6 +183,21 @@ class QueueItem:
     rationale: str
     links: list[LinkView]
     depth: int | None = None  # hops to the nearest root; None if ungrounded
+    # The attributes the item carries, in the order its file holds them, bar the
+    # ratification record (SR-0076). That record is the Tool's own bookkeeping
+    # of a signature, and the pane already says whether there is one and whose;
+    # everything else is the author's and is shown as written.
+    attrs: dict = field(default_factory=dict)
+    # The attribute names the signature covers — those the project's schema marks
+    # normative for the item's type, which is what the fingerprint reads (SR-0076).
+    # A change to one of these breaks the signature; the pane marks them so the
+    # signer knows which of the values they are reading they are also signing.
+    signed_attrs: tuple[str, ...] = ()
+    # The item's own normative and derived flags, both read by the fingerprint, so
+    # both shown to the signer (SR-0076). The defaults are the common case and are
+    # not drawn; only a departure from them is.
+    normative: bool = True
+    derived: bool = False
     # For an item that overshot ratification (its status can no longer move straight
     # to ratified) yet was never signed off: the config-permitted status itinerary
     # that records the missed ratification and restores its status. None otherwise.
@@ -819,6 +835,10 @@ def _row(session: Session, entry: WorklistEntry) -> QueueItem:
         rationale=item.rationale,
         links=_resolve_links(session, item),
         depth=entry.depth,
+        attrs=_authored_attrs(item),
+        signed_attrs=tuple(session.schema.normative_attrs(item.type)),
+        normative=item.normative,
+        derived=item.derived,
         reratify_path=reratify_path,
         reason=str(item.attrs.get("invalidated_reason") or ""),
         # A dead row is drawn as dead; the staleness of the record it still carries
@@ -827,6 +847,18 @@ def _row(session: Session, entry: WorklistEntry) -> QueueItem:
         ratified_by=str(item.attrs.get(RATIFIED_BY_ATTR) or ""),
         obstacle=entry.obstacle,
     )
+
+
+def _authored_attrs(item: Item) -> dict:
+    """The attributes a reviewer is shown (SR-0076): every one the item carries
+    except the ratification record, which the Tool owns and the pane already
+    expresses as the readiness line. Which names make up that record is the
+    Tool's to say (`attribute_owner`), not a prefix guessed here. The
+    clarification record stays: the Tool puts it in front of a signer itself
+    (tl:SR-0214), because a removed ambiguity flag is about the very words being
+    signed."""
+    return {name: value for name, value in item.attrs.items()
+            if (attribute_owner(name) or ("",))[0] != "ratification record"}
 
 
 def fingerprint_of(session: Session, item: Item) -> str:
