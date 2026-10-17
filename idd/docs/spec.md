@@ -1294,4 +1294,5 @@ checked by a workflow or a document, or not at all.
 | SR-0073 | The footer names its keys in the room there is, and never loses the help key or the quit key | TEST-0062 |
 | SR-0074 | Started in a directory that no longer exists, tl-ratify says so in one line | TEST-0063 |
 | SR-0075 | The help screen scrolls, so every line of it can be read on any terminal the cockpit runs in | TEST-0064 |
+| SR-0076 | On Windows the package brings the curses it draws with | TEST-0065 |
 <!-- tl:end -->

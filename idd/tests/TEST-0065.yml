@@ -1,0 +1,18 @@
+uid: TEST-0065
+type: test
+status: proposed
+title: 'Tests of SR-0076: On Windows the package brings the curses it draws with'
+text: The shipped pytest suite checks SR-0076 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0076
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_runs_on_windows.py::test_the_distribution_brings_curses_on_windows
+    tests/test_runs_on_windows.py::test_the_marker_leaves_every_other_platform_alone
+    tests/test_runs_on_windows.py::test_the_tool_itself_carries_no_platform_marker
+    tests/test_runs_on_windows.py::test_windows_is_a_declared_operating_system
+    tests/test_runs_on_windows.py::test_the_readme_tells_a_windows_installer_nothing_extra_is_needed
+    tests/test_runs_on_windows.py::test_the_curses_import_waits_for_the_cockpit
+  origin: ai

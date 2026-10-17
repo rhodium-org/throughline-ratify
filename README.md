@@ -33,6 +33,12 @@ pipx install throughline-ratify
 This pulls in `throughline`, so the `tl` CLI comes along too; it composes a
 project's sources itself.
 
+Linux, macOS and Windows. On Windows the install also brings `windows-curses`,
+the build of the `curses` library the cockpit is drawn with, which Python on
+Windows does not include; nothing extra to do. Windows Terminal, PowerShell and
+the Command Prompt all work. If an install from before 0.12.4 fails with
+`No module named '_curses'`, `pipx upgrade throughline-ratify` fixes it.
+
 ## Use
 
 From anywhere inside a throughline project (it walks up to find `throughline.toml`):
