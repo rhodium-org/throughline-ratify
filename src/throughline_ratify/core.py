@@ -376,14 +376,19 @@ def _vcs_ignored(base: Path, dirs: list[Path]) -> set[Path]:
     if not dirs:
         return set()
     try:
+        # NUL-separated both ways (-z). A newline-separated list is rewritten
+        # to CRLF by text mode on Windows, so every path reached git with a
+        # trailing carriage return and nothing was ever ignored; NUL survives
+        # the translation, and -z also frees the answer from git's quoting of
+        # unusual characters.
         proc = subprocess.run(
-            ["git", "-C", str(base), "check-ignore", "--stdin"],
-            input="\n".join(str(d) for d in dirs),
+            ["git", "-C", str(base), "check-ignore", "--stdin", "-z"],
+            input="".join(f"{d}\0" for d in dirs),
             capture_output=True, text=True, timeout=10, check=False,
         )
     except (OSError, subprocess.SubprocessError):
         return set()
-    return {Path(line).resolve() for line in proc.stdout.splitlines() if line.strip()}
+    return {Path(entry).resolve() for entry in proc.stdout.split("\0") if entry.strip()}
 
 
 def _is_excluded(d: Path) -> bool:
