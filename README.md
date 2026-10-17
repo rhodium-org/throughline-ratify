@@ -36,7 +36,7 @@ project's sources itself.
 Linux, macOS and Windows. On Windows the install also brings `windows-curses`,
 the build of the `curses` library the cockpit is drawn with, which Python on
 Windows does not include; nothing extra to do. Windows Terminal, PowerShell and
-the Command Prompt all work. If an install from before 0.12.4 fails with
+the Command Prompt all work. If an install from before 0.12.5 fails with
 `No module named '_curses'`, `pipx upgrade throughline-ratify` fixes it.
 
 ## Use
@@ -96,6 +96,19 @@ suspicion, it names the dependents. A sitting in which you decided nothing write
 nothing — browsing never leaves an empty artefact behind. The report only ever
 names the ratifier the sitting already recorded, and it *describes*: the items
 themselves remain the only source of truth.
+
+### What the detail pane shows
+
+The pane on the right is the one place a person reads an item in order to sign
+it, so it shows everything the signature covers. Below the text and rationale it
+lists every attribute the item carries, in the order its file holds them, and
+marks with `✓` the ones the project's schema declares normative: a later change
+to one of those breaks the signature, exactly as `tl ratify` warns at the command
+line. A value written on several lines is read on several lines. The header line
+says `non-normative` or `derived` where the item departs from the default, since
+the fingerprint reads both flags. Only the ratification record itself (`ratified_by`,
+the fingerprint and the signed content) is left out: the readiness line above the
+text already says whether the item is signed and by whom.
 
 ### Keys
 

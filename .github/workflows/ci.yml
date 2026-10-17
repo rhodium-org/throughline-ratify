@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         # Windows is in the matrix because the cockpit needs a curses the platform
-        # does not ship (SR-0076); a green Windows leg is the proof the dependency
+        # does not ship (SR-0077); a green Windows leg is the proof the dependency
         # marker does its job, not the classifier.
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.12"]

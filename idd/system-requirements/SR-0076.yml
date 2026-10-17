@@ -1,51 +1,64 @@
 uid: SR-0076
 type: system_requirement
 status: ratified
-title: On Windows the package brings the curses it draws with
-text: The distribution shall declare windows-curses as a dependency on the win32
-  platform and on no other, by an environment marker, so that pip or pipx installing
-  throughline-ratify on Windows yields a cockpit that opens, with no second step
-  for the person installing it. The distribution shall name Microsoft Windows among
-  its operating systems, and the install instructions shall say that Windows needs
-  nothing more. The command shall go on importing the screen only when it opens the
-  cockpit, so --list and --version run on every platform whether or not a curses
-  is present.
-rationale: 'Found by the operator on 17 October 2026 on his own Windows machine:
-  pipx install throughline-ratify succeeded and tl-ratify then failed with No module
-  named _curses, because CPython on Windows ships no curses and the package depended
-  on throughline alone. The iddn.uk install page carried the work-around, pipx inject
-  throughline-ratify windows-curses, and recorded as an assumption (iddn.uk ASM-0013)
-  that this package would one day declare the dependency itself; this clause is that
-  day. Rejected, telling Windows users to inject the package by hand: a step the
-  installer has to know about is a step most will not take, and INT-0002 says the
-  assistant is obtainable without that kind of knowledge. Rejected, depending on
-  windows-curses unconditionally: it has no wheel for POSIX and the install would
-  fail everywhere else. Rejected, a Windows-only release or fork. The marker is the
-  mechanism Python packaging provides for exactly this. Who pays, the Windows installer,
-  who now downloads one more small wheel; and this repository, whose CI matrix gains
-  a Windows leg to keep the claim true.'
+title: The detail pane shows every attribute the item carries, and marks the ones
+  the signature covers
+text: Below an item's text and rationale, the detail pane shall list every attribute
+  the item carries, each as its name and value in the order the item's file holds
+  them, under a heading of its own. The attributes the project's schema declares
+  normative for the item's type — the ones the fingerprint reads, so a later change
+  to one breaks the signature — shall be marked, and the heading shall explain the
+  mark; where none of the item's attributes is normative, no mark and no explanation
+  shall be shown. A value written on several lines shall be read on several lines,
+  a list one element to a line and a map one key to a line. The ratification record
+  — the attributes throughline's own attribute_owner assigns to that record — shall
+  not be listed, the readiness line already saying whether the item is signed and
+  by whom; every other attribute shall be, the clarification record among them. An
+  item that is not normative, or that is derived, shall say so on its header line;
+  the defaults shall be left unsaid. An item with no attribute to show shall draw
+  no heading.
+rationale: |-
+  Found on 17 October 2026 ratifying the ai-within-fluor sources. A source item there declares url and publisher as normative attributes, and carries checked, found_via and official_for beside them. The pane drew the item's title, text and links, and nothing else: the reviewer was asked to sign a source without being shown where it was or who published it. The fingerprint under the signature reads every normative attribute (tl:SR-0033), so the signature covered values the signer had never seen. throughline's own tl ratify does better: it names the normative attributes to the signer and says a change to one breaks the signature (tl:SR-0195). The cockpit exists so that reading and signing happen in one place (UR-0002); a pane that shows less than the command line sends the reviewer back to the file.
+
+  Every attribute is shown, not only the normative ones, because the others are what the author wrote too and a reviewer judging a source wants its checked date and how it was found as much as its url. The normative ones are marked rather than separated so the file's order survives and the reader sees each value once.
+
+  The ratification record is left out because it is the Tool's bookkeeping, not the author's content: a hash, a copy of the signed content and the signer's name, which the readiness line above the text already gives. Which names make up that record is asked of throughline (attribute_owner), never guessed from a prefix (SR-0057). The clarification record stays in, because the Tool puts it in front of a signer itself (tl:SR-0214): a removed ambiguity flag is about the very words being signed.
+
+  The normative and derived flags are on the header line because the fingerprint reads them too, and a signer should see all of what they sign; the defaults are the common case and saying them on every item would be noise.
+
+  Test: open a graph whose schema declares one normative attribute and two that are not, on an item carrying all three. Expect each as name and value in the file's order under an attributes heading, the normative one marked and the heading explaining the mark. Expect an item carrying only non-normative attributes to show the heading with no explanation. Expect a block value on its own lines, continued under the name. Expect a signed item's ratified_by and fingerprint absent from the list while the readiness line still names the signer. Expect a clarification record listed. Expect an item with no attributes to show no heading, and an item marked non-normative and derived to say both on its header line.
+
+  Who pays: a reviewer of a graph whose items carry many attributes reads a longer pane; the section sits below the text and rationale so the words come first.
 normative: true
 links:
-- target: INT-0002
+- target: UR-0002
   type: derives_from
 - target: SR-0007
   type: relates
-- target: SR-0008
+- target: SR-0022
+  type: relates
+- target: SR-0044
   type: relates
 attrs:
   origin: ai
   ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:45424bfc286e882f7c9f343cc77d0f54033fe60eb18170982d7fc8dd86c24f71
+  ratified_fingerprint: sha256:e35bf49784e6fd35e2188f33086e859a7ed790465e32f3498c381d9012d19781
   ratified_content:
     type: system_requirement
-    text: The distribution shall declare windows-curses as a dependency on the win32
-      platform and on no other, by an environment marker, so that pip or pipx installing
-      throughline-ratify on Windows yields a cockpit that opens, with no second step
-      for the person installing it. The distribution shall name Microsoft Windows
-      among its operating systems, and the install instructions shall say that Windows
-      needs nothing more. The command shall go on importing the screen only when
-      it opens the cockpit, so --list and --version run on every platform whether
-      or not a curses is present.
+    text: Below an item's text and rationale, the detail pane shall list every attribute
+      the item carries, each as its name and value in the order the item's file holds
+      them, under a heading of its own. The attributes the project's schema declares
+      normative for the item's type — the ones the fingerprint reads, so a later
+      change to one breaks the signature — shall be marked, and the heading shall
+      explain the mark; where none of the item's attributes is normative, no mark
+      and no explanation shall be shown. A value written on several lines shall be
+      read on several lines, a list one element to a line and a map one key to a
+      line. The ratification record — the attributes throughline's own attribute_owner
+      assigns to that record — shall not be listed, the readiness line already saying
+      whether the item is signed and by whom; every other attribute shall be, the
+      clarification record among them. An item that is not normative, or that is
+      derived, shall say so on its header line; the defaults shall be left unsaid.
+      An item with no attribute to show shall draw no heading.
     normative: true
     derived: false
     attrs: {}

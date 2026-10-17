@@ -1188,7 +1188,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UID | Title | Derives_from (incoming) |
 |---|---|---|
 | UR-0001 | See every item awaiting my ratification, most-actionable first | SR-0001, SR-0002, SR-0008, SR-0009, SR-0011, SR-0024, SR-0030, SR-0074 |
-| UR-0002 | Ratify or reject an item without leaving the full-screen view | SR-0003, SR-0004, SR-0005, SR-0012, SR-0013, SR-0014, SR-0022, SR-0023, SR-0025, SR-0026, SR-0027, SR-0028, SR-0029, SR-0037 |
+| UR-0002 | Ratify or reject an item without leaving the full-screen view | SR-0003, SR-0004, SR-0005, SR-0012, SR-0013, SR-0014, SR-0022, SR-0023, SR-0025, SR-0026, SR-0027, SR-0028, SR-0029, SR-0037, SR-0076 |
 | UR-0003 | On a composed project, items grounded through a source are ratifiable | SR-0006 |
 | UR-0004 | Read the interface like htop, not a scrolling log | SR-0007, SR-0010, SR-0031, SR-0044, SR-0073, SR-0075 |
 | UR-0005 | Leave a ratification session with a written record of what I decided | SR-0021, SR-0065 |
@@ -1294,5 +1294,6 @@ checked by a workflow or a document, or not at all.
 | SR-0073 | The footer names its keys in the room there is, and never loses the help key or the quit key | TEST-0062 |
 | SR-0074 | Started in a directory that no longer exists, tl-ratify says so in one line | TEST-0063 |
 | SR-0075 | The help screen scrolls, so every line of it can be read on any terminal the cockpit runs in | TEST-0064 |
-| SR-0076 | On Windows the package brings the curses it draws with | TEST-0065 |
+| SR-0076 | The detail pane shows every attribute the item carries, and marks the ones the signature covers | TEST-0065 |
+| SR-0077 | On Windows the package brings the curses it draws with | TEST-0066 |
 <!-- tl:end -->

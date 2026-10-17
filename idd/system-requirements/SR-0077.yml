@@ -1,0 +1,36 @@
+uid: SR-0077
+type: system_requirement
+status: proposed
+title: On Windows the package brings the curses it draws with
+text: The distribution shall declare windows-curses as a dependency on the win32
+  platform and on no other, by an environment marker, so that pip or pipx installing
+  throughline-ratify on Windows yields a cockpit that opens, with no second step
+  for the person installing it. The distribution shall name Microsoft Windows among
+  its operating systems, and the install instructions shall say that Windows needs
+  nothing more. The command shall go on importing the screen only when it opens the
+  cockpit, so --list and --version run on every platform whether or not a curses
+  is present.
+rationale: 'Found by the operator on 17 October 2026 on his own Windows machine:
+  pipx install throughline-ratify succeeded and tl-ratify then failed with No module
+  named _curses, because CPython on Windows ships no curses and the package depended
+  on throughline alone. The iddn.uk install page carried the work-around, pipx inject
+  throughline-ratify windows-curses, and recorded as an assumption (iddn.uk ASM-0013)
+  that this package would one day declare the dependency itself; this clause is that
+  day. Rejected, telling Windows users to inject the package by hand: a step the
+  installer has to know about is a step most will not take, and INT-0002 says the
+  assistant is obtainable without that kind of knowledge. Rejected, depending on
+  windows-curses unconditionally: it has no wheel for POSIX and the install would
+  fail everywhere else. Rejected, a Windows-only release or fork. The marker is the
+  mechanism Python packaging provides for exactly this. Who pays, the Windows installer,
+  who now downloads one more small wheel; and this repository, whose CI matrix gains
+  a Windows leg to keep the claim true.'
+normative: true
+links:
+- target: INT-0002
+  type: derives_from
+- target: SR-0007
+  type: relates
+- target: SR-0008
+  type: relates
+attrs:
+  origin: ai

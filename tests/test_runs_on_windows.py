@@ -1,6 +1,6 @@
 # Copyright (c) 2026 Henry J Grech-Cini
 # SPDX-License-Identifier: Apache-2.0
-"""SR-0076 — on Windows the package brings the curses it draws with.
+"""SR-0077 — on Windows the package brings the curses it draws with.
 
 CPython on Windows ships no ``curses`` module, so a cockpit that only lists
 ``throughline`` as a dependency installs cleanly there and then dies at the

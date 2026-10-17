@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "throughline-ratify"
-version = "0.12.4"
+version = "0.12.5"
 description = "A full-screen, htop-style terminal assistant for reviewing and ratifying throughline requirement items. Compose-aware: grounds items over the composed union so borrowed clauses count. Ships the tl-ratify TUI."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -91,7 +91,7 @@ dependencies = [
   "throughline>=3.11.3",
   # The cockpit is drawn with the standard library's curses, which CPython on
   # Windows does not ship; windows-curses is the published build of it for that
-  # platform, and the marker keeps it off every other (SR-0076). Without this a
+  # platform, and the marker keeps it off every other (SR-0077). Without this a
   # Windows install succeeded and then failed at the first keypress with
   # ImportError: No module named '_curses'.
   "windows-curses>=2.3; sys_platform == 'win32'",
