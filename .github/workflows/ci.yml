@@ -12,7 +12,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        # Windows is in the matrix because the cockpit needs a curses the platform
+        # does not ship (SR-0077); a green Windows leg is the proof the dependency
+        # marker does its job, not the classifier.
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.12"]
         include:
           # Prove the supported floor (Python >= 3.11).

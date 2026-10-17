@@ -1295,4 +1295,5 @@ checked by a workflow or a document, or not at all.
 | SR-0074 | Started in a directory that no longer exists, tl-ratify says so in one line | TEST-0063 |
 | SR-0075 | The help screen scrolls, so every line of it can be read on any terminal the cockpit runs in | TEST-0064 |
 | SR-0076 | The detail pane shows every attribute the item carries, and marks the ones the signature covers | TEST-0065 |
+| SR-0077 | On Windows the package brings the curses it draws with | TEST-0066 |
 <!-- tl:end -->
