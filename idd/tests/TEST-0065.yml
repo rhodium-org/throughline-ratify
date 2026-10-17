@@ -1,6 +1,6 @@
 uid: TEST-0065
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0076: The detail pane shows every attribute the item carries,
   and marks the ones the signature covers'
 text: The shipped pytest suite checks SR-0076 with the test functions this item lists.
@@ -23,3 +23,12 @@ attrs:
     tests/test_attributes_in_the_pane.py::test_the_clarification_record_is_drawn
     tests/test_attributes_in_the_pane.py::test_the_record_is_left_out_by_asking_the_tool_which_names_are_its
     tests/test_attributes_in_the_pane.py::test_a_non_normative_or_derived_item_says_so_in_its_header
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:f38f6021f784f2aa92973e0e7e16660dc87c5889558824e30f9faad90005459b
+  ratified_content:
+    type: test
+    text: The shipped pytest suite checks SR-0076 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

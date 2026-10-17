@@ -1,6 +1,6 @@
 uid: SR-0076
 type: system_requirement
-status: proposed
+status: ratified
 title: The detail pane shows every attribute the item carries, and marks the ones
   the signature covers
 text: Below an item's text and rationale, the detail pane shall list every attribute
@@ -41,3 +41,24 @@ links:
   type: relates
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:e35bf49784e6fd35e2188f33086e859a7ed790465e32f3498c381d9012d19781
+  ratified_content:
+    type: system_requirement
+    text: Below an item's text and rationale, the detail pane shall list every attribute
+      the item carries, each as its name and value in the order the item's file holds
+      them, under a heading of its own. The attributes the project's schema declares
+      normative for the item's type — the ones the fingerprint reads, so a later
+      change to one breaks the signature — shall be marked, and the heading shall
+      explain the mark; where none of the item's attributes is normative, no mark
+      and no explanation shall be shown. A value written on several lines shall be
+      read on several lines, a list one element to a line and a map one key to a
+      line. The ratification record — the attributes throughline's own attribute_owner
+      assigns to that record — shall not be listed, the readiness line already saying
+      whether the item is signed and by whom; every other attribute shall be, the
+      clarification record among them. An item that is not normative, or that is
+      derived, shall say so on its header line; the defaults shall be left unsaid.
+      An item with no attribute to show shall draw no heading.
+    normative: true
+    derived: false
+    attrs: {}
