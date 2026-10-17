@@ -1,6 +1,6 @@
 uid: SR-0076
 type: system_requirement
-status: proposed
+status: ratified
 title: On Windows the package brings the curses it draws with
 text: The distribution shall declare windows-curses as a dependency on the win32
   platform and on no other, by an environment marker, so that pip or pipx installing
@@ -34,3 +34,18 @@ links:
   type: relates
 attrs:
   origin: ai
+  ratified_by: Henry Grech-Cini
+  ratified_fingerprint: sha256:45424bfc286e882f7c9f343cc77d0f54033fe60eb18170982d7fc8dd86c24f71
+  ratified_content:
+    type: system_requirement
+    text: The distribution shall declare windows-curses as a dependency on the win32
+      platform and on no other, by an environment marker, so that pip or pipx installing
+      throughline-ratify on Windows yields a cockpit that opens, with no second step
+      for the person installing it. The distribution shall name Microsoft Windows
+      among its operating systems, and the install instructions shall say that Windows
+      needs nothing more. The command shall go on importing the screen only when
+      it opens the cockpit, so --list and --version run on every platform whether
+      or not a curses is present.
+    normative: true
+    derived: false
+    attrs: {}
