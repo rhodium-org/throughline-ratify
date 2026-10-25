@@ -245,9 +245,9 @@ def test_it_tries_again_at_each_interval(run, demo_project, breakable, monkeypat
     tries = []
     opening = core.open_root
 
-    def _open(root):
+    def _open(root, **kw):
         tries.append(root)
-        return opening(root)
+        return opening(root, **kw)
 
     def _count_from_here():
         break_()
