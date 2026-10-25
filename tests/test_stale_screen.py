@@ -79,7 +79,7 @@ def test_a_signature_over_a_changed_file_is_not_taken(app, monkeypatch):
 
     on_disk = _file(app).read_text(encoding="utf-8")
     assert "with a skip button" in on_disk, "the amendment was overwritten"
-    assert "ratified_by" not in on_disk and "status: proposed" in on_disk, "it was signed anyway"
+    assert "ratifications" not in on_disk and "status: proposed" in on_disk, "it was signed anyway"
     assert "changed on disk" in app.flash.text and "nothing was signed" in app.flash.text
     assert app.current.uid == "FR-0001", "the reload moved the cursor off the item"
     assert "skip button" in app.current.title, "the screen still shows the old wording"
@@ -91,7 +91,7 @@ def test_the_same_key_then_signs_the_wording_now_shown(app, monkeypatch):
     app.do_ratify()                                # refused, reloaded
     app.do_ratify()                                # the reviewer has now been shown it
     on_disk = _file(app).read_text(encoding="utf-8")
-    assert "with a skip button" in on_disk and f"ratified_by: {ADA}" in on_disk
+    assert "with a skip button" in on_disk and f"by: {ADA}" in on_disk
     fresh = core.open_session(app.session.root)
     assert not next(r for r in core.build_queue(fresh, show_all=True) if r.uid == "FR-0001").stale
 
@@ -104,7 +104,7 @@ def test_a_change_made_while_the_question_is_up_is_caught(app, monkeypatch):
     monkeypatch.setattr(app, "_confirm", confirm)
     app.do_ratify()
     on_disk = _file(app).read_text(encoding="utf-8")
-    assert "with a skip button" in on_disk and "ratified_by" not in on_disk
+    assert "with a skip button" in on_disk and "ratifications" not in on_disk
 
 
 def test_a_rejection_over_a_changed_file_is_not_taken(app, monkeypatch):
@@ -131,7 +131,7 @@ def test_a_link_is_not_removed_over_a_changed_file(app, monkeypatch):
 def test_the_cockpits_own_writes_are_not_mistaken_for_somebody_elses(app, monkeypatch):
     yes(app, monkeypatch)
     app.do_ratify()
-    assert f"ratified_by: {ADA}" in _file(app).read_text(encoding="utf-8")
+    assert f"by: {ADA}" in _file(app).read_text(encoding="utf-8")
     assert not core.changed_on_disk(app.session)
 
     opened = []
@@ -142,7 +142,7 @@ def test_the_cockpits_own_writes_are_not_mistaken_for_somebody_elses(app, monkey
     monkeypatch.undo()
     yes(app, monkeypatch)
     app.do_ratify()                                # a second decision in the same sitting still goes through
-    assert f"ratified_by: {ADA}" in _file(app, "FR-0002").read_text(encoding="utf-8")
+    assert f"by: {ADA}" in _file(app, "FR-0002").read_text(encoding="utf-8")
 
 
 def test_an_idle_cockpit_reloads_when_the_graph_changes_and_says_so(app):
@@ -181,4 +181,4 @@ def test_the_wait_is_bounded_only_between_keys_never_inside_a_question(app, monk
     # the idle wait and the next key were bounded; the y/N answer was not
     assert scr.waited_with == [tui.IDLE_MS, tui.IDLE_MS, -1, tui.IDLE_MS]
     assert "skip button" in _file(app).read_text(encoding="utf-8")
-    assert f"ratified_by: {ADA}" in _file(app).read_text(encoding="utf-8")     # reloaded while idle, then signed as shown
+    assert f"by: {ADA}" in _file(app).read_text(encoding="utf-8")     # reloaded while idle, then signed as shown

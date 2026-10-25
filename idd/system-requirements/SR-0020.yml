@@ -18,6 +18,22 @@ links:
   type: refines
 attrs:
   origin: hybrid
-  ratified_by: henry
-  ratified_fingerprint: sha256:8851181d0ee5410d14350f84c3a946ff75bb08de89cf4a41b983c899b45657bd
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:8851181d0ee5410d14350f84c3a946ff75bb08de89cf4a41b983c899b45657bd
+  backfilled: true
+  content:
+    type: system_requirement
+    text: Rejecting or otherwise invalidating an item must not make it silently disappear.
+      The default worklist stays the actionable backlog and hides settled outcomes,
+      but the wide view (show_all, the assistant's 'a' toggle and the CLI's --all)
+      reveals the whole local graph — already-ratified items and dead items alike,
+      where dead means any status playing the invalidated or tombstone role. A dead
+      item is rendered with its own concern (rejected or deleted, decided from the
+      project's [status.roles], not a hardcoded status name), is never offered as
+      actionable, and carries its recorded invalidation reason so a reviewer can
+      see what was thrown away and why.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: d5e29dba8fdfd601893725bb4e08c46c8dd1abab

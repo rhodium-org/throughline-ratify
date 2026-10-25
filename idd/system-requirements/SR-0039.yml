@@ -22,5 +22,22 @@ attrs:
     from sys.modules and importing it fails; the import succeeds and no subprocess
     is created. The test is part of the unit suite.
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:2933045aa6af9722e86c0466f0a089316a0e13175dabd2cd18a265b6618c92c0
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:2933045aa6af9722e86c0466f0a089316a0e13175dabd2cd18a265b6618c92c0
+  content:
+    type: system_requirement
+    text: 'The module in which the worklist is built and every decision is taken
+      shall be importable and usable on its own, without importing curses and without
+      running a subprocess. Everything the cockpit can decide shall be decidable
+      through it: the ordered worklist and its counts, the concerns each item is
+      in, ratification by a named person, the walk to ratification for an item that
+      overshot it, the preview of what a refusal unsettles, the refusal itself, the
+      removal of a link, and the record of the sitting. The full-screen view shall
+      be one caller of that module rather than the place the decisions live. A test
+      shall assert the import, so a terminal-only dependency reintroduced anywhere
+      on that path is caught rather than discovered by whoever imported it.'
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 89fbaecda7af550d55ea55c3b7717e02f877a94c

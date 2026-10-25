@@ -34,9 +34,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:3e5e0485746e1ed2c16d9892e949b63f46c1d18433d813e8a28fb28b7764f2fc
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:3e5e0485746e1ed2c16d9892e949b63f46c1d18433d813e8a28fb28b7764f2fc
+  content:
     type: system_requirement
     text: When the cockpit reloads the graph it has open and the graph's throughline.toml
       is still there but the graph cannot be opened, the cockpit shall stay up, go
@@ -48,3 +49,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: 785657c46015a52602d534cf8790e2a814243158

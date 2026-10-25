@@ -14,6 +14,18 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: henry
-  ratified_fingerprint: sha256:a4a156f6e8bea2a69d70ddd329b02c04794720c8d68587a71781f3a6549b791c
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:a4a156f6e8bea2a69d70ddd329b02c04794720c8d68587a71781f3a6549b791c
+  backfilled: true
+  content:
+    type: system_requirement
+    text: The header summary carries a project-wide progress figure (items ratified
+      out of total gradable items) that climbs as the human signs off, and already-ratified
+      items render under their own 'ratified' concern and glyph rather than sharing
+      the 'ready' state used for approved-but-unratified items, so the number a human
+      watches actually reflects work done.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

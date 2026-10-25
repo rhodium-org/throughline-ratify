@@ -24,5 +24,18 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:03793b161e7d453961f7313f59b1d963425a7054f98a4218c8c0336cf6c3c6f9
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:03793b161e7d453961f7313f59b1d963425a7054f98a4218c8c0336cf6c3c6f9
+  content:
+    type: system_requirement
+    text: The detail pane shall render an item's text and rationale with the paragraph
+      breaks their author wrote. A blank line between paragraphs in the stored field
+      shall appear as a blank line on screen. Each paragraph shall be word-wrapped
+      to the pane's width on its own, so that no paragraph runs into the one after
+      it. This holds wherever the pane draws a stored field, including the text of
+      an expanded link target.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 1ae843f0dfe4ce87af7e51418b5078786d41bad7

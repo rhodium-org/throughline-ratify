@@ -181,8 +181,8 @@ def test_the_confirmation_shows_every_part_of_the_record(demo_project, monkeypat
     assert "github:ada" in asked[0]
     # and what was shown is what was written
     item = core.open_session(demo_project).project.get("FR-0001")
-    assert item.attrs.get("ratified_by") == "Ada Lovelace"
-    assert item.attrs.get("ratified_id") == "github:ada"
+    assert item.ratifications[-1].get("by") == "Ada Lovelace"
+    assert item.ratifications[-1].get("id") == "github:ada"
 
 
 def test_the_confirmation_says_only_the_name_when_there_is_no_identifier(

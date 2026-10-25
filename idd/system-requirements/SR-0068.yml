@@ -42,9 +42,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:a8f547c9fcff61521afeb96c1590e09fcb615bf65da31114df83ac34c3853c82
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:a8f547c9fcff61521afeb96c1590e09fcb615bf65da31114df83ac34c3853c82
+  content:
     type: system_requirement
     text: When the reviewer presses R on the selection screen, tl-ratify shall repeat
       the search beneath the path the reviewer gave and read each candidate's ratification
@@ -62,3 +63,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: 3177762c179981addc8341eb6b34293f98613b40

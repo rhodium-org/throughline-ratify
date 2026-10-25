@@ -34,9 +34,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:98cf0b0ed25baacc2755cd9109541bd9c400b2824b1eccc9dc2ad3d0a66f35f4
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:98cf0b0ed25baacc2755cd9109541bd9c400b2824b1eccc9dc2ad3d0a66f35f4
+  content:
     type: system_requirement
     text: The distribution shall declare windows-curses as a dependency on the win32
       platform and on no other, by an environment marker, so that pip or pipx installing
@@ -49,3 +50,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: 055fe6d087b5906a5f7d3583c5b71fe6c6debc62

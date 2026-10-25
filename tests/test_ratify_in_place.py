@@ -50,8 +50,8 @@ def test_in_place_sign_off_leaves_the_status_where_it_was(in_place_project):
     reloaded = core.open_session(in_place_project)
     item = reloaded.project.get("FR-0007")
     assert item.status == "implemented"          # not advanced
-    assert item.attrs["ratified_by"] == "tester"
-    assert item.attrs["ratified_fingerprint"].startswith("sha256:")
+    assert item.ratifications[-1]["by"] == "tester"
+    assert item.ratifications[-1]["fingerprint"].startswith("sha256:")
 
 
 def test_in_place_sign_off_settles_the_item(in_place_project):
@@ -72,7 +72,7 @@ def test_in_place_does_not_read_the_ratified_status_as_a_signature(in_place_proj
     session = core.open_session(in_place_project)
     item = session.project.get("FR-0005")
     assert item.status == "ratified"
-    assert not item.attrs.get("ratified_by")
+    assert not item.ratifications
     assert "FR-0005" in _by_uid(core.build_queue(session))
 
 

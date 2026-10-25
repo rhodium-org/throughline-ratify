@@ -15,12 +15,14 @@ attrs:
     tests/test_core.py::test_reject_does_not_report_an_already_dead_dependent_as_refused
     tests/test_core.py::test_reject_names_the_dependents_it_could_not_flag
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:4be8deceef0066786b92f380d00d7b3e184c87017ea48e039c2630db93817926
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:4be8deceef0066786b92f380d00d7b3e184c87017ea48e039c2630db93817926
+  content:
     type: test
     text: The shipped pytest suite checks SR-0037 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

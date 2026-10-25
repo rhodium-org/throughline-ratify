@@ -17,12 +17,14 @@ attrs:
     tests/test_back_to_the_list.py::test_the_highlight_comes_back_to_the_graph_just_closed
     tests/test_back_to_the_list.py::test_the_order_the_reviewer_chose_is_kept
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:61ecd6295aa518718fa4c9a3d4915d68b01f1e6d5575b8fa803d12fae409967a
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:61ecd6295aa518718fa4c9a3d4915d68b01f1e6d5575b8fa803d12fae409967a
+  content:
     type: test
     text: The shipped pytest suite checks SR-0064 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

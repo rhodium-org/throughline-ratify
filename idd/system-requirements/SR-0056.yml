@@ -33,5 +33,20 @@ links:
   stamp: sha256:cc0e536bbb1fc7b2af1176255028318d7fa77b83190de6e82dd463707af888e6
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:72b7bb0ec21a5f15eb28bef252f2af22582fcf8cb39e663eabff5b8685fbeaa5
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:72b7bb0ec21a5f15eb28bef252f2af22582fcf8cb39e663eabff5b8685fbeaa5
+  content:
+    type: system_requirement
+    text: 'Where the change since the signature holds a prose field, the cockpit
+      shall show that field as a diff in its own pane: the kept, removed and added
+      sentences in order, or lines where the value has lines, each marked as kept,
+      removed or added, removed before added, and wrapped to the pane. A removed
+      sentence shall be coloured red and its replacement green, and within a replaced
+      sentence the words that moved shall be visibly marked. A value holding no whitespace
+      is shown as before and after on one line. Which sentences and which words moved
+      shall be read from throughline as data, never computed here.'
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 5008ceb91c58bd67567ecfee4be111a12cb1e373

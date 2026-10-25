@@ -10,6 +10,16 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: henry
-  ratified_fingerprint: sha256:dfe7ab5ce4c8f3ef1c7b8cb369790e13550b2f0db350d902962a4d09d922f465
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:dfe7ab5ce4c8f3ef1c7b8cb369790e13550b2f0db350d902962a4d09d922f465
+  backfilled: true
+  content:
+    type: system_requirement
+    text: Rejection calls grounding.invalidate, moving the item to the invalidated
+      role and every trusting dependent to suspect, then persists each touched local
+      item.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

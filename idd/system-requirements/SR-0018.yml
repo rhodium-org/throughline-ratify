@@ -18,6 +18,21 @@ links:
   type: refines
 attrs:
   origin: hybrid
-  ratified_by: henry
-  ratified_fingerprint: sha256:aa5f4231140b4a24db22fa7c817fdfc1357ec4d40fbea6100e52927e4b74a514
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:aa5f4231140b4a24db22fa7c817fdfc1357ec4d40fbea6100e52927e4b74a514
+  backfilled: true
+  content:
+    type: system_requirement
+    text: Ratification is recorded by a stamp the ratify action writes (the ratified_by
+      attribute), which persists after the item moves on to implemented or verified.
+      An item carrying that stamp counts as signed off even when its current status
+      is no longer the ratified one — it is excluded from the pending queue, shown
+      as ratified under show-all, and counted in ratification progress. This stops
+      a since-advanced item being re-offered for a ratification its status can no
+      longer accept, which would otherwise surface only as a dead-end "cannot move
+      to ratified" message.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: d5e29dba8fdfd601893725bb4e08c46c8dd1abab

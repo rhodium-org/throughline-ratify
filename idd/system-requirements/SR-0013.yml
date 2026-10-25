@@ -16,6 +16,18 @@ links:
   type: refines
 attrs:
   origin: ai
-  ratified_by: henry
-  ratified_fingerprint: sha256:a926915a3f9b2a713b1497ba09fcc2e61e9efc8cb08159ca2ae16a97ba46bf59
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:a926915a3f9b2a713b1497ba09fcc2e61e9efc8cb08159ca2ae16a97ba46bf59
+  backfilled: true
+  content:
+    type: system_requirement
+    text: Pressing Tab moves focus between the worklist and the detail pane. With
+      the detail pane focused, the up and down keys move a cursor over the selected
+      item's links, and expanding a link reveals the referenced item's full content
+      — its type, status and body — resolved over the composed union, so a borrowed
+      source clause can be read in place. Tab or Escape returns focus to the worklist.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

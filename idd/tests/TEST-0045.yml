@@ -21,12 +21,14 @@ attrs:
     tests/test_stale_screen.py::test_the_same_key_then_signs_the_wording_now_shown
     tests/test_stale_screen.py::test_the_wait_is_bounded_only_between_keys_never_inside_a_question
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:84cea54dabe663136e93095b8500845d2bfc79dbbd6d423ba8dd467da397785d
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:84cea54dabe663136e93095b8500845d2bfc79dbbd6d423ba8dd467da397785d
+  content:
     type: test
     text: The shipped pytest suite checks SR-0062 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

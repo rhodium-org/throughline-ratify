@@ -31,5 +31,20 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:6dea89d3100c002acbbda2cea1088247c55f89f5ffd73aec5b6f9290866ff2e2
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:6dea89d3100c002acbbda2cea1088247c55f89f5ffd73aec5b6f9290866ff2e2
+  content:
+    type: system_requirement
+    text: Wherever the cockpit takes typed input from a human at the foot of the
+      screen — a rejection reason, a filter, or any prompt added later — the whole
+      of what has been entered shall remain visible while it is being entered. When
+      the text no longer fits the terminal's width it shall wrap, and the prompt
+      area shall grow upward from the bottom one line at a time to hold it, giving
+      back the space when the text shrinks or the prompt closes. The cursor shall
+      stay at the insertion point. No entered character shall ever be hidden or silently
+      discarded because the terminal is narrow.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

@@ -21,5 +21,17 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:b12e1ee38c313cd5582868b2b1dc165a77474e8f86b0b7db72035a85d9e9e06f
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:b12e1ee38c313cd5582868b2b1dc165a77474e8f86b0b7db72035a85d9e9e06f
+  content:
+    type: user_requirement
+    text: A contribution arrives under terms the project can point to. CONTRIBUTING.md
+      shall record that submitting a contribution licenses it under the project's
+      own Apache-2.0 terms, per section 5 of that licence, so the project never holds
+      work whose licensing it cannot evidence. Nothing further shall be required
+      of the contributor per commit.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 3976cb658d090698c31041cdb67fa8a021c19c67

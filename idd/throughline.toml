@@ -1,6 +1,6 @@
 [project]
 name = "throughline-ratify"
-format_version = 3
+format_version = 4
 
 # This cockpit is a client of throughline: it does not define what a ratification
 # record is, it writes one by calling throughline's own ratify (SR-0022). Until now
@@ -24,7 +24,7 @@ format_version = 3
 [[sources]]
 namespace = "tl"
 url = "https://github.com/rhodium-org/throughline"
-ref = "v3.11.3"
+ref = "v4.0.0"
 subdir = "idd"
 
 # Everything below is THIS project's own model, and nothing else is in it.

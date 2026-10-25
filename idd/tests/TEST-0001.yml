@@ -13,12 +13,14 @@ attrs:
     tests/test_core.py::test_queue_excludes_ratified_and_roots_by_default
     tests/test_core.py::test_show_all_includes_ratified
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:c7f594d8fb540973b3cabfb1a40d64572ee8e4e9eea87c34b1bdcee441e78f90
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:c7f594d8fb540973b3cabfb1a40d64572ee8e4e9eea87c34b1bdcee441e78f90
+  content:
     type: test
     text: The shipped pytest suite checks SR-0001 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

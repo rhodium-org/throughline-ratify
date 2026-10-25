@@ -23,12 +23,14 @@ attrs:
     tests/test_cockpit_layout.py::test_a_worklist_longer_than_the_screen_scrolls_to_keep_the_selection_in_view
     tests/test_cockpit_layout.py::test_a_terminal_too_small_to_lay_out_says_so
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:25e4fb3dcfc13eb6e43822e5e5b8d4500a187833ca0a4a7329a531e78354ebe8
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:25e4fb3dcfc13eb6e43822e5e5b8d4500a187833ca0a4a7329a531e78354ebe8
+  content:
     type: test
     text: The shipped pytest suite checks SR-0007 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 7724040aa2ba869454b24e01df84b2c6f04cb9b7

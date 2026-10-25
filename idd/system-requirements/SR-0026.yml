@@ -37,5 +37,22 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:c700159245c18dc743730ee79bc23df94be54e4e27116e1630029e43004cbeda
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:c700159245c18dc743730ee79bc23df94be54e4e27116e1630029e43004cbeda
+  content:
+    type: system_requirement
+    text: The assistant shall hold no configuration of its own — no settings file,
+      no item vocabulary, no link types, no notion of which statuses exist or what
+      they mean that it decides for itself. Everything governing what it shows and
+      what it may do shall be read from the project's own throughline.toml through
+      throughline's own loader, so the assistant and tl can never hold two different
+      accounts of the same project. Where the assistant needs a fact about the project
+      it shall obtain it by asking throughline, not by carrying an answer. A proposed
+      behaviour that could only work if the assistant carried configuration of its
+      own shall be treated as a design fault to be resolved rather than a setting
+      to be added.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

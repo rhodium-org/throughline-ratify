@@ -41,9 +41,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:e35bf49784e6fd35e2188f33086e859a7ed790465e32f3498c381d9012d19781
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:e35bf49784e6fd35e2188f33086e859a7ed790465e32f3498c381d9012d19781
+  content:
     type: system_requirement
     text: Below an item's text and rationale, the detail pane shall list every attribute
       the item carries, each as its name and value in the order the item's file holds
@@ -62,3 +63,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: 3d31d57629920baec65d98c446353d73d671bbb0

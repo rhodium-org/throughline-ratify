@@ -38,5 +38,24 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:398f2e36d0fb42a40b011b94b7a654a74afd23909fca63e0473d32423fb22ae5
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:398f2e36d0fb42a40b011b94b7a654a74afd23909fca63e0473d32423fb22ae5
+  content:
+    type: system_requirement
+    text: 'Where the assistant needs something throughline does not publish, the
+      gap shall be raised against throughline and closed there, and the assistant
+      shall not depend on the unpublished name in the meantime — not by importing
+      it from inside the package, and not by copying it here. Four are outstanding
+      at the time of writing: the refusal a grounding operation returns, which the
+      assistant must be able to recognise to report one; the record of what moved
+      since a signature and the prose comparison drawn from it, which SR-0053 and
+      SR-0056 draw in the detail pane; the helper that makes a console accept the
+      characters written to it; and the names the compose seam uses, one of which
+      is private today. Each shall end as a published name of the package that owns
+      it, a published equivalent the assistant uses instead, or something the assistant
+      owns outright as its own.'
+    normative: true
+    derived: false
+    attrs: {}
+  revision: ca26f04bfb58e8fa25e10d822a67ab6c501be24c

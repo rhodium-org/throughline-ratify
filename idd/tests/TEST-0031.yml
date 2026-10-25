@@ -19,12 +19,14 @@ attrs:
     tests/test_project_selection.py::test_one_graph_beneath_the_path_is_opened_without_asking
     tests/test_project_selection.py::test_pointing_at_a_graph_settles_it
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:6f40786ec86d4a6d3009e6fd422c5678896f91a8ae40b2b42670cc3cbcc702b4
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:6f40786ec86d4a6d3009e6fd422c5678896f91a8ae40b2b42670cc3cbcc702b4
+  content:
     type: test
     text: The shipped pytest suite checks SR-0045 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

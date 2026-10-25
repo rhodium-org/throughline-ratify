@@ -47,6 +47,7 @@ From anywhere inside a throughline project (it walks up to find `throughline.tom
 tl-ratify                    # open the cockpit
 tl-ratify -C path/to/project # point at a specific project
 tl-ratify --by alice         # record a specific ratifier on sign-off
+tl-ratify --as senior        # sign in a role the graph declares under [ratify.roles]
 tl-ratify --list             # print the worklist (no TUI) — good for CI/pipelines
 tl-ratify --list --all       # widen: also show ratified and dead (rejected/tombstoned) items
 tl-ratify --summary          # on exit, print an account of everything you decided

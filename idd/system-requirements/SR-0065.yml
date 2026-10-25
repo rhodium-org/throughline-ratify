@@ -32,9 +32,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:e76c6d0c67a2e3f49afb99088e85c848baa6234f7dbd785982aeb4f234febd09
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:e76c6d0c67a2e3f49afb99088e85c848baa6234f7dbd785982aeb4f234febd09
+  content:
     type: system_requirement
     text: Where `--summary` was given and the reviewer opened more than one graph
       in the sitting, tl-ratify shall keep a separate account for each graph and
@@ -49,3 +50,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: bb088003870262dcb842c2fd126624f5f2f9b8f6

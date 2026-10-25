@@ -15,12 +15,14 @@ attrs:
     tests/test_started_nowhere.py::test_an_absolute_path_still_opens_from_there
     tests/test_started_nowhere.py::test_the_refusal_is_raised_where_the_path_is_resolved
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:eeccc387567d2cd16b67d45614e7dae7ad77acbdcecd9424c2962daa6761d99c
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:eeccc387567d2cd16b67d45614e7dae7ad77acbdcecd9424c2962daa6761d99c
+  content:
     type: test
     text: The shipped pytest suite checks SR-0074 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: b25504c07861eb0c666d52f8d55fb26a69fb8eeb

@@ -20,5 +20,16 @@ links:
   type: derives_from
 attrs:
   origin: hybrid
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:c12ac4004c7f3406c7a65618e0b6f0a504affc84950acb8b9d0fca368c6799bf
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:c12ac4004c7f3406c7a65618e0b6f0a504affc84950acb8b9d0fca368c6799bf
+  content:
+    type: user_requirement
+    text: As a reviewer opening a repository that holds more than one throughline
+      project, I want tl-ratify to show me the graphs it finds beneath the path I
+      gave and let me pick the one to work on, so that I do not have to know each
+      graph's path before I start.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 32f66b82a35116d05a76d6093ad05838478402b6

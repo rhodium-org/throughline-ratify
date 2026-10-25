@@ -40,12 +40,14 @@ attrs:
     tests/test_report.py::test_the_cockpit_runs_unchanged_without_a_log
     tests/test_report.py::test_the_report_says_whose_signature_was_replaced
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:6b77953a2fd726c6aaa9642e5de1d4629979d1a995460a4efc9014db06c0b6f5
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:6b77953a2fd726c6aaa9642e5de1d4629979d1a995460a4efc9014db06c0b6f5
+  content:
     type: test
     text: The shipped pytest suite checks SR-0021 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

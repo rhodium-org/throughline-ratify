@@ -45,7 +45,12 @@ def build_parser() -> argparse.ArgumentParser:
                         "throughline offers — the one this repository signs with)")
     p.add_argument("--by-id", default=None, metavar="SCHEME:VALUE",
                    help="optional stable identifier for that human, e.g. "
-                        "github:octocat or email:ada@example.com (SR-0028)")
+                        "github:octocat or email:ada@example.com (SR-0028); "
+                        "required, and offered from the repository's signing "
+                        "email, where the graph declares roles")
+    p.add_argument("--as", dest="role", default=None, metavar="ROLE",
+                   help="the role you sign in, where the graph declares roles under "
+                        "[ratify.roles] (throughline SR-0259)")
     p.add_argument("--list", action="store_true",
                    help="print the ratification worklist and exit (no TUI)")
     p.add_argument("--all", action="store_true",
@@ -166,7 +171,7 @@ def main(argv: list[str] | None = None) -> int:
 
     from . import tui  # deferred: only import curses when we actually open the UI
 
-    sitting = _Sitting(args.by, ratifier_id, args.summary)
+    sitting = _Sitting(args.by, ratifier_id, args.summary, role=args.role)
     if candidates is None:
         try:
             sitting.open(tui, session)
@@ -174,6 +179,13 @@ def main(argv: list[str] | None = None) -> int:
         except core.GraphLostError as err:
             # The graph went from under the open cockpit. The view has restored
             # the terminal by now, so the line stays readable (SR-0067).
+            print(f"tl-ratify: {err}", file=sys.stderr)
+            rc = 2
+        except core.RatifierError as err:
+            # The identity this sitting would sign under cannot be settled — a
+            # graph that declares roles was given none, or one it does not
+            # declare. Refused before the view opens, so the reason is read where
+            # it is printed (throughline SR-0259).
             print(f"tl-ratify: {err}", file=sys.stderr)
             rc = 2
     else:
@@ -202,7 +214,7 @@ def _work_through(tui, candidates: list[core.Candidate], sitting: "_Sitting",
 
     try:
         tui.work_through(candidates, _open, ratifier_id=sitting.ratifier_id,
-                         search=lambda: _search_beneath(base))
+                         search=lambda: _search_beneath(base), role=sitting.role)
     except core.RatifierError as err:
         # Raised through the full-screen view, which has restored the terminal
         # by now, so the reason is printed where it stays readable (SR-0048).
@@ -221,10 +233,11 @@ class _Sitting:
     """
 
     def __init__(self, by: str | None, ratifier_id: str | None,
-                 summary: str | None) -> None:
+                 summary: str | None, role: str | None = None) -> None:
         self.by = by
         self.ratifier_id = ratifier_id
         self.summary = summary
+        self.role = role
         # graph root -> (its account, the session it was last opened as), in the
         # order the graphs were first opened.
         self.accounts: dict = {}
@@ -233,7 +246,8 @@ class _Sitting:
         """Open the cockpit on ``session``; True when the reviewer left it with
         the quit key, False when they interrupted it."""
         ratifier, log = self.enter(session)
-        return tui.run(session, ratifier, log, ratifier_id=self.ratifier_id)
+        return tui.run(session, ratifier, log, ratifier_id=self.ratifier_id,
+                       role=self.role)
 
     def enter(self, session: core.Session):
         """The ratifier ``session`` is signed as, and the account its decisions
@@ -243,6 +257,31 @@ class _Sitting:
         # that was opened rather than the path that was typed, so a picked
         # candidate is the project whose identity is offered (SR-0045).
         ratifier = self.by or core.default_ratifier(session.root)
+        # A graph that declares roles is signed in one, by identifier (throughline
+        # SR-0259). The role is the reviewer's to name, so it is asked for rather
+        # than picked; the identifier is offered from the repository's signing
+        # email, as throughline offers it, and refused where there is none to offer.
+        roles = session.schema.roles
+        if roles:
+            if not self.role:
+                raise core.RatifierError(
+                    f"this graph declares roles ({', '.join(roles)}) — say which you "
+                    "sign in with --as <role>")
+            if self.role not in roles:
+                raise core.RatifierError(
+                    f"'{self.role}' is not a role this graph declares — the roles are "
+                    f"{', '.join(roles)}")
+            if not self.ratifier_id:
+                self.ratifier_id = core.default_identifier(session.root)
+                if not self.ratifier_id:
+                    raise core.RatifierError(
+                        "a signature in a role needs your stable identifier, and this "
+                        "repository signs commits with no email to offer — pass "
+                        "--by-id, e.g. email:ada@example.com")
+        elif self.role:
+            raise core.RatifierError(
+                "this graph declares no roles, so a signature cannot name one — "
+                "leave out --as")
         log = None
         if self.summary is not None:
             # The log carries exactly the name the sitting signs off under — the

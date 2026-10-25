@@ -16,6 +16,18 @@ links:
   type: refines
 attrs:
   origin: hybrid
-  ratified_by: henry
-  ratified_fingerprint: sha256:a40ea3bd679d432624fb37050f855d8a443e533e16ea8b19364c6a80550a8d9a
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:a40ea3bd679d432624fb37050f855d8a443e533e16ea8b19364c6a80550a8d9a
+  backfilled: true
+  content:
+    type: system_requirement
+    text: When a link targets an item borrowed from a composed source, the detail
+      pane labels it with the target's attrs.source_ref — the authoritative clause
+      reference such as an ASVS clause id — rather than repeating the source namespace,
+      which the reference prefix already carries. It falls back to the namespace
+      only when the target declares no source_ref.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: d5e29dba8fdfd601893725bb4e08c46c8dd1abab

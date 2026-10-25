@@ -26,5 +26,17 @@ links:
   type: refines
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:0d91672a90044b572fd798970c76a70664c3d267a8218584ca6cb8a25ee42167
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:0d91672a90044b572fd798970c76a70664c3d267a8218584ca6cb8a25ee42167
+  content:
+    type: system_requirement
+    text: The selection screen shall be able to reach and show every candidate discovery
+      returned, whatever the height of the terminal. Where the candidates do not
+      all fit, the screen shall scroll so that the highlighted row is always drawn,
+      and shall show that there are further candidates above or below the rows in
+      view. The highlight shall never rest on a row the screen is not drawing.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 123b20a648021380efe501d5dc69c0a07cf6a717

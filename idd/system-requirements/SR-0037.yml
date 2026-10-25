@@ -34,5 +34,17 @@ links:
   stamp: sha256:d67662fe09eb88d3cde3c9b8d8e0d4e3756c10709416bab7ddc7e30b6f407086
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:021c50059c82151cac05f1ffb4d29b8085ee25f06600296f41c80bebf234438c
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:021c50059c82151cac05f1ffb4d29b8085ee25f06600296f41c80bebf234438c
+  content:
+    type: system_requirement
+    text: When a rejection cascades suspicion, the cockpit shall report not only
+      the dependents it marked suspect but also those whose configured lifecycle
+      offered no route to the suspect status, naming them and the move that was refused.
+      A dependent that is already retired shall not be reported as refused, since
+      nothing was withheld from an item that has already gone.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 9cf0fcedca518a45a658c9cfd695d2b1fb89af1a

@@ -17,12 +17,14 @@ attrs:
     tests/test_core.py::test_sort_leaves_orders_deepest_first
     tests/test_core.py::test_sort_roots_orders_shallowest_first
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:befa806449d5cc2047641cee6d4a6648328b1aa3c2afd745fafe39d2b2b2e455
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:befa806449d5cc2047641cee6d4a6648328b1aa3c2afd745fafe39d2b2b2e455
+  content:
     type: test
     text: The shipped pytest suite checks SR-0011 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

@@ -31,7 +31,21 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:146956d92d5fc255b74981741bb343f71461808466f684698b013ee3d37933ee
   invalidated_reason: the name it reached for is published; SR-0057 and SR-0060 close
     it
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:146956d92d5fc255b74981741bb343f71461808466f684698b013ee3d37933ee
+  content:
+    type: system_requirement
+    text: When the consumer declares [[sources]], the session shall build its union
+      from the resolution's labels, the field throughline-compose has exported since
+      0.17.0 (compose SR-0045), which is the floor SR-0043 already declares. If the
+      private resolution path cannot be imported, or the object it returns does not
+      have the shape this package expects, the session shall fall back to the public
+      single-hop resolver rather than fail. The fallback shall be reported in the
+      source summary, so a reviewer can see that transitive sources were not followed.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 8d881c610580c80ef2761586f14a8f27e8851310

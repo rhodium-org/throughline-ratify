@@ -10,6 +10,17 @@ text: A user should be able to install the assistant from a package index and ru
 normative: true
 attrs:
   origin: hybrid
-  ratified_by: henry
-  ratified_fingerprint: sha256:18c78ba67d83f2ae2a62ee86443ced918663cff2b04e6f242041ab46782bd46d
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:18c78ba67d83f2ae2a62ee86443ced918663cff2b04e6f242041ab46782bd46d
+  backfilled: true
+  content:
+    type: intent
+    text: A user should be able to install the assistant from a package index and
+      run it, without cloning the repository or building from source. This makes
+      the tool something people adopt rather than a script they copy, and it means
+      the project owns a release pipeline as a first-class, maintained concern.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: d5e29dba8fdfd601893725bb4e08c46c8dd1abab

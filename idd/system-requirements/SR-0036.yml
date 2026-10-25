@@ -12,5 +12,16 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:59eb3133000e11ed9d49a10d9978e014c72e9bd13d15dc57402662055611dce4
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:59eb3133000e11ed9d49a10d9978e014c72e9bd13d15dc57402662055611dce4
+  content:
+    type: system_requirement
+    text: A CODE_OF_CONDUCT.md at the repository root shall adopt the Contributor
+      Covenant version 2.1, attributed to its source, and shall name the person answerable
+      for enforcement together with the private route by which a breach reaches them.
+      A code of conduct whose enforcement section names nobody is decoration.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 3dc17cb3b2c0a7720c870fe40fc26f338db8d080

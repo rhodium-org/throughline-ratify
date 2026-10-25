@@ -17,12 +17,14 @@ attrs:
     tests/test_vanished_graph.py::test_the_note_on_the_list_goes_at_the_next_key
     tests/test_vanished_graph.py::test_the_reload_key_ends_the_same_way
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:09fa3ac0adc7e996a3615722e242dbe3021e8a6fec975d29f9803bda3c5f6653
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:09fa3ac0adc7e996a3615722e242dbe3021e8a6fec975d29f9803bda3c5f6653
+  content:
     type: test
     text: The shipped pytest suite checks SR-0067 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

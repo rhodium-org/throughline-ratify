@@ -10,12 +10,14 @@ links:
 attrs:
   checks: tests/test_project_selection.py::test_the_search_depth_is_a_constant_not_a_setting
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:5ad570fb3027424456e9c27d86dcfc1195658c7dc69cdd12cfc90626390db4b1
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:5ad570fb3027424456e9c27d86dcfc1195658c7dc69cdd12cfc90626390db4b1
+  content:
     type: test
     text: The shipped pytest suite checks SR-0026 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

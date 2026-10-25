@@ -1,0 +1,27 @@
+uid: TEST-0067
+type: test
+status: ratified
+title: 'Tests of SR-0078: The awaiting concern is drawn, with where the item stands'
+text: The shipped pytest suite checks SR-0078 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0078
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_signatures_in_the_pane.py::test_the_awaiting_concern_is_drawn_with_an_icon_of_its_own
+    tests/test_signatures_in_the_pane.py::test_an_item_short_of_its_requirement_is_awaiting_and_says_where_it_stands
+    tests/test_signatures_in_the_pane.py::test_the_pane_shows_the_standing_the_signers_and_the_key_to_add_a_signature
+    tests/test_signatures_in_the_pane.py::test_a_graph_without_roles_draws_as_before
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-25T13:14:08Z'
+  fingerprint: sha256:3a890260ce599d4d700c23e4e82e14193fa45d99dac840feabb96fa3fd9aa501
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0078 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

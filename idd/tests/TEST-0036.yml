@@ -13,12 +13,14 @@ attrs:
     tests/test_project_selection.py::test_an_undescribed_candidate_still_lists
     tests/test_project_selection.py::test_the_figure_on_the_row_is_the_one_the_cockpit_shows
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:969c0ddfc4457112af5ecc9d153d40c6b6452653db49d9f2d1cef4cdbf0895dc
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:969c0ddfc4457112af5ecc9d153d40c6b6452653db49d9f2d1cef4cdbf0895dc
+  content:
     type: test
     text: The shipped pytest suite checks SR-0050 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

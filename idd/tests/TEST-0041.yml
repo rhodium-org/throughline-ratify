@@ -22,12 +22,14 @@ attrs:
     tests/test_change_pane.py::test_the_diff_is_wrapped_to_the_pane
     tests/test_change_pane.py::test_the_revision_the_signed_content_came_from_is_named
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:1121c72c4801ea43a0bcb75c547d23b7fc0348c2c9af9a1fe04616a1b422402b
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:1121c72c4801ea43a0bcb75c547d23b7fc0348c2c9af9a1fe04616a1b422402b
+  content:
     type: test
     text: The shipped pytest suite checks SR-0056 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

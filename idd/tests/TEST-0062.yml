@@ -24,12 +24,14 @@ attrs:
     tests/test_footer_fits.py::test_the_help_screen_shows_each_symbol_beside_its_key
     tests/test_footer_fits.py::test_the_legend_is_decided_without_a_screen
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:88d2019a1406db995bf669aeda3d075eb3155de26e0aaf29d9b24f44a8d20877
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:88d2019a1406db995bf669aeda3d075eb3155de26e0aaf29d9b24f44a8d20877
+  content:
     type: test
     text: The shipped pytest suite checks SR-0073 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: b25504c07861eb0c666d52f8d55fb26a69fb8eeb

@@ -30,5 +30,18 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:62bdcf23f2bfdfe15bc938a2ad183812e51238d1c330a604e40e9c5a537852e4
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:62bdcf23f2bfdfe15bc938a2ad183812e51238d1c330a604e40e9c5a537852e4
+  content:
+    type: system_requirement
+    text: While the candidates are being read, tl-ratify shall show that it is working
+      and how far through the candidates it has got. A candidate whose own registers
+      cannot be read shall still be listed, with the reason shown on its row in place
+      of its figure, and shall remain selectable; it shall not prevent the other
+      candidates being offered. Choosing it shall then fail with that reason, as
+      choosing any graph that cannot be opened does.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 123b20a648021380efe501d5dc69c0a07cf6a717

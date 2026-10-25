@@ -11,12 +11,14 @@ links:
 attrs:
   checks: tests/test_core.py::test_links_carry_target_source_ref
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:a7bef2d01185c2d97e694448f603446bf030327eb37fd7bfc38c05f93f990a62
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:a7bef2d01185c2d97e694448f603446bf030327eb37fd7bfc38c05f93f990a62
+  content:
     type: test
     text: The shipped pytest suite checks SR-0015 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

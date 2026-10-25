@@ -13,5 +13,16 @@ links:
   type: relates
 attrs:
   origin: human
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:cfe3180061b7227b1456158b92f5fc28b3922756f89a555f0f3163b2c65603d6
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:cfe3180061b7227b1456158b92f5fc28b3922756f89a555f0f3163b2c65603d6
+  content:
+    type: user_requirement
+    text: Reloading the graph from disk (R) can take long enough that the cockpit
+      looks frozen. While a reload is running the cockpit shall show the reviewer
+      that it is working, so they wait for it rather than assume the tool has stopped
+      responding.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 785e4e4443af5622adcd8f8add74f705b7895b35

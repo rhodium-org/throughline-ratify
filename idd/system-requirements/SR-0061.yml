@@ -17,9 +17,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:0282fde51eb2963ffdd58204e111d0af4aba67d2b342ce25fc40bcf82f31a7c3
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:0282fde51eb2963ffdd58204e111d0af4aba67d2b342ce25fc40bcf82f31a7c3
+  content:
     type: system_requirement
     text: Before the cockpit signs, re-signs, rejects or removes a link, and again
       after the reviewer has answered its question, it shall compare the graph's
@@ -30,3 +31,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: e43a1d7a6801ed826700ef0cba81fa7e0b0fb1df

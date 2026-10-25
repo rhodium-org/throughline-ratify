@@ -88,7 +88,7 @@ def sitting(multi_project, monkeypatch):
                 return self.picks.pop(0) if self.picks else None
 
         class Cockpit:
-            def __init__(self, stdscr, session, ratifier, log=None, ratifier_id=None,
+            def __init__(self, stdscr, session, ratifier, log=None, ratifier_id=None, role=None,
                          quit_leads_to="quit"):
                 self.session, self.log = session, log
                 seen["labels"].append(quit_leads_to)
@@ -588,7 +588,7 @@ def test_the_program_hands_the_list_the_search_beneath_the_path_given(
     found = []
     monkeypatch.setattr(
         tui, "work_through",
-        lambda candidates, open_graph, ratifier_id=None, search=None:
+        lambda candidates, open_graph, ratifier_id=None, search=None, role=None:
         found.extend(search()))
     assert cli.main(["-C", str(multi_project), "--by", "Ada Lovelace"]) == 0
     assert [c.name for c in found] == ["Alpha Graph", "Beta Graph"]

@@ -29,5 +29,20 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:2d65db4cc82860adfea1e5a7f6c0c924377487cfcd516d0d8bb94dbc73913fb1
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:2d65db4cc82860adfea1e5a7f6c0c924377487cfcd516d0d8bb94dbc73913fb1
+  content:
+    type: system_requirement
+    text: The declared dependency floor shall be the first published edition whose
+      interface carries every throughline name the assistant uses, and the source
+      pinned by this graph shall move to that same edition in the same change. A
+      clause this graph cites shall therefore be read at the edition the assistant
+      actually runs against, rather than at whatever edition the pin was last left
+      on. Where a cached tree exists for the ref being left, it shall be cleared
+      as part of that change, because a moved ref is not refetched and the check
+      would otherwise pass against the wording that moved.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: ca26f04bfb58e8fa25e10d822a67ab6c501be24c

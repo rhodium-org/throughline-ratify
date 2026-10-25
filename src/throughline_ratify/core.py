@@ -74,10 +74,12 @@ from throughline import (
     set_status,
     write_item,
 )
+from throughline import default_identifier as throughline_default_identifier
 from throughline import default_ratifier as throughline_default_ratifier
 from throughline import normalise_identifier as throughline_normalise_identifier
 from throughline import ratification_progress as throughline_ratification_progress
 from throughline import ratify as core_ratify
+from throughline import signatures as throughline_signatures
 
 
 class RatifierError(RuntimeError):
@@ -105,16 +107,11 @@ class GraphUnreadableError(RatifierError):
     showing it already names the graph."""
 
 
-# The attribute ``tl ratify`` stamps on an item to record who took accountability.
-# It is the durable proof an item was ratified: unlike the ``ratified`` *status*,
-# it survives the item advancing to ``implemented``/``verified``, so it — not the
-# current status alone — tells us an item has already been signed off.
-RATIFIED_BY_ATTR = "ratified_by"
-
-# The companion attribute holding a fingerprint of the content that was accepted.
-# Comparing it with the content's fingerprint now is what tells a signature that
-# still covers its item from one the wording has moved out from under (SR-0030).
-RATIFIED_FINGERPRINT_ATTR = "ratified_fingerprint"
+# The ratification record is the Tool's `ratifications` list on the item, one
+# signature per person (throughline SR-0254, from 4.0.0). Who signed, whether a
+# signature still covers the wording, and whether the signatures meet what the
+# item's kind requires are all read through the Tool's own `signatures` module,
+# never from an attribute this cockpit names itself (SR-0057).
 
 
 # --------------------------------------------------------------------------- #
@@ -128,6 +125,9 @@ RATIFIED_FINGERPRINT_ATTR = "ratified_fingerprint"
 CONCERN_ICONS: dict[str, str] = {
     "proposed": "\u25cf",
     "ready": "\u25c9",
+    # Signed by some of the people the item's kind requires, not yet by all
+    # (throughline SR-0260): half a disc, for a signature half gathered.
+    "awaiting": "\u25d0",
     "stale": "\u21ba",
     "blocked": "\u25cb",
     "ungrounded": "\u26a0",
@@ -209,9 +209,16 @@ class QueueItem:
     # state throughline's check reports as ``ratified-stale`` (SR-0030). Ratifying
     # again is what clears it, so such an item is actionable, not settled.
     stale: bool = False
-    # Who took accountability, when the item carries a sign-off. Named on a stale
-    # row so the reviewer can see whose signature they are about to replace.
+    # Who took accountability, when the item carries a sign-off: every signer,
+    # as prose. Named on a stale row so the reviewer can see whose signature
+    # they are about to replace.
     ratified_by: str = ""
+    # Each signature the item carries, in words (name, identifier, role), oldest
+    # first, and where the item stands against what its kind requires
+    # (throughline SR-0260, SR-0261): shown so a second signer sees who went
+    # before them and what is still asked for.
+    signatures: tuple[str, ...] = ()
+    standing: str = ""
     # Why the item cannot be signed as the graph stands, in the words throughline's
     # own ratify would use to refuse it (SR-0058); None when it can.
     obstacle: str | None = None
@@ -852,9 +859,34 @@ def _row(session: Session, entry: WorklistEntry) -> QueueItem:
         # A dead row is drawn as dead; the staleness of the record it still carries
         # is a fact the Tool reports, not an action this view offers (SR-0030).
         stale=entry.stale and not entry.dead,
-        ratified_by=str(item.attrs.get(RATIFIED_BY_ATTR) or ""),
+        ratified_by=_names(item),
+        signatures=tuple(_describe(e) for e in throughline_signatures(item)),
+        standing=entry.standing,
         obstacle=entry.obstacle,
     )
+
+
+def _describe(entry: dict) -> str:
+    """One signature in words — the name, and its identifier and role where the
+    Tool recorded them (throughline SR-0254, SR-0259). The drawing is this
+    cockpit's; what the signature holds is read as the Tool publishes it."""
+    name = str(entry.get("by") or "a human")
+    bits = [str(entry[k]) for k in ("id",) if entry.get(k)]
+    if entry.get("role"):
+        bits.append(f"as {entry['role']}")
+    return name + (f" ({', '.join(bits)})" if bits else "")
+
+
+def _names(item: Item) -> str:
+    """The signers' names as prose: ``A``, ``A and B``, ``A, B and C``."""
+    seen: list[str] = []
+    for entry in throughline_signatures(item):
+        name = str(entry.get("by") or "a human")
+        if name not in seen:
+            seen.append(name)
+    if not seen:
+        return ""
+    return seen[0] if len(seen) == 1 else ", ".join(seen[:-1]) + " and " + seen[-1]
 
 
 def _authored_attrs(item: Item) -> dict:
@@ -893,7 +925,8 @@ def change_since_signature(session: Session, uid: str) -> RatificationChange | N
     item = session.project.get(uid)
     if item is None:
         return None
-    key = (uid, str(item.attrs.get(RATIFIED_FINGERPRINT_ATTR) or ""))
+    held = throughline_signatures(item)
+    key = (uid, str((held[-1] if held else {}).get("fingerprint") or ""))
     if key not in session._changes:
         session._changes[key] = change_since_ratification(session.project, item)
     return session._changes[key]
@@ -1031,6 +1064,13 @@ def _reratify_route(session: Session, item: Item) -> list[str] | None:
 # Actions
 # --------------------------------------------------------------------------- #
 
+def default_identifier(path: str | Path | None = None) -> str | None:
+    """The identifier offered where a graph declares roles (throughline SR-0259):
+    the email the repository signs commits with, as throughline offers it, or None
+    when there is none to offer. Asked of the Tool, never decided here (SR-0027)."""
+    return throughline_default_identifier(path)
+
+
 def default_ratifier(path: str | Path | None = None) -> str:
     """The ratifier to offer when none was named — throughline's answer, not ours
     (SR-0027).
@@ -1061,7 +1101,8 @@ def normalise_identifier(raw: str | None) -> str | None:
         raise RatifierError(str(exc)) from exc
 
 
-def ratify_item(session: Session, uid: str, by: str, by_id: str | None = None) -> None:
+def ratify_item(session: Session, uid: str, by: str, by_id: str | None = None,
+                role: str | None = None) -> None:
     """Take human accountability for ``uid``, grounding over the composed union.
 
     The sign-off itself is throughline's own :func:`throughline.grounding.ratify`
@@ -1074,18 +1115,22 @@ def ratify_item(session: Session, uid: str, by: str, by_id: str | None = None) -
 
     ``by_id`` is the optional scheme-qualified identifier for that human (SR-0028).
     It is carried, never invented — absent stays absent — and whether a supplied
-    one is well formed is throughline's judgement, surfaced as it stands."""
+    one is well formed is throughline's judgement, surfaced as it stands. ``role``
+    is the role the signature is given in where the graph declares roles
+    (throughline SR-0259); whether it is needed, and whether this person holds it,
+    is the Tool's to say."""
     if session.project.get(uid) is None:
         raise RatifierError(f"{uid} does not exist")
     try:
-        item = core_ratify(session.project, uid, by, by_id=by_id, index=session.index)
+        item = core_ratify(session.project, uid, by, by_id=by_id, index=session.index,
+                           role=role)
     except (GroundingError, IdentityError) as exc:
         raise RatifierError(str(exc)) from exc
     write_item(item, session.project.register_of(uid))
 
 
 def reratify_item(session: Session, uid: str, by: str,
-                  by_id: str | None = None) -> list[str]:
+                  by_id: str | None = None, role: str | None = None) -> list[str]:
     """Take a sign-off an item's own status cannot reach directly, then restore that
     status — for a grounded, unambiguous item that overshot ratification without
     ever being signed off (SR-0019). A signature that was taken and since outgrown by
@@ -1122,7 +1167,8 @@ def reratify_item(session: Session, uid: str, by: str,
             set_status(schema, item, to)
         # throughline moves it the last step and records who accepted what. Its
         # gates (ambiguous, ungrounded, unchanged-already-ratified) bite here.
-        core_ratify(session.project, uid, by, by_id=by_id, index=session.index)
+        core_ratify(session.project, uid, by, by_id=by_id, index=session.index,
+                    role=role)
         for to in route[pivot + 1:]:
             set_status(schema, item, to)
     except (GroundingError, IdentityError) as exc:
