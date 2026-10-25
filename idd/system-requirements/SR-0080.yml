@@ -1,6 +1,6 @@
 uid: SR-0080
 type: system_requirement
-status: proposed
+status: ratified
 title: The role a sitting signs in is settled before the cockpit opens and shown
   in every confirmation
 text: Where the graph declares roles, the sitting shall take the role from --as and
@@ -30,3 +30,20 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-25T13:14:07Z'
+  fingerprint: sha256:e8398ce7659ad9557678c3610fa5b86aa6a81706867bc354e5b26698d250a4e9
+  content:
+    type: system_requirement
+    text: Where the graph declares roles, the sitting shall take the role from --as
+      and refuse to open without one, naming the roles declared; shall refuse a role
+      the graph does not declare; and shall take the signer's identifier from --by-id
+      or offer the one throughline offers, refusing to open where there is none to
+      offer. Where the graph declares no roles, --as shall be refused. The role shall
+      be passed to throughline's ratify with every signature, shall be written out
+      in every confirmation beside the name and identifier, and shall reach a cockpit
+      opened from the selection screen as it reaches one opened directly.
+    normative: true
+    derived: false
+    attrs: {}

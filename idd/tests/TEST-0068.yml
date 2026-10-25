@@ -1,6 +1,6 @@
 uid: TEST-0068
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0079: Every signature an item carries is listed in the pane'
 text: The shipped pytest suite checks SR-0079 with the test functions this item lists.
 normative: false
@@ -10,3 +10,14 @@ links:
 attrs:
   checks: tests/test_signatures_in_the_pane.py::test_the_second_signature_settles_the_item_and_both_signers_are_shown
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-25T13:14:08Z'
+  fingerprint: sha256:5b0462c18d2fa6fdaad81e0ec305144d4f2087f19bb8e2dbf0c98acf23d9248c
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0079 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

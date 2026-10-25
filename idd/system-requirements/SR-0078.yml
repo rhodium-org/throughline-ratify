@@ -1,6 +1,6 @@
 uid: SR-0078
 type: system_requirement
-status: proposed
+status: ratified
 title: The awaiting concern is drawn, with where the item stands
 text: The cockpit shall draw throughline's awaiting concern with an icon of its own,
   between ready and stale in the queue, and the detail pane shall state where the
@@ -23,3 +23,18 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-25T13:14:03Z'
+  fingerprint: sha256:da03838726131150f98c089ce42d7f8e8d6321bdbfe29762d7e45a98500b656d
+  content:
+    type: system_requirement
+    text: The cockpit shall draw throughline's awaiting concern with an icon of its
+      own, between ready and stale in the queue, and the detail pane shall state
+      where the item stands against what its kind requires in the Tool's own words,
+      name the key that adds this sitting's signature where the item can take one,
+      and give the Tool's reason where it cannot. A graph whose kinds require one
+      signature shall draw exactly as before.
+    normative: true
+    derived: false
+    attrs: {}

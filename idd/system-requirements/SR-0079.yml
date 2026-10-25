@@ -1,6 +1,6 @@
 uid: SR-0079
 type: system_requirement
-status: proposed
+status: ratified
 title: Every signature an item carries is listed in the pane
 text: Beneath the readiness lines the detail pane shall list every signature the
   item carries, oldest first, each as the signer's name with their identifier and
@@ -22,3 +22,17 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-25T13:14:05Z'
+  fingerprint: sha256:5e5b5fa59b0611e2ffeb9484156066668973281236c0ab98bf7a33214995e024
+  content:
+    type: system_requirement
+    text: Beneath the readiness lines the detail pane shall list every signature
+      the item carries, oldest first, each as the signer's name with their identifier
+      and role where the Tool recorded them, so a reviewer about to add a signature
+      sees whose stand beside it. A stale row shall still name whose signature the
+      wording has moved out from under, naming every signer where there are several.
+    normative: true
+    derived: false
+    attrs: {}

@@ -1,6 +1,6 @@
 uid: UR-0019
 type: user_requirement
-status: proposed
+status: ratified
 title: Sign in the role the graph declares, and see who has signed before me
 text: As a reviewer of a graph that declares roles, I want to sign in my role, to
   see every signature an item already carries and what its kind still requires, and
@@ -24,3 +24,17 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-25T13:13:58Z'
+  fingerprint: sha256:78590f1cbbf477d96e60fcd79eb0c3704b1d38e2bd3591681331f6ec254905a5
+  content:
+    type: user_requirement
+    text: As a reviewer of a graph that declares roles, I want to sign in my role,
+      to see every signature an item already carries and what its kind still requires,
+      and to be told plainly when the role or identifier a signature needs is missing,
+      so that a second signature is given knowingly and a graph that declares no
+      roles costs me nothing new.
+    normative: true
+    derived: false
+    attrs: {}
