@@ -25,5 +25,18 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:8347415a9055bd8476e2e43a16dca3423da4555373e7b4705849dba090794d98
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:8347415a9055bd8476e2e43a16dca3423da4555373e7b4705849dba090794d98
+  content:
+    type: system_requirement
+    text: Where more than one graph is found and tl-ratify cannot prompt, because
+      --list was given or stdout is not a terminal, it shall open none of them and
+      shall guess none of them. It shall print one line for each candidate, naming
+      the project and its path relative to the path given, alongside the tl-ratify
+      -C invocation that selects it, then exit with status 2. It shall print no Python
+      traceback, matching SR-0009.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 245f026e17903753945d7efd5554cc0700807b3d

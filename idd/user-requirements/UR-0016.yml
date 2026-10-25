@@ -11,5 +11,15 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:753916b2c6628bb74555ac539c596da1221cd58bd746d931c2475c4b611527d3
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:753916b2c6628bb74555ac539c596da1221cd58bd746d931c2475c4b611527d3
+  content:
+    type: user_requirement
+    text: As a reviewer I want the cockpit to go on working when throughline is upgraded,
+      so that I am not held to a matching pair of versions and a rename inside the
+      Tool does not oblige me to install anything here.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: ca26f04bfb58e8fa25e10d822a67ab6c501be24c

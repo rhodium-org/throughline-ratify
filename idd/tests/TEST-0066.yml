@@ -16,12 +16,14 @@ attrs:
     tests/test_runs_on_windows.py::test_the_readme_tells_a_windows_installer_nothing_extra_is_needed
     tests/test_runs_on_windows.py::test_the_curses_import_waits_for_the_cockpit
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:d1a13be7c4d0c0f2ed40864ce40a04be7780226b7f2eb692e9d7fcfe41376a7c
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:d1a13be7c4d0c0f2ed40864ce40a04be7780226b7f2eb692e9d7fcfe41376a7c
+  content:
     type: test
     text: The shipped pytest suite checks SR-0077 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 055fe6d087b5906a5f7d3583c5b71fe6c6debc62

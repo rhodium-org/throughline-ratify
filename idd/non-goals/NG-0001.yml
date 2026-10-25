@@ -37,5 +37,22 @@ rationale: Ratification is the one act in this toolchain that must not be reacha
 normative: true
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:4199a7ed7aacbd6d126d9d6cae97c5e74319533d8e263024251c514319d3e5c3
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:4199a7ed7aacbd6d126d9d6cae97c5e74319533d8e263024251c514319d3e5c3
+  content:
+    type: non_goal
+    text: tl-ratify shall offer no way for a script, a pipeline or an AI agent to
+      reach a ratification decision — to ratify an item, to reject one, or to bring
+      either outcome about — without a person reading the item and choosing it. It
+      shall not be developed in that direction, and no argument from convenience,
+      batch size or automation reaches past this. The boundary is the decision, not
+      the terminal. An affordance that only reports — that prints what is queued,
+      describes how the tool works, or accounts for what a person already decided
+      — takes no decision and does not fall here; that it can be redirected, scripted
+      or read by a machine does not put it on the wrong side of this line, and such
+      an affordance is judged on its own merit like any other.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

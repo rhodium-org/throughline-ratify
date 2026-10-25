@@ -1,0 +1,25 @@
+uid: SR-0078
+type: system_requirement
+status: proposed
+title: The awaiting concern is drawn, with where the item stands
+text: The cockpit shall draw throughline's awaiting concern with an icon of its own,
+  between ready and stale in the queue, and the detail pane shall state where the
+  item stands against what its kind requires in the Tool's own words, name the key
+  that adds this sitting's signature where the item can take one, and give the Tool's
+  reason where it cannot. A graph whose kinds require one signature shall draw exactly
+  as before.
+rationale: 'The concern, its order and the standing are throughline''s (SR-0058);
+  the icon and the layout are this cockpit''s. Rejected, folding awaiting into ready:
+  a reviewer would sign an item that looks untouched without knowing a colleague
+  had already signed it. Who pays, nobody; the line appears only where a kind requires
+  more than one signature.'
+normative: true
+links:
+- target: UR-0019
+  type: derives_from
+- target: SR-0058
+  type: relates
+- target: SR-0030
+  type: relates
+attrs:
+  origin: ai

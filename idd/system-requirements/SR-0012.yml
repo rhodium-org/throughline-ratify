@@ -17,6 +17,19 @@ links:
   type: refines
 attrs:
   origin: ai
-  ratified_by: henry
-  ratified_fingerprint: sha256:f7729abad855a22ecb783bab1dac98a2f684a9038879411255c33cd0e25e5e08
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:f7729abad855a22ecb783bab1dac98a2f684a9038879411255c33cd0e25e5e08
+  backfilled: true
+  content:
+    type: system_requirement
+    text: For the selected item, every link shows the referenced item's title, and
+      — for references borrowed from a composed source — its body content, resolved
+      over the composed union. The reference is displayed as authored (namespace-qualified
+      for source items) while its meaning is looked up through the union, so a reviewer
+      can see what an external clause such as asvs SR-0195 actually says without
+      leaving the cockpit. A reference that resolves to nothing is marked unresolved.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

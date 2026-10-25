@@ -37,9 +37,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:c7397df6f3bdfafe3366a78e50eec2609a0c12aebdd5e94cb29ea6f588834da3
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:c7397df6f3bdfafe3366a78e50eec2609a0c12aebdd5e94cb29ea6f588834da3
+  content:
     type: system_requirement
     text: Where the help is longer than the screen is tall, the help screen shall
       open at the top and let the reviewer move through it a line at a time with
@@ -55,3 +56,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: 9583ad6406da1c600a4940c6f3cc55b5a46bdbe1

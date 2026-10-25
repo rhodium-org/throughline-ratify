@@ -38,5 +38,21 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:4ef12c8d5ce198023015bb79b6be16a8299e8a8122e7239c02b8da1d993bc760
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:4ef12c8d5ce198023015bb79b6be16a8299e8a8122e7239c02b8da1d993bc760
+  content:
+    type: system_requirement
+    text: This project's requirements graph shall adopt throughline's own graph as
+      a composed source, pinned to an edition, so that a requirement here which tracks
+      an upstream clause may point at that clause and have the reference resolved
+      by the validator. The gate this repository runs shall be the composition-aware
+      one, since a bare check cannot resolve such a reference and would report it
+      as a broken link. Where the schema of this graph is widened only to admit the
+      source's vocabulary, that shall be marked as such, so a reader can tell this
+      project's own model from what it accepts on the source's behalf. This project
+      shall never write to the source, and shall never ratify a borrowed item.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 0ab8378eb314b8821110df60115f09fbeb722b7b

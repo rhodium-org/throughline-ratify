@@ -15,9 +15,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:25644d5357801eafbdffc1bef781b01e6ffb028035598da8848bbcdcd8b1657d
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:25644d5357801eafbdffc1bef781b01e6ffb028035598da8848bbcdcd8b1657d
+  content:
     type: system_requirement
     text: While it waits for a key at the worklist, the cockpit shall look at the
       graph's files at a short interval and, when they differ from what it last read
@@ -27,3 +28,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: e43a1d7a6801ed826700ef0cba81fa7e0b0fb1df

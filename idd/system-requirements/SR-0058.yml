@@ -36,5 +36,23 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:bbfc1ab3cf3fc02b040bd068d9c1c1461aa4661591b4869afad5e9203f67019c
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:bbfc1ab3cf3fc02b040bd068d9c1c1461aa4661591b4869afad5e9203f67019c
+  content:
+    type: system_requirement
+    text: 'The worklist the cockpit draws shall be the one throughline computes.
+      The items outstanding, the order they are offered in, the concern each is in
+      and the vocabulary those concerns are named from, the count of what has been
+      signed, and the reason an item cannot be signed shall all be obtained from
+      throughline and rendered here. The assistant shall not decide any of them a
+      second time. Where an item cannot be signed the reason shown shall be the one
+      throughline''s own ratify would give for refusing it, so that the sentence
+      a reviewer reads in the list and the sentence they would meet at the prompt
+      are one sentence. What remains this assistant''s own is the drawing: the colour,
+      the icon, the layout, the keys, and which of the concerns a particular view
+      chooses to show.'
+    normative: true
+    derived: false
+    attrs: {}
+  revision: ca26f04bfb58e8fa25e10d822a67ab6c501be24c

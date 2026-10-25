@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "throughline-ratify"
-version = "0.12.5"
+version = "0.13.0"
 description = "A full-screen, htop-style terminal assistant for reviewing and ratifying throughline requirement items. Compose-aware: grounds items over the composed union so borrowed clauses count. Ships the tl-ratify TUI."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -87,8 +87,13 @@ classifiers = [
 # '_render_item'`, while `tl-ratify` still ran. An upper bound on compose 0.13.0
 # would have been the narrower fix and was not available, that release being already
 # on the index as published, so the floor was what moved.
+# The ratification record as a list of signatures (`ratifications`, read through the
+# published `signatures`), the `awaiting` concern the worklist draws, `entry.standing`,
+# `ratify(role=)` and `default_identifier` all arrive in 4.0.0, the format-4 release
+# (throughline SR-0254 to SR-0264); below it the cockpit reads a record that is not
+# there and draws a concern it has no icon for.
 dependencies = [
-  "throughline>=3.11.3",
+  "throughline>=4.0.0",
   # The cockpit is drawn with the standard library's curses, which CPython on
   # Windows does not ship; windows-curses is the published build of it for that
   # platform, and the marker keeps it off every other (SR-0077). Without this a

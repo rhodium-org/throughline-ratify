@@ -35,5 +35,23 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:791c812fdc5c575d0a98d062ffe807f540dfdbb9d3fdf06e244c46e296bd059f
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:791c812fdc5c575d0a98d062ffe807f540dfdbb9d3fdf06e244c46e296bd059f
+  content:
+    type: system_requirement
+    text: The assistant shall use only the names throughline publishes as its interface
+      — those `import throughline` offers, which that project's own document names
+      as its compatibility surface. No module of this assistant shall import from
+      a path inside throughline rather than from throughline itself, and none shall
+      use a name beginning with an underscore from throughline or from throughline-compose.
+      The single exception is the compose seam SR-0054 records, which stands only
+      until the name it reaches for is published, and which the test shall name as
+      the one import it allows, so that a second exception cannot be taken without
+      being written down here. A test shall read this assistant's own source and
+      fail on any other, catching a reach-in in the change that writes it rather
+      than in an installation after an upgrade.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: ca26f04bfb58e8fa25e10d822a67ab6c501be24c

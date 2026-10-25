@@ -16,6 +16,18 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: henry
-  ratified_fingerprint: sha256:58884eafe09fb87c5f9158a2eadc43f79a808a9036db723832bacec4d41a916a
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:58884eafe09fb87c5f9158a2eadc43f79a808a9036db723832bacec4d41a916a
+  backfilled: true
+  content:
+    type: system_requirement
+    text: With a link selected in the detail pane, the reviewer can remove it after
+      confirmation. Removal is refused when it would leave the item reaching no root,
+      so the graph cannot be silently orphaned, and the edit is written only to the
+      consumer's own register so a composed source stays read-only. Removing an informational
+      link that is not the item's only path to a root is allowed.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

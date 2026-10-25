@@ -44,9 +44,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:0522d3697a0dfbe6e4027326f7b0dd8563b986c11963be7227d1c8595d523cbf
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:0522d3697a0dfbe6e4027326f7b0dd8563b986c11963be7227d1c8595d523cbf
+  content:
     type: system_requirement
     text: While it waits for a key, the selection screen shall look at the files
       of each listed graph at the interval the worklist uses and, where a graph's
@@ -63,3 +64,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: 1f4a575a4297ad9d833bc6a4c0b98907905ca181

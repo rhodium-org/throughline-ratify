@@ -23,6 +23,20 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:6dfc1642045c6cd9acb6dac8624810063a238285ab04a12363fd385d3c735ea5
-  ratified_backfilled: true
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:6dfc1642045c6cd9acb6dac8624810063a238285ab04a12363fd385d3c735ea5
+  backfilled: true
+  content:
+    type: user_requirement
+    text: On request, the assistant shall give the ratifier a written account of
+      what they decided in the sitting — which items they accepted, which they rejected
+      and why, and anything the assistant changed on their behalf to carry those
+      decisions out. The account shall be produced without the ratifier having to
+      keep their own notes as they work, and shall be usable outside the terminal,
+      so it can go into the commit that carries the decisions or to someone who was
+      not present.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: d5e29dba8fdfd601893725bb4e08c46c8dd1abab

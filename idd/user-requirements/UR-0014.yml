@@ -37,5 +37,16 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:4d8a7e1e07eafda04c8fc12161c9567cba596c2cee9145438adc442009d5843b
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:4d8a7e1e07eafda04c8fc12161c9567cba596c2cee9145438adc442009d5843b
+  content:
+    type: user_requirement
+    text: As a reviewer whose path holds more than one graph, I want each candidate
+      on the selection screen to show how much of it is waiting for my signature,
+      and I want to change the order the candidates are listed in, so that I can
+      open the graph that needs me instead of reading paths and guessing.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 123b20a648021380efe501d5dc69c0a07cf6a717

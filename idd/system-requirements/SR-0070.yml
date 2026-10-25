@@ -23,9 +23,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:c00e9ec47b5637eeaca02ff8490866427fbff4d0cdc6a099ea4c10893cbf56b5
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:c00e9ec47b5637eeaca02ff8490866427fbff4d0cdc6a099ea4c10893cbf56b5
+  content:
     type: system_requirement
     text: When the cockpit reloads the graph it has open, it shall open the graph
       at the root it was opened from. It shall not resolve the path again, and it
@@ -33,3 +34,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: 785657c46015a52602d534cf8790e2a814243158

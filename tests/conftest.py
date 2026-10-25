@@ -13,7 +13,7 @@ _CONFIG = textwrap.dedent(
     """
     [project]
     name = "Ratifier Fixture"
-    format_version = 3
+    format_version = 4
 
     [grounding]
     root_types = ["intent", "risk"]

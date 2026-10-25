@@ -10,12 +10,14 @@ links:
 attrs:
   checks: tests/test_prompt.py::test_the_panel_grows_upward_one_line_at_a_time
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:2982198d994f4560206a51f57aaa4b37d03bf293259250749278141e3797113f
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:2982198d994f4560206a51f57aaa4b37d03bf293259250749278141e3797113f
+  content:
     type: test
     text: The shipped pytest suite checks UR-0004 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

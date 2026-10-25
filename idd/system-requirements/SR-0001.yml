@@ -12,6 +12,17 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: henry
-  ratified_fingerprint: sha256:5a55e491069cc53f9b7b7663c994aa8d824f943f3131d3fd3210fda80e575c3e
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:5a55e491069cc53f9b7b7663c994aa8d824f943f3131d3fd3210fda80e575c3e
+  backfilled: true
+  content:
+    type: system_requirement
+    text: The default worklist build_queue yields every consumer item whose status
+      is neither the ratified role nor a dead status. Already-ratified items appear
+      only under show_all; dead (tombstoned/rejected) items appear only under show_all
+      too, as refined by SR-0020.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

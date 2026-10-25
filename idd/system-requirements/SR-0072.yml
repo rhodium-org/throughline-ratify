@@ -33,9 +33,10 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:9d1b9b352ac20bb3fad8c2cbfe3fcd569ce63bd0b47dac46df2c9bae6a2b2594
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:9d1b9b352ac20bb3fad8c2cbfe3fcd569ce63bd0b47dac46df2c9bae6a2b2594
+  content:
     type: system_requirement
     text: For each requirement that the shipped pytest suite checks, this project's
       graph shall hold a test item that verifies the requirement and names each test
@@ -50,3 +51,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

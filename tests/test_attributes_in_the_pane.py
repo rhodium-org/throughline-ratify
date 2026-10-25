@@ -167,7 +167,7 @@ def test_the_ratification_record_is_not_drawn_as_an_attribute(demo_project):
     lines = _pane(demo_project, "FR-0010")
     joined = "\n".join(lines)
     assert "ratified by alice" in joined, "the readiness line still names the signer"
-    assert "ratified_by" not in joined
+    assert "ratifications" not in joined
     assert "sha256:" not in joined
     assert not any(l.startswith("attributes") for l in lines)
 

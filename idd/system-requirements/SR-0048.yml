@@ -41,5 +41,21 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:4a6a5c93566608c44cfea0ff7bb0f825cdb7b62215ee9aea1cf668a4af07c395
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:4a6a5c93566608c44cfea0ff7bb0f825cdb7b62215ee9aea1cf668a4af07c395
+  content:
+    type: system_requirement
+    text: Where more than one graph is found and tl-ratify is running interactively
+      on a terminal, it shall show a selection screen before the worklist. The screen
+      shall list each candidate in a stable order, naming the project and its path
+      relative to the path given. The reviewer shall move and choose using the keys
+      the cockpit already binds, and shall be able to leave without choosing, which
+      restores the terminal and exits taking no decision, as SR-0016 requires of
+      an interrupt. Only the chosen graph shall be composed; tl-ratify shall not
+      resolve the declared sources of a graph the reviewer did not pick. A candidate's
+      own registers may be read in order to describe it on the screen.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 123b20a648021380efe501d5dc69c0a07cf6a717

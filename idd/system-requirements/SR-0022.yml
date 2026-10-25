@@ -33,5 +33,25 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:7073408dd41cf47585a36f2fcbc72579b8c4d2d1a5115e353a6aff725190c750
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:7073408dd41cf47585a36f2fcbc72579b8c4d2d1a5115e353a6aff725190c750
+  content:
+    type: system_requirement
+    text: The assistant shall record a ratification by calling throughline's own
+      ratify operation, rather than by setting the ratified status and stamping the
+      ratifier itself, so every part of the record throughline writes is written
+      here too and stays written as throughline evolves. Where the assistant must
+      reach the ratified status by a route — an item that overshot ratification without
+      ever being signed off — it shall walk the intervening hops and hand the final
+      move to that operation, so the sign-off itself is always throughline's. It
+      shall pass its composed-union grounding view into the call, so an item that
+      reaches a root only through a borrowed clause is still accepted, and writes
+      shall continue to land only on the consumer's own registers. A refusal throughline
+      raises — an ambiguous item, an ungrounded one, or one already ratified whose
+      content has not changed since — shall be surfaced to the reviewer as it stands,
+      never worked around.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

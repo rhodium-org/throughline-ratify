@@ -32,7 +32,9 @@ Why throughline-ratify exists. Everything below grounds upward into one of these
 
 > A user should be able to install the assistant from a package index and run it, without cloning the repository or building from source. This makes the tool something people adopt rather than a script they copy, and it means the project owns a release pipeline as a first-class, maintained concern.
 
-**origin**: hybrid · **ratified_by**: henry · **ratified_fingerprint**: sha256:18c78ba67d83f2ae2a62ee86443ced918663cff2b04e6f242041ab46782bd46d · **ratified_backfilled**: True
+**origin**: hybrid
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item INT-0003 -->
@@ -40,7 +42,9 @@ Why throughline-ratify exists. Everything below grounds upward into one of these
 
 > As an open-source project, throughline-ratify should let an outside contributor understand how to contribute, how to report a vulnerability privately, and what conduct is expected, and should have each contribution arrive carrying an explicit, recorded grant of the rights under which it is offered — so that a contribution can be accepted without a later, unanswerable question about the terms on which it was given.
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:4ce2342bba7ed42e119c796848396cebe236f4ae51ebe1ffd62722c7c4a5f45a
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 
@@ -56,7 +60,9 @@ later reader can tell a deliberate omission from an oversight.
 
 *Rationale:* Ratification is the one act in this toolchain that must not be reachable without a human. Everything else throughline does can be automated safely, because everything else is a claim that can be checked — grounding, transitions, document rendering, the whole validator. A ratification cannot be checked; it is a person saying they have read this and will answer for it. Reached any other way it is not a weaker record, it is a false one, and a false accountability record is the single failure the whole toolchain exists to prevent. So the risk is not that automating it would be wrong in some particular case; it is that the record stops meaning anything at all, everywhere, retrospectively. The boundary needs recording because the mistake is easy and has now been made three times in one sitting — twice proposed here and withdrawn, once raised as a question. Every time it was argued from the family resemblance to throughline and throughline-compose, which are genuinely agent-driven and genuinely need agent-facing surfaces. That resemblance is the obvious thing about these three tools; that this one turns on an act a machine must not perform is not. Written down as negative space — nothing derives from it and nothing is checked against it — it saves the next reader from re-deriving the argument, or making it a fourth time. A broader version of this boundary was drafted and rejected, and the reason is worth keeping. It said tl-ratify was not to be used at the terminal the way a command tool is. That indicted --list (SR-0008) and --summary (SR-0021), which are ratified, useful, and take no decision, and it would have ruled out future read-only affordances for a reason that does not survive scrutiny. The line that holds is around the decision.
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:4199a7ed7aacbd6d126d9d6cae97c5e74319533d8e263024251c514319d3e5c3
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item NG-0002 -->
@@ -64,7 +70,9 @@ later reader can tell a deliberate omission from an oversight.
 
 > This project shall not adopt a contribution gate that a person of good will cannot satisfy from the interface they are contributing from. A per-commit ceremony a browser cannot produce — a trailer, a signature, a form — turns away the drive-by correction the project most wants and stops nobody it should, because anyone acting in bad faith can perform the ceremony perfectly. This is recorded negative space and not a rule about any one mechanism. Measure a proposed gate against what it costs the contribution it will refuse, not only against what it is meant to prevent, and say in the item who bears that cost.
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:3d7292b81fb2779af351b1c33d07ac2a4db7124c1a1a819f13615188c1da7355
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 
@@ -121,7 +129,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0001
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:6dfc1642045c6cd9acb6dac8624810063a238285ab04a12363fd385d3c735ea5 · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0006 -->
@@ -133,7 +143,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0003
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:b12e1ee38c313cd5582868b2b1dc165a77474e8f86b0b7db72035a85d9e9e06f
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0007 -->
@@ -144,7 +156,9 @@ What a person working with the tool must be able to do.
 *Derives from:* INT-0001
 *Relates:* UR-0004
 
-**origin**: human · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:cfe3180061b7227b1456158b92f5fc28b3922756f89a555f0f3163b2c65603d6
+**origin**: human
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0008 -->
@@ -154,7 +168,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0003
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:952712695c9bd539ab5fa960ba6c59a84381929a46d814bd18c79534285ca0bd
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0009 -->
@@ -164,7 +180,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0003
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:648612688a877e52b142373515e50342d1befdbbbfab52951f70455f43e6a3f2
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0010 -->
@@ -174,7 +192,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0003
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:77ba804bb1844422af0ac514a80d1d1ec711562b0575db11a8c39510355ccd83
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0011 -->
@@ -184,7 +204,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0002
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:f3b938bcf8b8cd4dae3b8e1d1b97014a5a3304f0a4efdabdb2fb8d3e093a2c67
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0012 -->
@@ -196,7 +218,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0003
 
-**priority**: should · **verification**: demonstration · **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:bc07cec67d2f4cf88b6bcb97ad355eb32d42ccaa1c9d8f70d0573f9039118872
+**priority**: should · **verification**: demonstration · **origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0013 -->
@@ -208,7 +232,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0001
 
-**origin**: hybrid · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:c12ac4004c7f3406c7a65618e0b6f0a504affc84950acb8b9d0fca368c6799bf
+**origin**: hybrid
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0014 -->
@@ -220,7 +246,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0001
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:4d8a7e1e07eafda04c8fc12161c9567cba596c2cee9145438adc442009d5843b
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0015 -->
@@ -232,7 +260,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0001
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:cd1b8bc1d21235431ac485cd46e1af97e9f73674ab9af7f320f8f31fc7f8e191
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0016 -->
@@ -242,7 +272,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0002
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:753916b2c6628bb74555ac539c596da1221cd58bd746d931c2475c4b611527d3
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0017 -->
@@ -254,7 +286,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0001
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:078b8b296a61b9f27e9ced3d5dbae8f30eb2d23ff6cce2745674ef09ba2c31a0
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0018 -->
@@ -266,7 +300,9 @@ What a person working with the tool must be able to do.
 
 *Derives from:* INT-0001
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:8eef06d7b5745e682f4a7efc63215fc0065a94d1533ce3e973317f9e6c116935
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 
@@ -281,7 +317,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0001
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:5a55e491069cc53f9b7b7663c994aa8d824f943f3131d3fd3210fda80e575c3e · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0002 -->
@@ -291,7 +329,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0001
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:7e349382581350a63f4e10e62d0ac25f776ac6b883473def7ae8070141c37b67 · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0003 -->
@@ -301,7 +341,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0002
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:655ef5e23922f6239f216bccc35e664cb42190f4214170212cb9b3018eb86b62 · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0004 -->
@@ -311,7 +353,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0002
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:dfe7ab5ce4c8f3ef1c7b8cb369790e13550b2f0db350d902962a4d09d922f465 · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0005 -->
@@ -321,7 +365,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0002
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:d6f2f1f67db5263ac45f5f3eb933cf82c1cde9e8a633550f75a4b045502913f3 · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0006 -->
@@ -331,7 +377,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0003
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:483280f53bf4a105160d6f3a4285820e0f60aa27045f5f3f83e8eef87d0dc658 · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0007 -->
@@ -342,7 +390,9 @@ What the software must do to meet them.
 *Derives from:* UR-0004
 *Satisfies:* tl:UR-0029
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:373175cdb959fa3cd1afe50de08da7ee3d5dc89d7ddf64de06e926549ebf2d27 · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0008 -->
@@ -352,7 +402,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0001
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:72132337fa182e2e603b0aee4e061e0a6a74afb7b090bddf8c4d986af0b02292 · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0009 -->
@@ -362,7 +414,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0001
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:cb07d06f3c7dd52ae8556f252402e3278ed61231b2fb86e72f1ffee7660ec5f2 · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0010 -->
@@ -372,7 +426,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0004
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:a4a156f6e8bea2a69d70ddd329b02c04794720c8d68587a71781f3a6549b791c · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0011 -->
@@ -382,7 +438,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0001
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:f97504b7548f639670e5eb9f2ec2b13e93a418860a38a7c41fb230a1914426b3 · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0012 -->
@@ -393,7 +451,9 @@ What the software must do to meet them.
 *Derives from:* UR-0002
 *Refines:* SR-0007
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:f7729abad855a22ecb783bab1dac98a2f684a9038879411255c33cd0e25e5e08 · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0013 -->
@@ -404,7 +464,9 @@ What the software must do to meet them.
 *Derives from:* UR-0002
 *Refines:* SR-0007
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:a926915a3f9b2a713b1497ba09fcc2e61e9efc8cb08159ca2ae16a97ba46bf59 · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0014 -->
@@ -415,7 +477,9 @@ What the software must do to meet them.
 *Derives from:* UR-0002
 *Relates:* SR-0006
 
-**origin**: ai · **ratified_by**: henry · **ratified_fingerprint**: sha256:58884eafe09fb87c5f9158a2eadc43f79a808a9036db723832bacec4d41a916a · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0015 -->
@@ -426,7 +490,9 @@ What the software must do to meet them.
 *Derives from:* INT-0001
 *Refines:* SR-0012
 
-**origin**: hybrid · **ratified_by**: henry · **ratified_fingerprint**: sha256:a40ea3bd679d432624fb37050f855d8a443e533e16ea8b19364c6a80550a8d9a · **ratified_backfilled**: True
+**origin**: hybrid
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0016 -->
@@ -437,7 +503,9 @@ What the software must do to meet them.
 *Derives from:* INT-0001
 *Refines:* SR-0007
 
-**origin**: hybrid · **ratified_by**: henry · **ratified_fingerprint**: sha256:9fd825f642f3a0f52a4f43071d94174760d7cb367525ee90ab3273e76a0801ed · **ratified_backfilled**: True
+**origin**: hybrid
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0017 -->
@@ -447,7 +515,9 @@ What the software must do to meet them.
 
 *Derives from:* INT-0002
 
-**origin**: hybrid · **ratified_by**: henry · **ratified_fingerprint**: sha256:9464c727e5877f7dd3cb36c28cbb2ba250a1fe34e028b5ab243fc7c3c875f847 · **ratified_backfilled**: True
+**origin**: hybrid
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0018 -->
@@ -458,7 +528,9 @@ What the software must do to meet them.
 *Derives from:* INT-0001
 *Refines:* SR-0001
 
-**origin**: hybrid · **ratified_by**: henry · **ratified_fingerprint**: sha256:aa5f4231140b4a24db22fa7c817fdfc1357ec4d40fbea6100e52927e4b74a514 · **ratified_backfilled**: True
+**origin**: hybrid
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0019 -->
@@ -469,7 +541,9 @@ What the software must do to meet them.
 *Derives from:* INT-0001
 *Refines:* SR-0018
 
-**origin**: hybrid · **ratified_by**: henry · **ratified_fingerprint**: sha256:eddb618ae9c6aeb27239b1f1a1af4329704660855ff5b67357a1d2cd444266df · **ratified_backfilled**: True
+**origin**: hybrid
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0020 -->
@@ -480,7 +554,9 @@ What the software must do to meet them.
 *Derives from:* INT-0001
 *Refines:* SR-0001
 
-**origin**: hybrid · **ratified_by**: henry · **ratified_fingerprint**: sha256:8851181d0ee5410d14350f84c3a946ff75bb08de89cf4a41b983c899b45657bd · **ratified_backfilled**: True
+**origin**: hybrid
+
+*Ratified by:* henry
 <!-- tl:end -->
 
 <!-- tl:item SR-0021 -->
@@ -492,7 +568,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0005
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:6fa63c16153286d0a3c48d9b2735d03c5fe6dead30b45aa8a8d604ede4c91bba · **ratified_backfilled**: True
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0022 -->
@@ -504,7 +582,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0002
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:7073408dd41cf47585a36f2fcbc72579b8c4d2d1a5115e353a6aff725190c750
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0023 -->
@@ -517,7 +597,9 @@ What the software must do to meet them.
 *Derives from:* UR-0002
 *Relates:* UR-0004
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:6dea89d3100c002acbbda2cea1088247c55f89f5ffd73aec5b6f9290866ff2e2
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0024 -->
@@ -530,7 +612,9 @@ What the software must do to meet them.
 *Derives from:* UR-0001
 *Relates:* UR-0002
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:817ae860b39a82ddb1bdc3ddbbc306b667c4bc7ec2ec1abfac07a980dc3e8592
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0025 -->
@@ -543,7 +627,9 @@ What the software must do to meet them.
 *Derives from:* UR-0002
 *Relates:* SR-0024
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:e6eee3538ac8e579cb4a82d37ab2d69da92bd6bca840800d0088f9b5370fe8ea
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0026 -->
@@ -556,7 +642,9 @@ What the software must do to meet them.
 *Derives from:* UR-0002
 *Relates:* SR-0005
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:c700159245c18dc743730ee79bc23df94be54e4e27116e1630029e43004cbeda
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0027 -->
@@ -569,7 +657,9 @@ What the software must do to meet them.
 *Derives from:* UR-0002
 *Relates:* SR-0022, SR-0026
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:2be2483f881caab16ea0e45371beb1a225706ef53f3d424d6533fa264a2eaadb
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0028 -->
@@ -583,7 +673,9 @@ What the software must do to meet them.
 *Relates:* SR-0022, SR-0027
 *Satisfies:* tl:SR-0157
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:edacf0f595d22bde8572d7fbface706199f2b0dd2df8adbc205587af4da2ea54
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0029 -->
@@ -596,7 +688,9 @@ What the software must do to meet them.
 *Derives from:* UR-0002
 *Relates:* SR-0028, SR-0022
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:4ef12c8d5ce198023015bb79b6be16a8299e8a8122e7239c02b8da1d993bc760
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0030 -->
@@ -610,7 +704,9 @@ What the software must do to meet them.
 *Relates:* SR-0019, SR-0022, SR-0024
 *Satisfies:* tl:SR-0148
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:14d2596bf166142293c43a03a756007c1cf0cd7b8a25571cb546e5a73a28f1d2
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0031 -->
@@ -623,7 +719,9 @@ What the software must do to meet them.
 *Derives from:* UR-0004
 *Relates:* SR-0007
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:d52cef544fad9eae8085672d2a3d93bb7769e21ba3b418c8e4c07f0fd3421eaa
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0032 -->
@@ -635,7 +733,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0006
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:3d8ce8d2b62833fe7b8c598b2bee1ab3d218d368b266b49c5916635177f14d5d · **invalidated_reason**: Withdrawn, not superseded. The gate would have blocked every browser-based contribution — a web edit, an accepted review suggestion, a revert — because GitHub composes those commits with no Signed-off-by trailer and no check can supply one. UR-0006 now rests on section 5 of the licence, which needs nothing from the contributor per commit.
+**origin**: ai · **invalidated_reason**: Withdrawn, not superseded. The gate would have blocked every browser-based contribution — a web edit, an accepted review suggestion, a revert — because GitHub composes those commits with no Signed-off-by trailer and no check can supply one. UR-0006 now rests on section 5 of the licence, which needs nothing from the contributor per commit.
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0033 -->
@@ -646,7 +746,9 @@ What the software must do to meet them.
 *Derives from:* UR-0007
 *Relates:* SR-0007
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:33c8a44a21af3ba05af236f5018b98ce7a4765999fdb99e707fa9b6d28f5141e
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0034 -->
@@ -658,7 +760,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0008
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:ae934f0fe355d805807765f423dfd655c5e22b63ab55bc8b56da17ba651de84c
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0035 -->
@@ -668,7 +772,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0009
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:258c73e1f136c4f1d896d74c8449bef65118cd47300d48aeb1beae62af3ff897
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0036 -->
@@ -678,7 +784,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0010
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:59eb3133000e11ed9d49a10d9978e014c72e9bd13d15dc57402662055611dce4
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0037 -->
@@ -692,7 +800,9 @@ What the software must do to meet them.
 *Relates:* SR-0025
 *Satisfies:* tl:SR-0173
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:021c50059c82151cac05f1ffb4d29b8085ee25f06600296f41c80bebf234438c
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0038 -->
@@ -704,7 +814,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0008
 
-**priority**: should · **verification**: inspection · **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:66a4d6b3c10b32ee66919aae140373a1850431b6ede31e712980a45d603d84aa
+**priority**: should · **verification**: inspection · **origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0039 -->
@@ -714,7 +826,9 @@ What the software must do to meet them.
 
 *Derives from:* INT-0002
 
-**priority**: should · **verification**: The decision module is imported in a process where curses is absent from sys.modules and importing it fails; the import succeeds and no subprocess is created. The test is part of the unit suite. · **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:2933045aa6af9722e86c0466f0a089316a0e13175dabd2cd18a265b6618c92c0
+**priority**: should · **verification**: The decision module is imported in a process where curses is absent from sys.modules and importing it fails; the import succeeds and no subprocess is created. The test is part of the unit suite. · **origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0040 -->
@@ -728,7 +842,9 @@ What the software must do to meet them.
 *Relates:* SR-0017
 *Satisfies:* tl:SR-0135
 
-**priority**: should · **verification**: test · **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:28c82c45a02f574ebe957bb3992121263ecd1afe453dadde348ee70893f309ca
+**priority**: should · **verification**: test · **origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0041 -->
@@ -741,7 +857,9 @@ What the software must do to meet them.
 *Derives from:* UR-0011
 *Relates:* SR-0040, SR-0038
 
-**priority**: should · **verification**: test · **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:85f5b629a70fdf26973f1f1cadb4556a6b9ad26107f487f7539c0e57629d220a
+**priority**: should · **verification**: test · **origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0042 -->
@@ -754,7 +872,9 @@ What the software must do to meet them.
 *Derives from:* UR-0012
 *Relates:* SR-0041, SR-0034
 
-**priority**: should · **verification**: test · **origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:64738c2e1a103e9950a1e70d307eacb3b5272b5180d4a856c3d2298be4d54bec
+**priority**: should · **verification**: test · **origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0043 -->
@@ -767,7 +887,9 @@ What the software must do to meet them.
 *Derives from:* INT-0002
 *Relates:* SR-0038
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:24f0b78eccd3050208b2b04abcadc02e2dee233e2b0940f3ba42d84be0e52b69
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0044 -->
@@ -780,7 +902,9 @@ What the software must do to meet them.
 *Derives from:* UR-0004
 *Relates:* SR-0007
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:03793b161e7d453961f7313f59b1d963425a7054f98a4218c8c0336cf6c3c6f9
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0045 -->
@@ -792,7 +916,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0013
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:3b478949ea668bef30282e4e0eab56221fb72a8c545a69258daea961a93b4d07
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0046 -->
@@ -804,7 +930,9 @@ What the software must do to meet them.
 
 *Refines:* SR-0045
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:f3b0960b23a85e196dc41db7ce068feb0ae7a50c98497215c7333379bb8a9148
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0047 -->
@@ -816,7 +944,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0013
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:8347415a9055bd8476e2e43a16dca3423da4555373e7b4705849dba090794d98
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0048 -->
@@ -828,7 +958,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0013
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:4a6a5c93566608c44cfea0ff7bb0f825cdb7b62215ee9aea1cf668a4af07c395
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0049 -->
@@ -840,7 +972,9 @@ What the software must do to meet them.
 
 *Refines:* SR-0048
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:0d91672a90044b572fd798970c76a70664c3d267a8218584ca6cb8a25ee42167
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0050 -->
@@ -852,7 +986,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0014
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:29432be43f12d8c9d0bc2df4cbb26b99b52184bfad504004814475f84fa71e06
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0051 -->
@@ -864,7 +1000,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0014
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:62bdcf23f2bfdfe15bc938a2ad183812e51238d1c330a604e40e9c5a537852e4
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0052 -->
@@ -876,7 +1014,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0014
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:2db9dac8baddb77b411ff1a9c3229edd1c0892e36cb179f262dc2dd196802cef
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0053 -->
@@ -891,7 +1031,9 @@ What the software must do to meet them.
 *Satisfies:* tl:UR-0028
 *Relates:* tl:SR-0165, SR-0022
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:983c23232e2e43848f879674809260c2369e9f056a6f18bb2a241b5e5b41317b
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0054 -->
@@ -904,7 +1046,9 @@ What the software must do to meet them.
 *Derives from:* UR-0003
 *Relates:* SR-0006, SR-0043
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:146956d92d5fc255b74981741bb343f71461808466f684698b013ee3d37933ee · **invalidated_reason**: the name it reached for is published; SR-0057 and SR-0060 close it
+**origin**: ai · **invalidated_reason**: the name it reached for is published; SR-0057 and SR-0060 close it
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0055 -->
@@ -917,7 +1061,9 @@ What the software must do to meet them.
 *Derives from:* UR-0011
 *Relates:* SR-0041, SR-0054
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:0200ab9ada118f01ae73dd4fa88bb3ffb97678e6f8cf6b1a00c3723a9263fae0
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0056 -->
@@ -932,7 +1078,9 @@ What the software must do to meet them.
 *Satisfies:* tl:SR-0198
 *Relates:* tl:SR-0200
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:72b7bb0ec21a5f15eb28bef252f2af22582fcf8cb39e663eabff5b8685fbeaa5
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0057 -->
@@ -945,7 +1093,9 @@ What the software must do to meet them.
 *Derives from:* UR-0016
 *Relates:* SR-0022, SR-0027, SR-0054, SR-0059
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:791c812fdc5c575d0a98d062ffe807f540dfdbb9d3fdf06e244c46e296bd059f
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0058 -->
@@ -958,7 +1108,9 @@ What the software must do to meet them.
 *Derives from:* UR-0016
 *Relates:* SR-0002, SR-0039, SR-0018, SR-0030, SR-0020
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:bbfc1ab3cf3fc02b040bd068d9c1c1461aa4661591b4869afad5e9203f67019c
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0059 -->
@@ -972,7 +1124,9 @@ What the software must do to meet them.
 *Refines:* SR-0057
 *Relates:* SR-0053, SR-0054, SR-0056, SR-0022, SR-0027
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:398f2e36d0fb42a40b011b94b7a654a74afd23909fca63e0473d32423fb22ae5
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0060 -->
@@ -985,7 +1139,9 @@ What the software must do to meet them.
 *Derives from:* UR-0016
 *Relates:* SR-0029, SR-0043, SR-0058
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:2d65db4cc82860adfea1e5a7f6c0c924377487cfcd516d0d8bb94dbc73913fb1
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0061 -->
@@ -996,7 +1152,9 @@ What the software must do to meet them.
 *Derives from:* UR-0017
 *Relates:* SR-0030
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:0282fde51eb2963ffdd58204e111d0af4aba67d2b342ce25fc40bcf82f31a7c3
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0062 -->
@@ -1007,7 +1165,9 @@ What the software must do to meet them.
 *Derives from:* UR-0017
 *Relates:* SR-0033
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:25644d5357801eafbdffc1bef781b01e6ffb028035598da8848bbcdcd8b1657d
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0063 -->
@@ -1020,7 +1180,9 @@ What the software must do to meet them.
 *Derives from:* UR-0018
 *Relates:* SR-0048, SR-0016
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:da389676539e3d2883971459c69a0fa8e97d6ec43cf24bffb3fbedc56ed866c5
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0064 -->
@@ -1033,7 +1195,9 @@ What the software must do to meet them.
 *Derives from:* UR-0018
 *Relates:* SR-0050, SR-0052
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:ecc3de659a34348ce1a0307ff09ddba39b9ea4fa489d9268152e94e319a4453d
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0065 -->
@@ -1046,7 +1210,9 @@ What the software must do to meet them.
 *Derives from:* UR-0005
 *Relates:* SR-0021, SR-0027
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:e76c6d0c67a2e3f49afb99088e85c848baa6234f7dbd785982aeb4f234febd09
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0066 -->
@@ -1059,7 +1225,9 @@ What the software must do to meet them.
 *Derives from:* UR-0018
 *Relates:* SR-0063, SR-0033
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:d0d16b40d61cbf926f4fe09fce0f44041d7f46f2273102796d58854030676658
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0067 -->
@@ -1072,7 +1240,9 @@ What the software must do to meet them.
 *Derives from:* UR-0017
 *Relates:* SR-0062, SR-0061, SR-0065, SR-0016, SR-0021, SR-0048, SR-0063, SR-0068, SR-0069, SR-0071, UR-0018
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:7274e3aa3adb24fa379013f61dd4c3d27897e01399faf845d035bc6b8afc6ea9
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0068 -->
@@ -1085,7 +1255,9 @@ What the software must do to meet them.
 *Derives from:* UR-0014
 *Relates:* SR-0064, SR-0050, SR-0033, SR-0048, SR-0070
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:a8f547c9fcff61521afeb96c1590e09fcb615bf65da31114df83ac34c3853c82
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0069 -->
@@ -1098,7 +1270,9 @@ What the software must do to meet them.
 *Derives from:* UR-0014
 *Relates:* SR-0062, SR-0068, SR-0050, SR-0051, SR-0048
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:0522d3697a0dfbe6e4027326f7b0dd8563b986c11963be7227d1c8595d523cbf
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0070 -->
@@ -1111,7 +1285,9 @@ What the software must do to meet them.
 *Derives from:* UR-0017
 *Relates:* SR-0045, SR-0067
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:c00e9ec47b5637eeaca02ff8490866427fbff4d0cdc6a099ea4c10893cbf56b5
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0071 -->
@@ -1124,7 +1300,9 @@ What the software must do to meet them.
 *Derives from:* UR-0017
 *Relates:* SR-0062, SR-0061, SR-0067
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:3e5e0485746e1ed2c16d9892e949b63f46c1d18433d813e8a28fb28b7764f2fc
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0072 -->
@@ -1136,7 +1314,9 @@ What the software must do to meet them.
 
 *Derives from:* UR-0008
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:9d1b9b352ac20bb3fad8c2cbfe3fcd569ce63bd0b47dac46df2c9bae6a2b2594
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0073 -->
@@ -1149,7 +1329,9 @@ What the software must do to meet them.
 *Derives from:* UR-0004
 *Relates:* SR-0063, SR-0007, SR-0062
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:f19ae5ecf117e1a96ea4d3814c74b8758856b3be063b963c4da1fd9eaae731d0
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0074 -->
@@ -1162,7 +1344,9 @@ What the software must do to meet them.
 *Derives from:* UR-0001
 *Relates:* SR-0009, SR-0067
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:4d526e6b910ef0a0dc52edf2a1c618a1181f9547647a0084ea3a60190a5d77c0
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item SR-0075 -->
@@ -1175,7 +1359,9 @@ What the software must do to meet them.
 *Derives from:* UR-0004
 *Relates:* SR-0073, SR-0007
 
-**origin**: ai · **ratified_by**: Henry Grech-Cini · **ratified_fingerprint**: sha256:c7397df6f3bdfafe3366a78e50eec2609a0c12aebdd5e94cb29ea6f588834da3
+**origin**: ai
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 
@@ -1205,6 +1391,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0016 | Upgrading throughline does not cost me a new cockpit | SR-0057, SR-0058, SR-0059, SR-0060 |
 | UR-0017 | A screen left open does not sign wording I was not shown | SR-0061, SR-0062, SR-0067, SR-0070, SR-0071 |
 | UR-0018 | Leaving a graph takes me back to the list I picked it from | SR-0063, SR-0064, SR-0066 |
+| UR-0019 | Sign in the role the graph declares, and see who has signed before me | SR-0078, SR-0079, SR-0080 |
 <!-- tl:end -->
 
 
@@ -1296,4 +1483,7 @@ checked by a workflow or a document, or not at all.
 | SR-0075 | The help screen scrolls, so every line of it can be read on any terminal the cockpit runs in | TEST-0064 |
 | SR-0076 | The detail pane shows every attribute the item carries, and marks the ones the signature covers | TEST-0065 |
 | SR-0077 | On Windows the package brings the curses it draws with | TEST-0066 |
+| SR-0078 | The awaiting concern is drawn, with where the item stands | TEST-0067 |
+| SR-0079 | Every signature an item carries is listed in the pane | TEST-0068 |
+| SR-0080 | The role a sitting signs in is settled before the cockpit opens and shown in every confirmation | TEST-0069 |
 <!-- tl:end -->

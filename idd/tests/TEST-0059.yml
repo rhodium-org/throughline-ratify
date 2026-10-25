@@ -19,12 +19,14 @@ attrs:
     tests/test_composed_grounding.py::test_without_the_source_declared_the_same_item_is_ungrounded
     tests/test_core.py::test_a_path_source_is_composed_through_the_real_seam
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:c155c81381678ff619a7f5e3577c69b2036f46b4c7978347fce7c1e5f4afcb2e
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:c155c81381678ff619a7f5e3577c69b2036f46b4c7978347fce7c1e5f4afcb2e
+  content:
     type: test
     text: The shipped pytest suite checks SR-0006 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 2144bfa7215d8d4e006b69a2f8d5980817f042f1

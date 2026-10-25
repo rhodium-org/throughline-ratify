@@ -134,7 +134,7 @@ def test_reratify_records_signoff_and_restores_status(demo_project):
     fresh = core.open_session(demo_project)
     item = fresh.project.get("FR-0007")
     assert item.status == "implemented"          # restored to its original status
-    assert item.attrs.get("ratified_by") == "tester"
+    assert item.ratifications[-1].get("by") == "tester"
     assert "FR-0007" not in _by_uid(core.build_queue(fresh))
     assert _by_uid(core.build_queue(fresh, show_all=True))["FR-0007"].concern == "ratified"
 
@@ -184,7 +184,7 @@ def test_a_stale_item_that_also_overshot_is_signed_where_it_stands(demo_project)
     fresh = core.open_session(demo_project)
     item = fresh.project.get("FR-0011")
     assert item.status == "implemented"
-    assert item.attrs["ratified_by"] == "bob"
+    assert item.ratifications[-1]["by"] == "bob"
     assert "FR-0011" not in _by_uid(core.build_queue(fresh))
 
 
@@ -194,8 +194,8 @@ def test_re_signing_a_stale_item_rebinds_it_and_clears_the_concern(demo_project)
 
     fresh = core.open_session(demo_project)
     item = fresh.project.get("FR-0010")
-    assert item.attrs["ratified_by"] == "bob"              # alice's signature replaced
-    assert item.attrs["ratified_fingerprint"] == _fingerprint_of(fresh.project, "FR-0010")
+    assert item.ratifications[-1]["by"] == "bob"              # alice's signature replaced
+    assert item.ratifications[-1]["fingerprint"] == _fingerprint_of(fresh.project, "FR-0010")
     assert "FR-0010" not in _by_uid(core.build_queue(fresh))
     assert _by_uid(core.build_queue(fresh, show_all=True))["FR-0010"].concern == "ratified"
 
@@ -208,7 +208,7 @@ def test_re_signing_a_stale_overshoot_restores_its_status(demo_project):
     fresh = core.open_session(demo_project)
     item = fresh.project.get("FR-0011")
     assert item.status == "implemented"                    # exactly where it started
-    assert item.attrs["ratified_fingerprint"] == _fingerprint_of(fresh.project, "FR-0011")
+    assert item.ratifications[-1]["fingerprint"] == _fingerprint_of(fresh.project, "FR-0011")
     assert "FR-0011" not in _by_uid(core.build_queue(fresh))
 
 
@@ -283,8 +283,8 @@ def test_ratifying_binds_the_signature_to_the_content_signed(demo_project):
 
     fresh = core.open_session(demo_project)
     item = fresh.project.get("FR-0001")
-    assert item.attrs.get("ratified_by") == "tester"
-    assert item.attrs.get("ratified_fingerprint") == _fingerprint_of(fresh.project, "FR-0001")
+    assert item.ratifications[-1].get("by") == "tester"
+    assert item.ratifications[-1].get("fingerprint") == _fingerprint_of(fresh.project, "FR-0001")
 
 
 def test_reratifying_binds_the_signature_too_and_the_walk_does_not_stale_it(
@@ -298,7 +298,7 @@ def test_reratifying_binds_the_signature_too_and_the_walk_does_not_stale_it(
     fresh = core.open_session(demo_project)
     item = fresh.project.get("FR-0007")
     assert item.status == "implemented"          # walked on, as before
-    assert item.attrs.get("ratified_fingerprint") == _fingerprint_of(fresh.project, "FR-0007")
+    assert item.ratifications[-1].get("fingerprint") == _fingerprint_of(fresh.project, "FR-0007")
 
 
 def test_a_ratified_item_whose_content_has_not_changed_is_refused(demo_project):
@@ -309,7 +309,7 @@ def test_a_ratified_item_whose_content_has_not_changed_is_refused(demo_project):
     core.ratify_item(session, "FR-0001", by="alice")
     with pytest.raises(core.RatifierError, match="already ratified by alice"):
         core.ratify_item(session, "FR-0001", by="bob")
-    assert session.project.get("FR-0001").attrs["ratified_by"] == "alice"
+    assert session.project.get("FR-0001").ratifications[-1]["by"] == "alice"
 
 
 def test_an_unbound_signature_can_be_bound_without_changing_anything_else(
@@ -320,15 +320,15 @@ def test_an_unbound_signature_can_be_bound_without_changing_anything_else(
     signature, and nothing but the stamp moves."""
     session = core.open_session(demo_project)
     item = session.project.get("FR-0006")  # ratified_by alice, no fingerprint
-    assert item.attrs.get("ratified_by") and "ratified_fingerprint" not in item.attrs
+    assert item.ratifications[-1].get("by") and "ratified_fingerprint" not in item.attrs
     before_status, before_text = item.status, item.text
 
     core.reratify_item(session, "FR-0006", by="alice")
 
     fresh = core.open_session(demo_project).project.get("FR-0006")
     assert fresh.status == before_status and fresh.text == before_text
-    assert fresh.attrs["ratified_by"] == "alice"
-    assert fresh.attrs["ratified_fingerprint"].startswith("sha256:")
+    assert fresh.ratifications[-1]["by"] == "alice"
+    assert fresh.ratifications[-1]["fingerprint"].startswith("sha256:")
 
 
 def test_reratify_refuses_when_the_config_offers_no_route(demo_project):
@@ -356,7 +356,7 @@ def test_reratify_surfaces_throughlines_own_refusal_and_leaves_the_item_alone(
     # nothing was written: the item on disk is untouched and still unratified
     fresh = core.open_session(demo_project).project.get("FR-0007")
     assert fresh.status == "implemented"
-    assert core.RATIFIED_BY_ATTR not in fresh.attrs
+    assert not fresh.ratifications
 
 
 def test_progress_climbs_as_items_are_ratified(demo_project):
@@ -453,7 +453,7 @@ def test_ratify_persists_and_leaves_queue(demo_project):
     assert "FR-0001" not in rows
     item = fresh.project.get("FR-0001")
     assert item.status == "ratified"
-    assert item.attrs.get("ratified_by") == "tester"
+    assert item.ratifications[-1].get("by") == "tester"
 
 
 def test_ratify_refuses_ungrounded(demo_project):
@@ -545,8 +545,8 @@ def test_a_stable_identifier_is_recorded_beside_the_name(demo_project):
 
     fresh = core.open_session(demo_project)
     item = fresh.project.get("FR-0001")
-    assert item.attrs.get("ratified_by") == "Ada Lovelace"
-    assert item.attrs.get("ratified_id") == "github:ada"
+    assert item.ratifications[-1].get("by") == "Ada Lovelace"
+    assert item.ratifications[-1].get("id") == "github:ada"
 
 
 def test_an_absent_identifier_stays_absent(demo_project):
@@ -569,14 +569,14 @@ def test_a_malformed_identifier_is_refused_in_throughlines_words(demo_project):
 
 
 def test_open_session_without_status_roles_errors_cleanly(tmp_path):
-    # A format_version 3 project that never declared [status.roles] must fail with
+    # A current-format project that never declared [status.roles] must fail with
     # a guiding RatifierError, not an uncaught SchemaError traceback.
     root = tmp_path / "roleless"
     root.mkdir()
     (root / "throughline.toml").write_text(
         "[project]\n"
         'name = "Roleless"\n'
-        "format_version = 3\n\n"
+        "format_version = 4\n\n"
         "[status]\n"
         'values = ["proposed", "ratified"]\n',
         encoding="utf-8",
@@ -608,7 +608,7 @@ def test_a_suspect_item_is_back_in_the_default_worklist(demo_project):
     session = core.open_session(demo_project)
     item = session.project.get("FR-0001")
     assert item.status == session.suspect_status
-    assert item.attrs.get("ratified_by") == "Ada Lovelace", "the stamp survives"
+    assert item.ratifications[-1].get("by") == "Ada Lovelace", "the stamp survives"
     assert "FR-0001" in _uids(core.build_queue(session)), "suspect: awaiting a human"
 
 
@@ -617,8 +617,8 @@ def test_a_stamped_item_that_moved_on_stays_out_of_the_worklist(demo_project):
     is not re-offered for a ratification its status can no longer accept (SR-0019)."""
     session = core.open_session(demo_project)
     item = session.project.get("FR-0007")   # overshot to 'implemented'
-    item.attrs["ratified_by"] = "Ada Lovelace"
-    item.attrs["ratified_fingerprint"] = core.fingerprint_of(session, item)
+    item.ratifications.append({"by": "Ada Lovelace",
+                               "fingerprint": core.fingerprint_of(session, item)})
     assert "FR-0007" not in _uids(core.build_queue(session))
     assert _by_uid(core.build_queue(session, show_all=True))["FR-0007"].concern == "ratified"
 

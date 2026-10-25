@@ -42,6 +42,33 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:6fa63c16153286d0a3c48d9b2735d03c5fe6dead30b45aa8a8d604ede4c91bba
-  ratified_backfilled: true
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:6fa63c16153286d0a3c48d9b2735d03c5fe6dead30b45aa8a8d604ede4c91bba
+  backfilled: true
+  content:
+    type: system_requirement
+    text: The assistant shall accept a `--summary` option taking an optional file
+      path. When it is given, the assistant shall record every decision the ratifier
+      takes during the sitting and, on exit, render them as a plain-text report —
+      to the named file if a path was supplied, otherwise to stdout after the full-screen
+      view has closed. The report shall carry a header naming the project, whether
+      the scope was the local graph or a composed union, the ratifier recorded on
+      sign-off, and when the sitting ended; then one entry per decision in the order
+      taken, each naming the item, its title, and what was decided — ratified, re-ratified,
+      rejected with the reason given, or a grounding link removed. Where the assistant
+      moved an item through intermediate statuses to carry a decision out, the entry
+      shall name the route it walked; where a rejection cascaded suspicion to dependents,
+      the entry shall name them. The report shall end with a tally and a single line
+      listing the decided item UIDs, formatted as the trailer the estate's commit
+      convention expects, so it can be pasted into the commit that carries the work.
+      A sitting in which no decision was taken shall produce no report and shall
+      not create the file. The option shall be rejected as a usage error alongside
+      `--list`, which takes no decisions. The report shall name only the ratifier
+      the sitting already recorded, never a value the assistant chose, and shall
+      describe what happened rather than govern anything — the items themselves remain
+      the only source of truth.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

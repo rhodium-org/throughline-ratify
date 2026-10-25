@@ -15,5 +15,17 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:33c8a44a21af3ba05af236f5018b98ce7a4765999fdb99e707fa9b6d28f5141e
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:33c8a44a21af3ba05af236f5018b98ce7a4765999fdb99e707fa9b6d28f5141e
+  content:
+    type: system_requirement
+    text: Before the cockpit begins reloading the graph from disk it shall paint
+      a visible in-progress state and flush it to the terminal, then perform the
+      read, then repaint the refreshed worklist. The indication is therefore on screen
+      for the duration of the blocking read, rather than a flash message that can
+      only appear once the read has already returned.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 785e4e4443af5622adcd8f8add74f705b7895b35

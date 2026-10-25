@@ -15,6 +15,19 @@ links:
   type: derives_from
 attrs:
   origin: hybrid
-  ratified_by: henry
-  ratified_fingerprint: sha256:9464c727e5877f7dd3cb36c28cbb2ba250a1fe34e028b5ab243fc7c3c875f847
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:9464c727e5877f7dd3cb36c28cbb2ba250a1fe34e028b5ab243fc7c3c875f847
+  backfilled: true
+  content:
+    type: system_requirement
+    text: On a published GitHub Release the workflow builds an sdist and wheel, checks
+      their metadata, and publishes to PyPI via Trusted Publishing (OIDC), with no
+      stored API token. The reusable actions it depends on are pinned to versions
+      whose runtime is still supported by GitHub — actions running on a deprecated
+      Node runtime are bumped to a current major so the pipeline does not rely on
+      the runner's temporary forward-compatibility shim.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: d5e29dba8fdfd601893725bb4e08c46c8dd1abab

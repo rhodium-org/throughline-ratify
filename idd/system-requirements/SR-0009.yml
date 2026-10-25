@@ -14,6 +14,18 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: henry
-  ratified_fingerprint: sha256:cb07d06f3c7dd52ae8556f252402e3278ed61231b2fb86e72f1ffee7660ec5f2
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:cb07d06f3c7dd52ae8556f252402e3278ed61231b2fb86e72f1ffee7660ec5f2
+  backfilled: true
+  content:
+    type: system_requirement
+    text: When a project is missing the configuration tl-ratify needs to run its
+      accountability gate (for example no status is bound to the 'ratified' or 'proposed'
+      role under [status.roles]), open_session raises a user-facing RatifierError
+      naming the offending file and how to fix it, and the CLI prints a single-line
+      message and exits non-zero rather than dumping a Python traceback.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

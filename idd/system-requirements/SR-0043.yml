@@ -25,5 +25,17 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:24f0b78eccd3050208b2b04abcadc02e2dee233e2b0940f3ba42d84be0e52b69
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:24f0b78eccd3050208b2b04abcadc02e2dee233e2b0940f3ba42d84be0e52b69
+  content:
+    type: system_requirement
+    text: The floors this package declares shall admit no resolution of its dependencies
+      that the cockpit cannot run. Where two declared dependencies are a paired edition
+      — one of them requiring a floor of the other — raising either floor raises
+      the other with it, so that every point the declared range permits is a toolchain
+      that works together.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 8a34d62d417a7ce800aa1752bd4865cc2a12405b

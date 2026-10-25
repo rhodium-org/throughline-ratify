@@ -26,10 +26,25 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:3d8ce8d2b62833fe7b8c598b2bee1ab3d218d368b266b49c5916635177f14d5d
   invalidated_reason: Withdrawn, not superseded. The gate would have blocked every
     browser-based contribution — a web edit, an accepted review suggestion, a revert
     — because GitHub composes those commits with no Signed-off-by trailer and no
     check can supply one. UR-0006 now rests on section 5 of the licence, which needs
     nothing from the contributor per commit.
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:3d8ce8d2b62833fe7b8c598b2bee1ab3d218d368b266b49c5916635177f14d5d
+  content:
+    type: system_requirement
+    text: Every commit that lands on the default branch shall carry a Developer Certificate
+      of Origin sign-off. A continuous-integration check shall inspect each commit
+      in the change and fail when any of them carries no Signed-off-by trailer matching
+      either its author or its committer. On a pull request the check shall be a
+      required status check, so a non-conforming contribution cannot be merged; on
+      a direct push it shall fail the build, which is the strongest gate that route
+      allows. A failing check shall name each offending commit and print the command
+      that remedies it.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 08718649c10ce2e6601c51e72a20fa3532168cb7

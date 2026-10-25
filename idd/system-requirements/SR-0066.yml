@@ -28,9 +28,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:d0d16b40d61cbf926f4fe09fce0f44041d7f46f2273102796d58854030676658
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:d0d16b40d61cbf926f4fe09fce0f44041d7f46f2273102796d58854030676658
+  content:
     type: system_requirement
     text: Where a selection screen is shown, tl-ratify shall keep one full-screen
       view up from the first showing of that screen until the program ends. It shall
@@ -41,3 +42,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: 3ad5847179e75f9af497adcc8b2cae14d7c2ec10

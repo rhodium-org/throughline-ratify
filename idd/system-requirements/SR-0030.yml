@@ -48,9 +48,10 @@ links:
   stamp: sha256:61785804e847f1d94decacbca6af9ed13d4b2728572db547e0c5a3b9286ad9a4
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:14d2596bf166142293c43a03a756007c1cf0cd7b8a25571cb546e5a73a28f1d2
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:14d2596bf166142293c43a03a756007c1cf0cd7b8a25571cb546e5a73a28f1d2
+  content:
     type: system_requirement
     text: An item whose recorded ratification fingerprint no longer matches its content
       shall appear in the default worklist under a concern of its own, distinct both
@@ -66,3 +67,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: cb4b3c66890b382b5be647b55794300e96a38e40

@@ -13,12 +13,14 @@ attrs:
     tests/test_core.py::test_concern_classification
     tests/test_core.py::test_queue_sorted_most_actionable_first
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:e4e03ad5b02f757b3c807ace145472e104db67eef9e8b13468edc0dce0abc829
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:e4e03ad5b02f757b3c807ace145472e104db67eef9e8b13468edc0dce0abc829
+  content:
     type: test
     text: The shipped pytest suite checks SR-0002 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

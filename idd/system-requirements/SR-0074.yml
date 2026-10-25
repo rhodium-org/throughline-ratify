@@ -31,9 +31,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:4d526e6b910ef0a0dc52edf2a1c618a1181f9547647a0084ea3a60190a5d77c0
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:4d526e6b910ef0a0dc52edf2a1c618a1181f9547647a0084ea3a60190a5d77c0
+  content:
     type: system_requirement
     text: Where tl-ratify is given a relative path, or none, and the directory it
       was started in no longer exists, it shall print one line on standard error
@@ -45,3 +46,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: b25504c07861eb0c666d52f8d55fb26a69fb8eeb

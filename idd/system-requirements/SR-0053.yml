@@ -34,5 +34,20 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:983c23232e2e43848f879674809260c2369e9f056a6f18bb2a241b5e5b41317b
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:983c23232e2e43848f879674809260c2369e9f056a6f18bb2a241b5e5b41317b
+  content:
+    type: system_requirement
+    text: 'Where the assistant presents an item whose ratification no longer covers
+      its content, it shall show in that item''s own view which normative fields
+      changed since the signature, giving the value as signed beside the value as
+      it now stands, and naming where the signed content came from: the revision
+      it was recovered from, or the ratification record itself where the record carries
+      the content it was taken over. Where the change cannot be established it shall
+      say so plainly, distinctly from having found no change. What changed shall
+      be settled by asking throughline, never by comparing content here.'
+    normative: true
+    derived: false
+    attrs: {}
+  revision: b3070619045f34f554869ef0a9ad743a8054586f

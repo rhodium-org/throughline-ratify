@@ -41,9 +41,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:f19ae5ecf117e1a96ea4d3814c74b8758856b3be063b963c4da1fd9eaae731d0
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:f19ae5ecf117e1a96ea4d3814c74b8758856b3be063b963c4da1fd9eaae731d0
+  content:
     type: system_requirement
     text: 'The footer of the worklist and of the detail pane shall name each key
       by a word where every key so named fits in the width of the screen. Where the
@@ -59,3 +60,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: b25504c07861eb0c666d52f8d55fb26a69fb8eeb

@@ -29,5 +29,20 @@ attrs:
   priority: should
   verification: test
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:64738c2e1a103e9950a1e70d307eacb3b5272b5180d4a856c3d2298be4d54bec
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:64738c2e1a103e9950a1e70d307eacb3b5272b5180d4a856c3d2298be4d54bec
+  content:
+    type: system_requirement
+    text: The repository shall configure the documents its requirements are published
+      into, and shall carry a generated specification document rendering every live
+      normative item in its own graph together with the traceability between them.
+      Continuous integration shall run the freshness check on every change, so a
+      document that no longer matches the graph fails the build; and because configuring
+      published documents is what makes publication coverage judged at all, the existing
+      strict graph check shall thereby report a live normative item that no document
+      names.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: b9010fabfe58af5dee1146399fed23c51a2926f5

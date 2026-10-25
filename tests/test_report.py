@@ -221,7 +221,7 @@ def test_ratifying_records_the_decision_and_the_graph_agrees(app, demo_project):
     ]
     # the account describes what actually happened — the item really was signed off
     reloaded = core.open_session(demo_project).project.get("FR-0001")
-    assert reloaded.attrs.get("ratified_by") == "Ada Lovelace"
+    assert reloaded.ratifications[-1].get("by") == "Ada Lovelace"
 
 
 def test_reratifying_records_the_route_core_actually_walked(app):
@@ -289,7 +289,7 @@ def test_the_cockpit_runs_unchanged_without_a_log(demo_project, monkeypatch):
     app_obj = tui.App(None, session, "Ada Lovelace")
     _select(app_obj, "FR-0001")
     app_obj.do_ratify()
-    assert core.open_session(demo_project).project.get("FR-0001").attrs["ratified_by"]
+    assert core.open_session(demo_project).project.get("FR-0001").ratifications[-1]["by"]
 
 
 def test_a_re_signature_is_not_reported_as_a_missing_one(app):

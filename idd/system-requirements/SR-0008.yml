@@ -10,6 +10,16 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: henry
-  ratified_fingerprint: sha256:72132337fa182e2e603b0aee4e061e0a6a74afb7b090bddf8c4d986af0b02292
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:72132337fa182e2e603b0aee4e061e0a6a74afb7b090bddf8c4d986af0b02292
+  backfilled: true
+  content:
+    type: system_requirement
+    text: tl-ratify --list prints the ranked worklist to stdout without curses for
+      pipelines, CI logs and quick glances, refusing the TUI when stdout is not a
+      terminal.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

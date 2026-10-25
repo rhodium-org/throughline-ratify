@@ -16,9 +16,10 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:078b8b296a61b9f27e9ced3d5dbae8f30eb2d23ff6cce2745674ef09ba2c31a0
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:078b8b296a61b9f27e9ced3d5dbae8f30eb2d23ff6cce2745674ef09ba2c31a0
+  content:
     type: user_requirement
     text: When the graph is changed by someone or something else while my cockpit
       is open, I want what I sign, reject or unlink to be the graph as it now is
@@ -26,3 +27,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: e43a1d7a6801ed826700ef0cba81fa7e0b0fb1df

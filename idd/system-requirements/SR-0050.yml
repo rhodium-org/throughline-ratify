@@ -31,5 +31,18 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:29432be43f12d8c9d0bc2df4cbb26b99b52184bfad504004814475f84fa71e06
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:29432be43f12d8c9d0bc2df4cbb26b99b52184bfad504004814475f84fa71e06
+  content:
+    type: system_requirement
+    text: Each row of the selection screen shall show the candidate's ratification
+      progress — how many of its own non-dead items are signed off, against how many
+      can be — and this shall be the same figure the cockpit shows once that graph
+      is open. The figure shall be computed from the candidate's own registers alone.
+      tl-ratify shall not resolve the declared sources of a candidate in order to
+      compute it.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 123b20a648021380efe501d5dc69c0a07cf6a717

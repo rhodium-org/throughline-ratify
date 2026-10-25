@@ -28,5 +28,19 @@ links:
   type: refines
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:f3b0960b23a85e196dc41db7ce068feb0ae7a50c98497215c7333379bb8a9148
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:f3b0960b23a85e196dc41db7ce068feb0ae7a50c98497215c7333379bb8a9148
+  content:
+    type: system_requirement
+    text: The downward search shall offer only graphs that are the project's own.
+      It shall not descend into a directory the repository's version control ignores,
+      a dot-directory, or a Python virtual environment. It shall not offer a graph
+      that an enclosing candidate declares as a source, because a source is reached
+      through its consumer and is never written to. The depth of the search shall
+      be bounded by a fixed limit held in the code, so that pointing the tool at
+      a large tree cannot stall it; that limit shall not become a setting, per SR-0026.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 245f026e17903753945d7efd5554cc0700807b3d

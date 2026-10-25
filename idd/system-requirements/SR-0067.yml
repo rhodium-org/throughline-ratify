@@ -55,9 +55,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:7274e3aa3adb24fa379013f61dd4c3d27897e01399faf845d035bc6b8afc6ea9
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:7274e3aa3adb24fa379013f61dd4c3d27897e01399faf845d035bc6b8afc6ea9
+  content:
     type: system_requirement
     text: When the cockpit reloads the graph it has open and that graph's throughline.toml
       is gone, the cockpit shall close the graph and write nothing to it. Where the
@@ -74,3 +75,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: 785657c46015a52602d534cf8790e2a814243158

@@ -21,9 +21,10 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:ae934f0fe355d805807765f423dfd655c5e22b63ab55bc8b56da17ba651de84c
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:ae934f0fe355d805807765f423dfd655c5e22b63ab55bc8b56da17ba651de84c
+  content:
     type: system_requirement
     text: A CONTRIBUTING.md at the repository root shall state how to install the
       package for development, how to run the tests, and how to run this repository's
@@ -38,3 +39,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: e7365b73fec66fc40a155f466c40d6aad8e015d3

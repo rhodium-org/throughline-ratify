@@ -1,0 +1,32 @@
+uid: SR-0080
+type: system_requirement
+status: proposed
+title: The role a sitting signs in is settled before the cockpit opens and shown
+  in every confirmation
+text: Where the graph declares roles, the sitting shall take the role from --as and
+  refuse to open without one, naming the roles declared; shall refuse a role the
+  graph does not declare; and shall take the signer's identifier from --by-id or
+  offer the one throughline offers, refusing to open where there is none to offer.
+  Where the graph declares no roles, --as shall be refused. The role shall be passed
+  to throughline's ratify with every signature, shall be written out in every confirmation
+  beside the name and identifier, and shall reach a cockpit opened from the selection
+  screen as it reaches one opened directly.
+rationale: Whether a role is needed, whether this person holds it and what the identifier
+  may be are throughline's judgements (SR-0259); the cockpit asks for the role and
+  hands it on. Settled before the view opens for the reason the identifier is (SR-0028),
+  so no part of the record is written that the person accountable did not see, and
+  refused where it is printed, so the reason is read. Rejected, picking a role for
+  the reviewer when they hold one; a signature in a role is the reviewer's claim,
+  not the tool's. Who pays, a reviewer of a roles graph types --as once per sitting.
+normative: true
+links:
+- target: UR-0019
+  type: derives_from
+- target: SR-0028
+  type: relates
+- target: SR-0027
+  type: relates
+- target: SR-0022
+  type: relates
+attrs:
+  origin: ai

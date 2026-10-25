@@ -15,12 +15,14 @@ attrs:
     tests/test_reload_progress.py::test_the_notice_is_on_screen_while_the_read_blocks
     tests/test_reload_progress.py::test_the_notice_outranks_the_key_legend
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:4e7a2e194ef5ea6428ab5a4d5acbc3747fd07035163567c50cbb582a4eea3933
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:4e7a2e194ef5ea6428ab5a4d5acbc3747fd07035163567c50cbb582a4eea3933
+  content:
     type: test
     text: The shipped pytest suite checks SR-0033 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

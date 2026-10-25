@@ -28,9 +28,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:ecc3de659a34348ce1a0307ff09ddba39b9ea4fa489d9268152e94e319a4453d
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:ecc3de659a34348ce1a0307ff09ddba39b9ea4fa489d9268152e94e319a4453d
+  content:
     type: system_requirement
     text: When the selection screen is shown again after a graph has been closed,
       the highlight shall rest on the graph that was just closed and the candidates
@@ -43,3 +44,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: bb088003870262dcb842c2fd126624f5f2f9b8f6

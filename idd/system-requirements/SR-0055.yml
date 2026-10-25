@@ -26,5 +26,19 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:0200ab9ada118f01ae73dd4fa88bb3ffb97678e6f8cf6b1a00c3723a9263fae0
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:0200ab9ada118f01ae73dd4fa88bb3ffb97678e6f8cf6b1a00c3723a9263fae0
+  content:
+    type: system_requirement
+    text: The test suite this package ships shall include a test that declares a
+      path source on a consumer, resolves it through the seam SR-0054 names with
+      nothing stubbed, and grounds a consumer item through the borrowed root, so
+      the seam is exercised against the compose edition actually installed. The sdist
+      suite shall also run the installed cockpit non-interactively over this repository's
+      own graph, which declares a source, so the artifact is proved able to compose
+      before it ships.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 61e966b24ba861e825abff7d97787bfb025a0a8e

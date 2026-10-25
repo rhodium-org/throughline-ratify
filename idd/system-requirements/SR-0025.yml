@@ -28,5 +28,18 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:e6eee3538ac8e579cb4a82d37ab2d69da92bd6bca840800d0088f9b5370fe8ea
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:e6eee3538ac8e579cb4a82d37ab2d69da92bd6bca840800d0088f9b5370fe8ea
+  content:
+    type: system_requirement
+    text: Before a human confirms an action that may change items other than the
+      one they selected, the cockpit shall determine what those items are and say
+      so — how many there are, and which — and shall say plainly when there are none.
+      A confirmation shall not assert a consequence the cockpit has not established,
+      and shall describe what the action will do rather than what an action of that
+      kind can do in general.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

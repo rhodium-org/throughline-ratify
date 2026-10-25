@@ -218,7 +218,8 @@ IDLE_MS = 2000
 
 class App:
     def __init__(self, stdscr, session: Session, ratifier: str, log=None,
-                 ratifier_id: str | None = None, quit_leads_to: str = "quit"):
+                 ratifier_id: str | None = None, quit_leads_to: str = "quit",
+                 role: str | None = None):
         self.scr = stdscr
         # What the quit key is called on this screen (SR-0063). It ends the
         # program unless this graph was picked from a list, and then it goes
@@ -230,6 +231,10 @@ class App:
         # Settled before this view opened and shown in every confirmation: no part
         # of the accountability record is written that the reviewer was not shown.
         self.ratifier_id = ratifier_id
+        # The role this sitting signs in, where the graph declares roles
+        # (throughline SR-0259). Settled by the caller like the identifier, and
+        # shown in every confirmation for the same reason.
+        self.role = role
         # The sitting's running account (SR-0021). None when --summary was not
         # asked for; every recording site is guarded, so the UI is unchanged.
         self.log = log
@@ -500,7 +505,7 @@ class App:
             return
         try:
             core.ratify_item(self.session, item.uid, self.ratifier,
-                             by_id=self.ratifier_id)
+                             by_id=self.ratifier_id, role=self.role)
             core.mark_seen(self.session)
             if self.log is not None:
                 if item.stale:
@@ -533,8 +538,12 @@ class App:
         reviewer answers confirm-or-cancel and cannot edit in place, so anything
         omitted here would be a part of the accountability record that the person
         accountable for it never actually saw."""
+        signed = (f"{self.ratifier} <{self.ratifier_id}>" if self.ratifier_id
+                  else self.ratifier)
+        if self.role:
+            return f"{signed} as {self.role}"
         if self.ratifier_id:
-            return f"{self.ratifier} <{self.ratifier_id}>"
+            return signed
         return self.ratifier
 
     def _do_reratify(self, item: QueueItem) -> None:
@@ -951,6 +960,15 @@ class App:
                 add(f"  \u2717 {self._why_blocked(item)}", _attr("warn"))
         elif item.concern == "ratified":
             add("  \u2713 already ratified", _attr("ok"))
+        elif item.concern == "awaiting":
+            # Some of the signatures the item's kind requires, not yet all
+            # (throughline SR-0260): the Tool's own words for where it stands.
+            add(f"  \u25d0 {item.standing}", _attr("stale", bold=True))
+            if item.ratifiable_now:
+                add(f"  \u25d0 press r to add your signature as {self._signature()}",
+                    _attr("key"))
+            else:
+                add(f"  \u2717 {self._why_blocked(item)}", _attr("warn"))
         elif item.ratifiable_now:
             add(f"  \u2713 ready to ratify  ({item.status} \u2192 {self.session.ratified_status})",
                 _attr("ok"))
@@ -961,6 +979,11 @@ class App:
             add(f"  \u21ba press r to record sign-off via {route}", _attr("key"))
         else:
             add(f"  \u2717 {self._why_blocked(item)}", _attr("warn"))
+        # Every signature the item carries, so a second signer sees who went before
+        # (throughline SR-0254, SR-0261). The readiness line above says whether they
+        # still cover the wording; this says whose they are.
+        if item.signatures:
+            add("  signed by: " + "; ".join(item.signatures), _attr("key"))
         gicon = "\u2713" if item.grounded else "\u26a0"
         gattr = "ok" if item.grounded else "ungrounded"
         dtxt = "root" if item.depth == 0 else (str(item.depth) if item.depth is not None else "\u2014")
@@ -1498,7 +1521,8 @@ def _draw_opening(scr, candidate: core.Candidate) -> None:
 
 
 def work_through(candidates: list[core.Candidate], open_graph,
-                 ratifier_id: str | None = None, search=None) -> None:
+                 ratifier_id: str | None = None, search=None,
+                 role: str | None = None) -> None:
     """Ask which graph to open, open it, and ask again when it is closed, until
     the reviewer leaves the list without choosing or interrupts (SR-0063).
 
@@ -1528,6 +1552,7 @@ def work_through(candidates: list[core.Candidate], open_graph,
             session, ratifier, log = open_graph(chosen)
             try:
                 if not App(stdscr, session, ratifier, log, ratifier_id=ratifier_id,
+                           role=role,
                            quit_leads_to="projects").run():
                     return
             except core.GraphLostError as lost:
@@ -1544,7 +1569,7 @@ def work_through(candidates: list[core.Candidate], open_graph,
 
 
 def run(session: Session, ratifier: str, log=None,
-        ratifier_id: str | None = None) -> bool:
+        ratifier_id: str | None = None, role: str | None = None) -> bool:
     """Open the cockpit on one graph, in a full-screen view of its own, returning True when the reviewer left it with the quit
     key and False when they interrupted it (SR-0063). ``log`` is an optional
     :class:`throughline_ratify.report.DecisionLog`; when given, every decision the
@@ -1556,7 +1581,8 @@ def run(session: Session, ratifier: str, log=None,
     full-screen view never decides any part of the record it displays (SR-0028)."""
     def _main(stdscr):
         _init_colours()
-        return App(stdscr, session, ratifier, log, ratifier_id=ratifier_id).run()
+        return App(stdscr, session, ratifier, log, ratifier_id=ratifier_id,
+                   role=role).run()
 
     try:
         # curses.wrapper restores the terminal in its finally before re-raising,

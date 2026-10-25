@@ -1,0 +1,19 @@
+uid: TEST-0069
+type: test
+status: proposed
+title: 'Tests of SR-0080: The role a sitting signs in is settled before the cockpit
+  opens and shown in every confirmation'
+text: The shipped pytest suite checks SR-0080 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0080
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_signatures_in_the_pane.py::test_the_signature_names_the_role_it_is_given_in
+    tests/test_signatures_in_the_pane.py::test_ratifying_from_the_cockpit_passes_the_role_to_the_tool
+    tests/test_signatures_in_the_pane.py::test_a_graph_that_declares_roles_is_refused_without_one
+    tests/test_signatures_in_the_pane.py::test_a_graph_without_roles_refuses_a_role
+    tests/test_signatures_in_the_pane.py::test_the_identifier_is_offered_from_the_signing_email_and_refused_where_none
+    tests/test_signatures_in_the_pane.py::test_the_role_reaches_the_cockpit_opened_from_a_list
+  origin: ai

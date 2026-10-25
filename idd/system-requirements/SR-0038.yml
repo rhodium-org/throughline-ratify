@@ -42,5 +42,18 @@ attrs:
   priority: should
   verification: inspection
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:66a4d6b3c10b32ee66919aae140373a1850431b6ede31e712980a45d603d84aa
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:66a4d6b3c10b32ee66919aae140373a1850431b6ede31e712980a45d603d84aa
+  content:
+    type: system_requirement
+    text: 'The repository shall run its unit tests and its graph gate on a recurring
+      schedule, independently of any commit, against two resolutions of its declared
+      dependency range: the versions the package index currently publishes, and the
+      exact declared minimums. The minimum versions installed shall be derived from
+      the package metadata rather than restated in the workflow. The schedule shall
+      place the run outside the maintainers'' working hours.'
+    normative: true
+    derived: false
+    attrs: {}
+  revision: fb9c000a4dced49640a0a3b1ecbfaacf51ff8a2e

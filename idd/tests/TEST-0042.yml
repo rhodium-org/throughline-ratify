@@ -14,12 +14,14 @@ attrs:
     tests/test_published_names.py::test_every_throughline_import_is_a_published_name
     tests/test_published_names.py::test_nothing_is_imported_from_the_old_composing_package
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:896df5f8bae2c4eb2726805b4cc4aa3cf98717759796fc90910069a679020a56
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:896df5f8bae2c4eb2726805b4cc4aa3cf98717759796fc90910069a679020a56
+  content:
     type: test
     text: The shipped pytest suite checks SR-0057 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

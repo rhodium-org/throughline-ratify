@@ -58,5 +58,27 @@ links:
   stamp: sha256:c70b2072d3e14f058811bcdd28d23437b2be6deac8f40ca46881958fb70ee2a4
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:edacf0f595d22bde8572d7fbface706199f2b0dd2df8adbc205587af4da2ea54
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:edacf0f595d22bde8572d7fbface706199f2b0dd2df8adbc205587af4da2ea54
+  content:
+    type: system_requirement
+    text: The assistant shall accept a stable identifier for the ratifying human
+      under the option name throughline uses for it, --by-id, and shall pass it to
+      throughline's own ratify to write, so a ratification taken here carries the
+      same record as the same ratification taken at the command line. It shall never
+      invent, derive or default one — an absent identifier stays absent — and it
+      shall let throughline judge whether a supplied one is well formed, surfacing
+      a refusal as it stands. The identity a sitting signs under, in every part,
+      shall be settled before the full-screen view opens and shall be visible in
+      the confirmation the reviewer answers, so no part of the record is written
+      that the reviewer was not shown. The upstream clause this tracks, tl:SR-0157,
+      shall be cited as a composed source rather than quoted, so the obligation is
+      resolved against a pinned edition of throughline's own graph and cannot be
+      restated here in words that drift from it. More generally, where throughline
+      widens what an accountability record may carry, the assistant shall widen with
+      it rather than wait for this requirement to name the new field.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 9cf0fcedca518a45a658c9cfd695d2b1fb89af1a

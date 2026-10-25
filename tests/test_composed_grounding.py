@@ -61,7 +61,7 @@ def test_ratifying_writes_the_consumers_item_and_leaves_the_source_alone(compose
     before = _files(base)
     session = core.open_session(consumer)
     core.ratify_item(session, "FR-0009", ADA)
-    assert f"ratified_by: {ADA}" in (
+    assert f"by: {ADA}" in (
         consumer / "requirements" / "FR-0009.yml").read_text(encoding="utf-8")
     assert _files(base) == before
 

@@ -30,9 +30,10 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:da389676539e3d2883971459c69a0fa8e97d6ec43cf24bffb3fbedc56ed866c5
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:da389676539e3d2883971459c69a0fa8e97d6ec43cf24bffb3fbedc56ed866c5
+  content:
     type: system_requirement
     text: Where the reviewer opened a graph by picking it on the selection screen,
       the quit key on the worklist shall close that graph and show the selection
@@ -45,3 +46,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: bb088003870262dcb842c2fd126624f5f2f9b8f6

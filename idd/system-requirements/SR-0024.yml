@@ -30,5 +30,19 @@ links:
   type: relates
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:817ae860b39a82ddb1bdc3ddbbc306b667c4bc7ec2ec1abfac07a980dc3e8592
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:817ae860b39a82ddb1bdc3ddbbc306b667c4bc7ec2ec1abfac07a980dc3e8592
+  content:
+    type: system_requirement
+    text: An item that has been made suspect shall appear in the default worklist,
+      subject only to the filter in force, whether or not it was ratified before.
+      A past ratification shall be treated as settled only while the item's status
+      still stands on it; once the item is suspect that sign-off no longer holds,
+      and the item is awaiting a human again. The cascade a rejection causes shall
+      therefore be visible in the queue the reviewer is already working through,
+      without their having to widen the view.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

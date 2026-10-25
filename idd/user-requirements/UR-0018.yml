@@ -17,9 +17,10 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:8eef06d7b5745e682f4a7efc63215fc0065a94d1533ce3e973317f9e6c116935
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:8eef06d7b5745e682f4a7efc63215fc0065a94d1533ce3e973317f9e6c116935
+  content:
     type: user_requirement
     text: As a reviewer working through a repository that holds more than one graph,
       I want leaving the graph I picked to put me back on the list of graphs, so
@@ -27,3 +28,4 @@ attrs:
     normative: true
     derived: false
     attrs: {}
+  revision: bb088003870262dcb842c2fd126624f5f2f9b8f6

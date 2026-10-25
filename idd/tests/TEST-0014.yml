@@ -11,12 +11,14 @@ links:
 attrs:
   checks: tests/test_core.py::test_ratified_then_advanced_item_is_done_not_pending
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:758782cb1c917b39b9c4d637c7263537082f16980de52e9d965f1f9bed7003ba
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:758782cb1c917b39b9c4d637c7263537082f16980de52e9d965f1f9bed7003ba
+  content:
     type: test
     text: The shipped pytest suite checks SR-0018 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

@@ -11,12 +11,14 @@ links:
 attrs:
   checks: tests/test_core.py::test_dead_items_get_role_derived_concern_and_are_not_actionable
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:fb6967dd9efdfea5defe53caf9e03858badd7022f7380ef8d65b0f4e8fef52f0
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:fb6967dd9efdfea5defe53caf9e03858badd7022f7380ef8d65b0f4e8fef52f0
+  content:
     type: test
     text: The shipped pytest suite checks SR-0005 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 1235a50437922a29ab5ddd4d3241609b31f210ab

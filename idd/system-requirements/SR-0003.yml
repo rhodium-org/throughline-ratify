@@ -11,6 +11,16 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: henry
-  ratified_fingerprint: sha256:655ef5e23922f6239f216bccc35e664cb42190f4214170212cb9b3018eb86b62
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:655ef5e23922f6239f216bccc35e664cb42190f4214170212cb9b3018eb86b62
+  backfilled: true
+  content:
+    type: system_requirement
+    text: Ratification refuses ambiguous or ungrounded items, sets the ratified-role
+      status via set_status, records ratified_by, and persists with write_item to
+      the item's own register.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

@@ -34,5 +34,19 @@ attrs:
   priority: should
   verification: test
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:85f5b629a70fdf26973f1f1cadb4556a6b9ad26107f487f7539c0e57629d220a
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:85f5b629a70fdf26973f1f1cadb4556a6b9ad26107f487f7539c0e57629d220a
+  content:
+    type: system_requirement
+    text: Continuous integration shall run the shipped test suite once more from
+      the built source distribution installed into a clean environment, so that what
+      is verified is the artifact a user receives rather than the working tree it
+      was built from. That run shall execute on every change and shall gate publication,
+      so no release reaches the index carrying a suite it cannot pass. A fixture
+      or helper the suite needs but the distribution omits shall therefore fail the
+      build, not the reader who runs it.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: e78209699865f4ed6c82c00b781065df5ee5d2bd

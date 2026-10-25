@@ -38,5 +38,20 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:2db9dac8baddb77b411ff1a9c3229edd1c0892e36cb179f262dc2dd196802cef
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:2db9dac8baddb77b411ff1a9c3229edd1c0892e36cb179f262dc2dd196802cef
+  content:
+    type: system_requirement
+    text: 'The selection screen shall list candidates in the order discovery returns
+      them, which is by path, and shall let the reviewer change that order to most
+      outstanding first or most recently changed first, using the key the worklist
+      already binds for sorting. Recency shall be judged from the modification times
+      of the candidate''s own item files, without starting a process. The order in
+      force shall be named on the screen. The available orders shall be fixed in
+      the code: the project shall not configure them, and the choice shall not be
+      remembered between runs.'
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 123b20a648021380efe501d5dc69c0a07cf6a717

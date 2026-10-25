@@ -11,6 +11,16 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: henry
-  ratified_fingerprint: sha256:483280f53bf4a105160d6f3a4285820e0f60aa27045f5f3f83e8eef87d0dc658
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:483280f53bf4a105160d6f3a4285820e0f60aa27045f5f3f83e8eef87d0dc658
+  backfilled: true
+  content:
+    type: system_requirement
+    text: When the consumer declares [[sources]], the session composes them with
+      build_union and grounds items over that union, so a chain reaching a root through
+      a source counts; writes still land only on the consumer.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

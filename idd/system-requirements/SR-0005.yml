@@ -10,6 +10,15 @@ links:
   type: derives_from
 attrs:
   origin: ai
-  ratified_by: henry
-  ratified_fingerprint: sha256:d6f2f1f67db5263ac45f5f3eb933cf82c1cde9e8a633550f75a4b045502913f3
-  ratified_backfilled: true
+ratifications:
+- by: henry
+  fingerprint: sha256:d6f2f1f67db5263ac45f5f3eb933cf82c1cde9e8a633550f75a4b045502913f3
+  backfilled: true
+  content:
+    type: system_requirement
+    text: All transitions route through set_status / schema.status_role and schema.allows_transition,
+      so the project's [status.roles] and [transitions] govern every move.
+    normative: true
+    derived: false
+    attrs: {}
+  revision: 7d9d2524d39cbe82cc86dc14ccb94d8ca47a1115

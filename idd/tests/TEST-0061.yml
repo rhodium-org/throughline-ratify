@@ -21,12 +21,14 @@ attrs:
     tests/test_detail_focus.py::test_a_borrowed_clause_is_read_in_place
     tests/test_detail_focus.py::test_moving_to_another_item_closes_what_was_expanded
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:cff6e83d2ad77f71590c21e036f1313c1c69a54f6b5d99af57ffa3f47c7134f9
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:cff6e83d2ad77f71590c21e036f1313c1c69a54f6b5d99af57ffa3f47c7134f9
+  content:
     type: test
     text: The shipped pytest suite checks SR-0013 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 2144bfa7215d8d4e006b69a2f8d5980817f042f1

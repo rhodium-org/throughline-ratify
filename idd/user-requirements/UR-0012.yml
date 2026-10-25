@@ -23,5 +23,19 @@ attrs:
   priority: should
   verification: demonstration
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:bc07cec67d2f4cf88b6bcb97ad355eb32d42ccaa1c9d8f70d0573f9039118872
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:bc07cec67d2f4cf88b6bcb97ad355eb32d42ccaa1c9d8f70d0573f9039118872
+  content:
+    type: user_requirement
+    text: 'A person who wants to know what throughline-ratify is required to do shall
+      find those requirements rendered as a document in the repository, generated
+      from the graph rather than written beside it. The document shall be provably
+      current — no item shall be able to change without the document being out of
+      date — and provably whole: a live normative requirement absent from it shall
+      be a defect the repository''s own gate reports, not something a reader can
+      only discover by reading the register files.'
+    normative: true
+    derived: false
+    attrs: {}
+  revision: b9010fabfe58af5dee1146399fed23c51a2926f5

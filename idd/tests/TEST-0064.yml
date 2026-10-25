@@ -27,12 +27,14 @@ attrs:
     tests/test_help_scrolls.py::test_a_terminal_that_shrinks_while_the_help_is_open_still_reaches_the_end
     tests/test_help_scrolls.py::test_a_terminal_that_grows_shows_no_gap_below_the_last_line
   origin: ai
-  ratified_by: Henry Grech-Cini
-  ratified_fingerprint: sha256:04029057b6fc66bc37c27e399b595929f01a0473d8bf20526df7fbb9493a020f
-  ratified_content:
+ratifications:
+- by: Henry Grech-Cini
+  fingerprint: sha256:04029057b6fc66bc37c27e399b595929f01a0473d8bf20526df7fbb9493a020f
+  content:
     type: test
     text: The shipped pytest suite checks SR-0075 with the test functions this item
       lists.
     normative: false
     derived: false
     attrs: {}
+  revision: 9583ad6406da1c600a4940c6f3cc55b5a46bdbe1

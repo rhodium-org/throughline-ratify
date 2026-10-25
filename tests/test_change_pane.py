@@ -268,7 +268,7 @@ def test_the_difference_is_resolved_by_throughline_and_memoised(
     entry its old stamp left behind (tl:SR-0166)."""
     session = core.open_session(demo_project)
     item = next(iter(session.project.items()))
-    item.attrs["ratified_fingerprint"] = "sha256:deadbeef"
+    item.ratifications.append({"by": "alice", "fingerprint": "sha256:deadbeef"})
 
     calls = []
     sentinel = RatificationChange(uid=item.uid, outcome="changed",
@@ -286,7 +286,7 @@ def test_the_difference_is_resolved_by_throughline_and_memoised(
     assert calls == [item.uid]                      # resolved once, not twice
 
     # A new stamp is a different question and must not reuse the old answer.
-    item.attrs["ratified_fingerprint"] = "sha256:0ther"
+    item.ratifications[-1]["fingerprint"] = "sha256:0ther"
     core.change_since_signature(session, item.uid)
     assert calls == [item.uid, item.uid]
 
