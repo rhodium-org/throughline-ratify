@@ -1388,7 +1388,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0013 | Choose which graph to open when the path I give holds more than one | SR-0045, SR-0047, SR-0048 |
 | UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052, SR-0068, SR-0069 |
 | UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053, SR-0056 |
-| UR-0016 | Upgrading throughline does not cost me a new cockpit | SR-0057, SR-0058, SR-0059, SR-0060 |
+| UR-0016 | Upgrading throughline does not cost me a new cockpit | SR-0057, SR-0058, SR-0059, SR-0060, SR-0081 |
 | UR-0017 | A screen left open does not sign wording I was not shown | SR-0061, SR-0062, SR-0067, SR-0070, SR-0071 |
 | UR-0018 | Leaving a graph takes me back to the list I picked it from | SR-0063, SR-0064, SR-0066 |
 | UR-0019 | Sign in the role the graph declares, and see who has signed before me | SR-0078, SR-0079, SR-0080 |
@@ -1486,4 +1486,5 @@ checked by a workflow or a document, or not at all.
 | SR-0078 | The awaiting concern is drawn, with where the item stands | TEST-0067 |
 | SR-0079 | Every signature an item carries is listed in the pane | TEST-0068 |
 | SR-0080 | The role a sitting signs in is settled before the cockpit opens and shown in every confirmation | TEST-0069 |
+| SR-0081 | A graph at an older format opens read-only for a program that asks, and nothing is written through it | TEST-0070 |
 <!-- tl:end -->

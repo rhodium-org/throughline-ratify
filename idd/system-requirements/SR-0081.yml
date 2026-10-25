@@ -1,0 +1,50 @@
+uid: SR-0081
+type: system_requirement
+status: ratified
+title: A graph at an older format opens read-only for a program that asks, and nothing
+  is written through it
+text: open_session and open_root shall take read_older. Where it is given and throughline's
+  strict loader refuses the graph, the graph shall be read through throughline's
+  tolerant reader into a session that records the format the graph declares and is
+  read-only. Every write through a read-only session (ratify_item, reratify_item,
+  reject_item, remove_link) shall be refused with ReadOnlySessionError before anything
+  changes, naming tl migrate. Reading the graph again shall keep it read-only. A
+  graph the strict loader opens shall open as always, writable. Without read_older,
+  and in the cockpit, an older graph is refused as before.
+rationale: 'Found 2026-10-25: throughline 4.0.0 refuses a format 3 graph in its strict
+  loader, and the browser library behind table.iddn.uk and explore.iddn.uk opens
+  its worklist through open_session, so moving those pages onto 4.0.0 would have
+  stopped them opening the many graphs not yet migrated. The operator chose that
+  such a graph is read and not signed. The read is throughline''s own read_project,
+  the reader it uses for a composed source (tl:SR-0017), so nothing about the older
+  format is parsed here. Signing stays refused, as throughline refuses it, so a signature
+  is never written in a layout the graph''s format does not hold. Rejected: migrating
+  in memory and writing back, which would rewrite every file of a graph its owner
+  had not chosen to migrate; and refusing to open, which the cockpit still does.
+  Test: TEST-0070. Rejected also: a read_only switch that makes even a current graph
+  unsignable, which would leave a caller that signs current graphs to tell the two
+  apart from the refusal message. Who pays: a program asks for read_older; the cockpit
+  is unchanged.'
+normative: true
+links:
+- target: UR-0016
+  type: derives_from
+attrs:
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-25T16:41:03Z'
+  fingerprint: sha256:554bb9ba2fc5bc3cbfaa6cde35cb33179b60d0a04e992ecf1b3010bd7b1e8c7b
+  content:
+    type: system_requirement
+    text: open_session and open_root shall take read_older. Where it is given and
+      throughline's strict loader refuses the graph, the graph shall be read through
+      throughline's tolerant reader into a session that records the format the graph
+      declares and is read-only. Every write through a read-only session (ratify_item,
+      reratify_item, reject_item, remove_link) shall be refused with ReadOnlySessionError
+      before anything changes, naming tl migrate. Reading the graph again shall keep
+      it read-only. A graph the strict loader opens shall open as always, writable.
+      Without read_older, and in the cockpit, an older graph is refused as before.
+    normative: true
+    derived: false
+    attrs: {}

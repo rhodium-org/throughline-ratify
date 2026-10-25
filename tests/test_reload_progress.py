@@ -59,9 +59,9 @@ def test_the_notice_is_on_screen_while_the_read_blocks(app, monkeypatch):
     seen: list[str] = []
     real = core.open_root
 
-    def slow(root):
+    def slow(root, **kw):
         seen.append(app.scr.painted())
-        return real(root)
+        return real(root, **kw)
 
     monkeypatch.setattr(core, "open_root", slow)
     app.reload_from_disk()
@@ -84,7 +84,7 @@ def test_the_notice_is_gone_once_the_reload_returns(app):
 def test_a_failed_reload_does_not_leave_the_footer_claiming_work(app, monkeypatch):
     """A read that raises must not strand the notice on screen — a permanent
     'reloading…' is a worse lie than the silence this requirement replaced."""
-    def boom(root):
+    def boom(root, **kw):
         raise OSError("graph went away")
 
     monkeypatch.setattr(core, "open_root", boom)

@@ -69,6 +69,7 @@ from throughline import (
     is_namespace_qualified,
     load_project,
     parse_sources,
+    read_project,
     reaches_root,
     resolve_sources,
     set_status,
@@ -105,6 +106,12 @@ class GraphUnreadableError(RatifierError):
     """The graph an open cockpit holds is still there and cannot be read
     (SR-0071). The message is the reason, without the graph's path: the cockpit
     showing it already names the graph."""
+
+
+class ReadOnlySessionError(RatifierError):
+    """A write asked of a session opened read-only (SR-0081). Nothing was written.
+    Where the graph is at an older on-disk format than the Tool's, the message
+    names ``tl migrate``, the one way such a graph becomes writable."""
 
 
 # The ratification record is the Tool's `ratifications` list on the item, one
@@ -256,10 +263,18 @@ class Session:
     # (SR-0061). Compared with the disk before anything is written, so a screen left
     # open across somebody else's edit cannot sign wording it never showed.
     seen: tuple = ()
+    # The format the graph's configuration declares when it is older than the
+    # Tool's: such a graph was read by the Tool's tolerant reader and is never
+    # written through (SR-0081). None for a graph at the Tool's own format.
+    older_format: int | None = None
 
     @property
     def schema(self):
         return self.project.schema
+
+    @property
+    def read_only(self) -> bool:
+        return self.older_format is not None
 
     @property
     def suspect_status(self) -> str | None:
@@ -686,16 +701,20 @@ def changed_on_disk(session: Session) -> bool:
     return disk_state(session) != session.seen
 
 
-def open_session(path: str | Path) -> Session:
+def open_session(path: str | Path, *, read_older: bool = False) -> Session:
     """Open the throughline project ``path`` names, composing its sources when it
     declares any. Raises :class:`AmbiguousProjectError` when the path encloses
-    more than one graph and the choice is the reviewer's to make."""
-    return open_root(resolve_root(path))
+    more than one graph and the choice is the reviewer's to make.
+
+    A graph at an older on-disk format is refused unless ``read_older``, which
+    reads it with the Tool's tolerant reader into a session every write through
+    is refused (SR-0081). A graph at the Tool's own format opens as always."""
+    return open_root(resolve_root(path), read_older=read_older)
 
 
-def open_root(root: Path) -> Session:
+def open_root(root: Path, *, read_older: bool = False) -> Session:
     """Open the graph rooted at ``root``, which is already decided."""
-    return _open(root, compose=True)
+    return _open(root, compose=True, read_older=read_older)
 
 
 def reopen(session: Session) -> Session:
@@ -712,7 +731,7 @@ def reopen(session: Session) -> Session:
     source that cannot be reached for a moment is not a graph that has gone."""
     root = session.root
     try:
-        return open_root(root)
+        return open_root(root, read_older=session.read_only)
     except RatifierError as exc:
         if not (root / CONFIG_NAME).exists():
             raise GraphLostError(root) from exc
@@ -720,7 +739,7 @@ def reopen(session: Session) -> Session:
             _first_line(str(exc)).removeprefix(f"{root}: ")) from exc
 
 
-def _open(root: Path, compose: bool) -> Session:
+def _open(root: Path, compose: bool, read_older: bool = False) -> Session:
     """Load ``root``, composing its declared sources only when ``compose``.
 
     An uncomposed session is the graph's own account of itself: its ``union`` is
@@ -728,8 +747,16 @@ def _open(root: Path, compose: bool) -> Session:
     project that declares sources. It exists for :func:`describe_candidates`,
     which asks only what needs no union, and it never leaves this module.
     """
+    older_format = None
     try:
-        consumer = load_project(root)
+        try:
+            consumer = load_project(root)
+        except ProjectError:
+            if not read_older or (older_format := _declared_format(root)) is None:
+                raise
+            # The strict loader refuses a graph at an older format; the tolerant
+            # reader reads it in memory and never writes (SR-0081).
+            consumer = read_project(root)
     except ProjectError as exc:
         raise RatifierError(str(exc)) from exc
     except Exception as exc:  # noqa: BLE001 — see below
@@ -759,9 +786,29 @@ def _open(root: Path, compose: bool) -> Session:
         proposed_status=proposed,
         composed=bool(sources),
         sources=sources,
+        older_format=older_format,
     )
     mark_seen(session)
     return session
+
+
+def _declared_format(root: Path) -> int | None:
+    """The format version the graph's configuration declares, or None where it
+    names none that can be read."""
+    try:
+        declared = tomllib.loads((root / CONFIG_NAME).read_text(encoding="utf-8"))
+        return int(declared["project"]["format_version"])
+    except (OSError, KeyError, TypeError, ValueError, tomllib.TOMLDecodeError):
+        return None
+
+
+def _refuse_if_read_only(session: Session) -> None:
+    """Refuse any write through a read-only session, before anything changes (SR-0081)."""
+    if session.read_only:
+        raise ReadOnlySessionError(
+            f"{session.root / CONFIG_NAME} is at format version {session.older_format}, "
+            "which this tool reads but does not write; run `tl migrate` there to sign or "
+            "change it — nothing was written")
 
 
 def _compose_if_declared(consumer: Project, root: Path) -> tuple[Project, list[SourceInfo]]:
@@ -1119,6 +1166,7 @@ def ratify_item(session: Session, uid: str, by: str, by_id: str | None = None,
     is the role the signature is given in where the graph declares roles
     (throughline SR-0259); whether it is needed, and whether this person holds it,
     is the Tool's to say."""
+    _refuse_if_read_only(session)
     if session.project.get(uid) is None:
         raise RatifierError(f"{uid} does not exist")
     try:
@@ -1147,6 +1195,7 @@ def reratify_item(session: Session, uid: str, by: str,
     ratification stamp. Walking on afterwards does not stale the signature: the
     content fingerprint deliberately excludes status. Returns the status itinerary
     that was walked, for the caller to report."""
+    _refuse_if_read_only(session)
     item = session.project.get(uid)
     if item is None:
         raise RatifierError(f"{uid} does not exist")
@@ -1243,6 +1292,7 @@ def reject_item(session: Session, uid: str, reason: str = "") -> Rejection:
     have (SR-0025). The refusals ride along on the result rather than being dropped,
     because a dependent left unflagged is the drift the cockpit exists to show
     (SR-0037)."""
+    _refuse_if_read_only(session)
     project = session.project
     if project.get(uid) is None:
         raise RatifierError(f"{uid} does not exist")
@@ -1266,6 +1316,7 @@ def remove_link(session: Session, uid: str, index: int) -> LinkView:
     consumer's own register (a composed source stays read-only). Removing a
     *grounding* link is refused when it would leave the item reaching no root, so
     the graph can't be silently orphaned; informational links are always removable."""
+    _refuse_if_read_only(session)
     item = session.project.get(uid)
     if item is None:
         raise RatifierError(f"{uid} does not exist")

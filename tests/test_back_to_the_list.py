@@ -329,10 +329,10 @@ def test_decisions_already_taken_are_reported_when_a_later_graph_will_not_open(
     dest = tmp_path / "summary.txt"
     opening = core.open_root
 
-    def _open(root):
+    def _open(root, **kw):
         if root.name == "beta":
             raise core.RatifierError("source 'base' could not be resolved")
-        return opening(root)
+        return opening(root, **kw)
 
     monkeypatch.setattr(core, "open_root", _open)
     assert start(picks=[0, 1], decide=_deciding, argv=["--summary", str(dest)]) == 2
@@ -387,9 +387,9 @@ def test_the_view_says_which_graph_it_is_opening_before_it_opens_it(
     opening = core.open_root
     order = []
 
-    def _open(root):
+    def _open(root, **kw):
         order.append((root.name, list(seen["opening"])))
-        return opening(root)
+        return opening(root, **kw)
 
     monkeypatch.setattr(core, "open_root", _open)
     start(picks=[1, 0])
@@ -607,9 +607,9 @@ def reads(monkeypatch):
     read = []
     opening = core._open
 
-    def _open(root, compose):
+    def _open(root, compose, **kw):
         read.append(root.name)
-        return opening(root, compose)
+        return opening(root, compose, **kw)
 
     monkeypatch.setattr(core, "_open", _open)
     return read

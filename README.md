@@ -167,6 +167,14 @@ Every row is classified by the one thing you most need to know about it:
 - **Rejecting** calls throughline's `invalidate`, moving the item to the
   `invalidated` role and cascading `suspect` to its trusting dependents.
 
+- **Reading an older graph** — a program that only reads graphs it has not
+  migrated (the browser pages behind table.iddn.uk use this) can call
+  `open_session(path, read_older=True)`. A graph at an older on-disk format is
+  then read through throughline's tolerant reader and every write to it is refused
+  with `ReadOnlySessionError`, naming `tl migrate`; a current graph opens as
+  always. The cockpit itself still asks for an older graph to be migrated before
+  it opens.
+
 No status names are hardcoded: the project's `[status.roles]` and `[transitions]`
 govern every move.
 
