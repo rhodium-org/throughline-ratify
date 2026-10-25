@@ -1,16 +1,16 @@
 uid: SR-0081
 type: system_requirement
 status: proposed
-title: A graph at an older format opens read-only for a program, and nothing is written
-  through it
-text: open_session and open_root shall take read_only. A session opened read-only
-  shall read the graph through throughline's tolerant reader where its strict loader
-  refuses an older on-disk format, and shall record the format the graph declares.
-  Every write through a read-only session (ratify_item, reratify_item, reject_item,
-  remove_link) shall be refused with ReadOnlySessionError before anything changes,
-  naming tl migrate where the graph is at an older format. Reading the graph again
-  shall keep the session read-only. The cockpit itself opens graphs as before and
-  still refuses an older one.
+title: A graph at an older format opens read-only for a program that asks, and nothing
+  is written through it
+text: open_session and open_root shall take read_older. Where it is given and throughline's
+  strict loader refuses the graph, the graph shall be read through throughline's
+  tolerant reader into a session that records the format the graph declares and is
+  read-only. Every write through a read-only session (ratify_item, reratify_item,
+  reject_item, remove_link) shall be refused with ReadOnlySessionError before anything
+  changes, naming tl migrate. Reading the graph again shall keep it read-only. A
+  graph the strict loader opens shall open as always, writable. Without read_older,
+  and in the cockpit, an older graph is refused as before.
 rationale: 'Found 2026-10-25: throughline 4.0.0 refuses a format 3 graph in its strict
   loader, and the browser library behind table.iddn.uk and explore.iddn.uk opens
   its worklist through open_session, so moving those pages onto 4.0.0 would have
@@ -21,7 +21,10 @@ rationale: 'Found 2026-10-25: throughline 4.0.0 refuses a format 3 graph in its 
   is never written in a layout the graph''s format does not hold. Rejected: migrating
   in memory and writing back, which would rewrite every file of a graph its owner
   had not chosen to migrate; and refusing to open, which the cockpit still does.
-  Test: TEST-0070. Who pays: a program asks for read_only; the cockpit is unchanged.'
+  Test: TEST-0070. Rejected also: a read_only switch that makes even a current graph
+  unsignable, which would leave a caller that signs current graphs to tell the two
+  apart from the refusal message. Who pays: a program asks for read_older; the cockpit
+  is unchanged.'
 normative: true
 links:
 - target: UR-0016

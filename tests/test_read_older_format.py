@@ -26,9 +26,9 @@ def test_an_older_graph_is_still_refused_without_read_only(format3_project):
         core.open_session(format3_project)
 
 
-def test_an_older_graph_opens_read_only_and_lists_its_items(format3_project):
-    session = core.open_session(format3_project, read_only=True)
-    assert session.read_only and session.disk_format == 3
+def test_an_older_graph_opens_read_only_with_read_older_and_lists_its_items(format3_project):
+    session = core.open_session(format3_project, read_older=True)
+    assert session.read_only and session.older_format == 3
     queue = core.build_queue(session, show_all=True)
     assert {"FR-0001", "FR-0002", "INT-0001"} <= {q.uid for q in queue}
 
@@ -41,24 +41,21 @@ def test_an_older_graph_opens_read_only_and_lists_its_items(format3_project):
 ], ids=["ratify", "reratify", "reject", "remove-link"])
 def test_every_write_to_an_older_graph_is_refused_and_names_migrate(format3_project, write):
     before = _files(format3_project)
-    session = core.open_session(format3_project, read_only=True)
+    session = core.open_session(format3_project, read_older=True)
     with pytest.raises(core.ReadOnlySessionError, match="format version 3.*tl migrate"):
         write(session)
     assert _files(format3_project) == before
 
 
-def test_a_current_graph_opened_read_only_refuses_writes_without_naming_migrate(demo_project):
-    before = _files(demo_project)
-    session = core.open_session(demo_project, read_only=True)
-    assert session.read_only and session.disk_format is None
-    with pytest.raises(core.ReadOnlySessionError) as refused:
-        core.ratify_item(session, "FR-0001", by="tester")
-    assert "migrate" not in str(refused.value)
-    assert _files(demo_project) == before
+def test_a_current_graph_opened_with_read_older_is_written_as_always(demo_project):
+    session = core.open_session(demo_project, read_older=True)
+    assert not session.read_only and session.older_format is None
+    core.ratify_item(session, "FR-0001", by="tester")
+    assert core.open_session(demo_project).project.get("FR-0001").status == "ratified"
 
 
 def test_reading_again_keeps_the_session_read_only(format3_project):
-    session = core.reopen(core.open_session(format3_project, read_only=True))
-    assert session.read_only and session.disk_format == 3
+    session = core.reopen(core.open_session(format3_project, read_older=True))
+    assert session.read_only and session.older_format == 3
     with pytest.raises(core.ReadOnlySessionError):
         core.ratify_item(session, "FR-0001", by="tester")

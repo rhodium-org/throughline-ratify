@@ -11,8 +11,8 @@ links:
 attrs:
   checks: |-
     tests/test_read_older_format.py::test_an_older_graph_is_still_refused_without_read_only
-    tests/test_read_older_format.py::test_an_older_graph_opens_read_only_and_lists_its_items
+    tests/test_read_older_format.py::test_an_older_graph_opens_read_only_with_read_older_and_lists_its_items
     tests/test_read_older_format.py::test_every_write_to_an_older_graph_is_refused_and_names_migrate
-    tests/test_read_older_format.py::test_a_current_graph_opened_read_only_refuses_writes_without_naming_migrate
+    tests/test_read_older_format.py::test_a_current_graph_opened_with_read_older_is_written_as_always
     tests/test_read_older_format.py::test_reading_again_keeps_the_session_read_only
   origin: ai

@@ -263,15 +263,18 @@ class Session:
     # (SR-0061). Compared with the disk before anything is written, so a screen left
     # open across somebody else's edit cannot sign wording it never showed.
     seen: tuple = ()
-    # Opened by the Tool's tolerant reader, which also reads an older on-disk
-    # format, and so never written through (SR-0081). ``disk_format`` is the format
-    # the graph's configuration declares when it is older than the Tool's, else None.
-    read_only: bool = False
-    disk_format: int | None = None
+    # The format the graph's configuration declares when it is older than the
+    # Tool's: such a graph was read by the Tool's tolerant reader and is never
+    # written through (SR-0081). None for a graph at the Tool's own format.
+    older_format: int | None = None
 
     @property
     def schema(self):
         return self.project.schema
+
+    @property
+    def read_only(self) -> bool:
+        return self.older_format is not None
 
     @property
     def suspect_status(self) -> str | None:
@@ -698,20 +701,20 @@ def changed_on_disk(session: Session) -> bool:
     return disk_state(session) != session.seen
 
 
-def open_session(path: str | Path, *, read_only: bool = False) -> Session:
+def open_session(path: str | Path, *, read_older: bool = False) -> Session:
     """Open the throughline project ``path`` names, composing its sources when it
     declares any. Raises :class:`AmbiguousProjectError` when the path encloses
     more than one graph and the choice is the reviewer's to make.
 
-    ``read_only`` opens it with the Tool's tolerant reader, which also reads a graph
-    at an older on-disk format, and every write through the session is then refused
-    (SR-0081)."""
-    return open_root(resolve_root(path), read_only=read_only)
+    A graph at an older on-disk format is refused unless ``read_older``, which
+    reads it with the Tool's tolerant reader into a session every write through
+    is refused (SR-0081). A graph at the Tool's own format opens as always."""
+    return open_root(resolve_root(path), read_older=read_older)
 
 
-def open_root(root: Path, *, read_only: bool = False) -> Session:
+def open_root(root: Path, *, read_older: bool = False) -> Session:
     """Open the graph rooted at ``root``, which is already decided."""
-    return _open(root, compose=True, read_only=read_only)
+    return _open(root, compose=True, read_older=read_older)
 
 
 def reopen(session: Session) -> Session:
@@ -728,7 +731,7 @@ def reopen(session: Session) -> Session:
     source that cannot be reached for a moment is not a graph that has gone."""
     root = session.root
     try:
-        return open_root(root, read_only=session.read_only)
+        return open_root(root, read_older=session.read_only)
     except RatifierError as exc:
         if not (root / CONFIG_NAME).exists():
             raise GraphLostError(root) from exc
@@ -736,7 +739,7 @@ def reopen(session: Session) -> Session:
             _first_line(str(exc)).removeprefix(f"{root}: ")) from exc
 
 
-def _open(root: Path, compose: bool, read_only: bool = False) -> Session:
+def _open(root: Path, compose: bool, read_older: bool = False) -> Session:
     """Load ``root``, composing its declared sources only when ``compose``.
 
     An uncomposed session is the graph's own account of itself: its ``union`` is
@@ -744,17 +747,16 @@ def _open(root: Path, compose: bool, read_only: bool = False) -> Session:
     project that declares sources. It exists for :func:`describe_candidates`,
     which asks only what needs no union, and it never leaves this module.
     """
-    disk_format = None
+    older_format = None
     try:
         try:
             consumer = load_project(root)
         except ProjectError:
-            if not read_only:
+            if not read_older or (older_format := _declared_format(root)) is None:
                 raise
             # The strict loader refuses a graph at an older format; the tolerant
             # reader reads it in memory and never writes (SR-0081).
             consumer = read_project(root)
-            disk_format = _declared_format(root)
     except ProjectError as exc:
         raise RatifierError(str(exc)) from exc
     except Exception as exc:  # noqa: BLE001 — see below
@@ -784,8 +786,7 @@ def _open(root: Path, compose: bool, read_only: bool = False) -> Session:
         proposed_status=proposed,
         composed=bool(sources),
         sources=sources,
-        read_only=read_only,
-        disk_format=disk_format,
+        older_format=older_format,
     )
     mark_seen(session)
     return session
@@ -803,14 +804,11 @@ def _declared_format(root: Path) -> int | None:
 
 def _refuse_if_read_only(session: Session) -> None:
     """Refuse any write through a read-only session, before anything changes (SR-0081)."""
-    if not session.read_only:
-        return
-    if session.disk_format is not None:
+    if session.read_only:
         raise ReadOnlySessionError(
-            f"{session.root / CONFIG_NAME} is at format version {session.disk_format}, "
+            f"{session.root / CONFIG_NAME} is at format version {session.older_format}, "
             "which this tool reads but does not write; run `tl migrate` there to sign or "
             "change it — nothing was written")
-    raise ReadOnlySessionError(f"{session.root} was opened read-only; nothing was written")
 
 
 def _compose_if_declared(consumer: Project, root: Path) -> tuple[Project, list[SourceInfo]]:

@@ -1486,5 +1486,5 @@ checked by a workflow or a document, or not at all.
 | SR-0078 | The awaiting concern is drawn, with where the item stands | TEST-0067 |
 | SR-0079 | Every signature an item carries is listed in the pane | TEST-0068 |
 | SR-0080 | The role a sitting signs in is settled before the cockpit opens and shown in every confirmation | TEST-0069 |
-| SR-0081 | A graph at an older format opens read-only for a program, and nothing is written through it | TEST-0070 |
+| SR-0081 | A graph at an older format opens read-only for a program that asks, and nothing is written through it | TEST-0070 |
 <!-- tl:end -->
