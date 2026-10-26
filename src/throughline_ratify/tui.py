@@ -498,15 +498,21 @@ class App:
             else:
                 self.flash = _Flash(self._why_blocked(item), "warn")
             return
-        if not self._confirm(self._ratify_question(item)):
+        detail = self._ratify_detail(item)
+        confirmed = (self._confirm(self._ratify_question(item), detail) if detail
+                     else self._confirm(self._ratify_question(item)))
+        if not confirmed:
             self.flash = _Flash("ratify cancelled", "dim")
             return
         if self._moved_under_us("signed"):     # it can change while the question is up
             return
         try:
-            core.ratify_item(self.session, item.uid, self.ratifier,
-                             by_id=self.ratifier_id, role=self.role)
+            signing = core.ratify_item(self.session, item.uid, self.ratifier,
+                                       by_id=self.ratifier_id, role=self.role)
             core.mark_seen(self.session)
+            if item.deletion:
+                self._after_deletion(item, signing)
+                return
             if self.log is not None:
                 if item.stale:
                     self.log.resigned(item.uid, item.title, item.ratified_by)
@@ -517,6 +523,45 @@ class App:
             self.flash = _Flash(f"\u2713 {item.uid} {verb} by {self.ratifier}", "ok")
         except core.RatifierError as exc:
             self.flash = _Flash(str(exc), "err")
+
+    def _ratify_detail(self, item: QueueItem) -> list[str] | None:
+        """The lines above the question that say what the signature will do beyond
+        the item (SR-0084). Only a deletion has any: ratifying it retires the item
+        and marks what is grounded on it suspect (throughline SR-0270), and the
+        consequence is stated as the cockpit has established it, the way a
+        rejection's is (SR-0025), not as one a deletion can have in general."""
+        if not item.deletion:
+            return None
+        if item.dependents:
+            return [f"{len(item.dependents)} dependent(s) become suspect:",
+                    ", ".join(item.dependents)]
+        return ["No other item is grounded on it."]
+
+    def _after_deletion(self, item: QueueItem, signing: core.Signing) -> None:
+        """Report what signing a deletion did (SR-0082): retired or not yet, what
+        was marked suspect, and what the lifecycle would not let be marked — the
+        last named rather than dropped, as `tl ratify` names it on stderr, because
+        footing withdrawn without a flag is the drift this cockpit exists to show
+        (SR-0037)."""
+        if self.log is not None:
+            self.log.retired(item.uid, item.title, signing.marked, signing.refused,
+                             retired=signing.retired)
+        self.refresh_queue()
+        if not signing.retired:
+            self.flash = _Flash(
+                f"\u2620 {item.uid} deletion signed by {self.ratifier} \u2014 "
+                "not yet retired", "ok")
+            return
+        said = []
+        if signing.marked:
+            said.append(f"{len(signing.marked)} dependent(s) now suspect")
+        if signing.refused:
+            said.append(f"{len(signing.refused)} left unflagged: "
+                        + ", ".join(r.uid for r in signing.refused))
+        extra = f"; {'; '.join(said)}" if said else ""
+        self.flash = _Flash(
+            f"\u2620 {item.uid} deletion ratified by {self.ratifier} \u2014 retired{extra}",
+            "warn" if signing.refused else "ok")
 
     def _ratify_question(self, item: QueueItem) -> str:
         """What the reviewer is actually being asked to do (SR-0025, SR-0030).
@@ -529,6 +574,11 @@ class App:
             who = item.ratified_by or "a human"
             return (f"{item.uid} was ratified by {who}, and its wording has changed "
                     f"since. Accept the new wording as {self._signature()}?")
+        if item.deletion:
+            # What is being signed is the deletion record, not the wording
+            # (throughline SR-0269): the question says so, and that the item goes.
+            return (f"Ratify the deletion of {item.uid} as {self._signature()}? "
+                    "The item is retired.")
         return f"Ratify {item.uid} as {self._signature()}?"
 
     def _signature(self) -> str:
@@ -848,7 +898,11 @@ class App:
             cursor = "\u25b8 " if selected else "  "
             uid = row.uid[:14].ljust(14)
             title = row.title or "(untitled)"
-            line = f"{cursor}{row.icon} {uid} {title}"
+            # A proposed deletion sits among the proposals it is one of, and the
+            # row says so (SR-0084): a reviewer reading a title is otherwise asked
+            # to sign an item away under the glyph that offers to accept it.
+            what = f"\u2620 deletion: " if row.deletion else ""
+            line = f"{cursor}{row.icon} {uid} {what}{title}"
             _safe_addstr(self.scr, y, 0, line[:width], base | (curses.A_BOLD if selected else 0))
 
         # scroll indicators
@@ -920,6 +974,8 @@ class App:
                     add(indent + seg, attr)
 
         head = f"{item.icon} {item.uid}"
+        if item.deletion:
+            head += "  \u2620 proposed deletion"
         add(head, _attr(item.concern, bold=True))
         meta = f"  {item.type}  \u2502  status: {item.status}"
         # Both flags are read by the fingerprint, so both are signed content (SR-0076).
@@ -935,6 +991,13 @@ class App:
             add()
 
         # readiness line
+        if item.deletion:
+            # A tombstone awaiting its signature (throughline SR-0267). What the
+            # signature accepts is the deletion record, so that is what the pane
+            # shows below, in the Tool's own lines (SR-0083), and the wording the
+            # record retires is shown inside it rather than as the item's text.
+            self._add_deletion(item, out, add, wrap)
+            return out
         if item.concern == "rejected":
             line = f"  \u2717 rejected (status '{item.status}')"
             if item.reason:
@@ -1022,37 +1085,73 @@ class App:
                 for line in rest:
                     wrap(line, attr, indent="      ")
             add()
-        if item.links:
-            hint = "  (Tab to navigate)" if self.focus != "detail" else "  (\u25b8 j/k \u00b7 e expand \u00b7 x remove)"
-            add(f"links{hint}", _attr("key"))
-            for i, lv in enumerate(item.links):
-                self._link_lines[i] = len(out)
-                focused = self.focus == "detail" and i == self.link_sel
-                cur = "\u25b8 " if focused else "  "
-                if lv.external:
-                    # prefer the target's authoritative clause reference; fall back to
-                    # the source namespace only when the item declares no source_ref.
-                    tag = f"  ({lv.source_ref or lv.namespace})"
-                else:
-                    tag = ""
-                head_attr = _attr("sel") if focused else _attr("dim", bold=True)
-                if lv.resolved:
-                    add(f"{cur}{lv.type} \u2192 {lv.ref}{tag}", head_attr)
-                    if i in self.expanded:
-                        meta = f"{lv.target_type} \u00b7 {lv.target_status}".strip(" \u00b7")
-                        if meta:
-                            add("      " + meta, _attr("dim"))
-                        wrap(lv.title, _attr("dim", bold=True), indent="      ")
-                        if lv.text:
-                            wrap(lv.text, _attr("dim"), indent="      ")
-                    else:
-                        wrap(lv.title, _attr("dim"), indent="      ")
-                else:
-                    ua = _attr("sel") if focused else _attr("ungrounded")
-                    add(f"{cur}{lv.type} \u2192 {lv.ref}  (unresolved)", ua)
-        else:
-            add("no links", _attr("dim"))
+        self._add_links(item, out, add, wrap)
         return out
+
+    def _add_deletion(self, item: QueueItem, out: list, add, wrap) -> None:
+        """The pane for a proposed deletion (SR-0083): what pressing r does, who
+        has signed the deletion so far, the record throughline renders for a
+        signer — reason, day, the status the item held, the content retired, whose
+        acceptance it undoes and what it marks suspect — and the item's links."""
+        n = len(item.dependents)
+        consequence = (f"retires it and marks {n} dependent(s) suspect" if n
+                       else "retires it; nothing is grounded on it")
+        add(f"  \u2620 proposed deletion \u2014 ratifying it {consequence}",
+            _attr("deleted", bold=True))
+        if item.ratifiable_now:
+            add(f"  \u2620 press r to ratify the deletion as {self._signature()}",
+                _attr("key"))
+        elif item.concern == "awaiting":
+            add(f"  \u25d0 {item.standing}", _attr("stale", bold=True))
+        else:
+            add(f"  \u2717 {self._why_blocked(item)}", _attr("warn"))
+        if item.signatures:
+            add("  signed by: " + "; ".join(item.signatures), _attr("key"))
+        add()
+        add("deletion record  (what the signature is taken over)", _attr("key"))
+        for line in item.record:
+            if not line.strip():
+                add()
+                continue
+            stripped = line.lstrip()
+            indent = "  " + " " * (len(line) - len(stripped))
+            wrap(stripped, 0, indent=indent)
+        add()
+        self._add_links(item, out, add, wrap)
+
+    def _add_links(self, item: QueueItem, out: list, add, wrap) -> None:
+        """The item's links, each a line the detail focus can land on; ``out`` is
+        the pane being built, so a link's line number can be recorded."""
+        if not item.links:
+            add("no links", _attr("dim"))
+            return
+        hint = "  (Tab to navigate)" if self.focus != "detail" else "  (\u25b8 j/k \u00b7 e expand \u00b7 x remove)"
+        add(f"links{hint}", _attr("key"))
+        for i, lv in enumerate(item.links):
+            self._link_lines[i] = len(out)
+            focused = self.focus == "detail" and i == self.link_sel
+            cur = "\u25b8 " if focused else "  "
+            if lv.external:
+                # prefer the target's authoritative clause reference; fall back to
+                # the source namespace only when the item declares no source_ref.
+                tag = f"  ({lv.source_ref or lv.namespace})"
+            else:
+                tag = ""
+            head_attr = _attr("sel") if focused else _attr("dim", bold=True)
+            if lv.resolved:
+                add(f"{cur}{lv.type} \u2192 {lv.ref}{tag}", head_attr)
+                if i in self.expanded:
+                    meta = f"{lv.target_type} \u00b7 {lv.target_status}".strip(" \u00b7")
+                    if meta:
+                        add("      " + meta, _attr("dim"))
+                    wrap(lv.title, _attr("dim", bold=True), indent="      ")
+                    if lv.text:
+                        wrap(lv.text, _attr("dim"), indent="      ")
+                else:
+                    wrap(lv.title, _attr("dim"), indent="      ")
+            else:
+                ua = _attr("sel") if focused else _attr("ungrounded")
+                add(f"{cur}{lv.type} \u2192 {lv.ref}  (unresolved)", ua)
 
     def _draw_footer(self, y: int, w: int) -> None:
         _hline(self.scr, y, 0, w, _attr("footer"))
@@ -1176,7 +1275,9 @@ class App:
             "               blocked item that overshot ratification, record the",
             "               missed sign-off. Where the item's status cannot reach",
             "               ratified directly, a route the project's transitions",
-            "               permit carries it there and back",
+            "               permit carries it there and back. On a proposed",
+            "               deletion (\u2620 in the row), sign the deletion record: the",
+            "               item is retired and what is grounded on it marked suspect",
             "  x            [\u2717] reject (invalidate) the selected item",
             "  a            [\u2200] toggle the wide view: also show already-ratified",
             "               and dead (rejected/tombstoned) items",
@@ -1196,7 +1297,8 @@ class App:
             "  Esc          return focus to the list",
             "",
             "concerns:",
-            "  \u25cf proposed    awaiting a human's accountability",
+            "  \u25cf proposed    awaiting a human's accountability; a tombstone whose",
+            "               deletion awaits one is a proposed deletion, marked \u2620",
             "  \u25c9 ready       approved, one move from ratified",
             "  \u21ba stale       signed off, but the wording has changed since \u2014",
             "               the signature no longer covers it",

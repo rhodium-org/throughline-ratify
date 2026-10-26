@@ -1,0 +1,48 @@
+uid: SR-0084
+type: system_requirement
+status: ratified
+title: A proposed deletion is named as one in the row, the printed list and the confirmation
+text: A worklist row for a tombstone the Tool does not count as dead shall carry
+  a deletion mark before the title; --list shall mark the row deletion rather than
+  ratify-ready; and the confirmation shall ask to ratify the deletion, say the item
+  is retired, and name the live dependents that become suspect as the cockpit has
+  established them along the project's withdrawing link types, or say that nothing
+  is grounded on it. A tombstone that stands shall remain dead and be drawn as before.
+rationale: 'throughline lists an unsigned tombstone as a proposal (throughline SR-0267),
+  under the glyph that offers to accept an item; a reviewer reading a title would
+  be asked to sign an item away without the row saying so. The consequence is stated
+  before the question as a rejection''s is (SR-0025): what this signature will do,
+  established from the same walk the Tool''s cascade makes, not what a deletion can
+  do in general. Rejected, a concern of its own for deletions: the concern is the
+  Tool''s judgement and the Tool calls it proposed; a cockpit that renamed it would
+  draw a worklist that is not the Tool''s (SR-0058). Who pays, a reviewer of --list
+  output sees deletion where ratify-ready was true.'
+normative: true
+links:
+- target: UR-0020
+  type: derives_from
+- target: tl:SR-0267
+  type: satisfies
+  stamp: sha256:50460397621e1910c42a9d4d0b29660ff1d7694e2562867640f4c4d41ee7dfef
+- target: SR-0025
+  type: relates
+- target: SR-0008
+  type: relates
+attrs:
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-26T21:57:53Z'
+  fingerprint: sha256:556db20a91d348bc65dc94fc700ab483c73d20300ce4031005a1bfdd494a15de
+  content:
+    type: system_requirement
+    text: A worklist row for a tombstone the Tool does not count as dead shall carry
+      a deletion mark before the title; --list shall mark the row deletion rather
+      than ratify-ready; and the confirmation shall ask to ratify the deletion, say
+      the item is retired, and name the live dependents that become suspect as the
+      cockpit has established them along the project's withdrawing link types, or
+      say that nothing is grounded on it. A tombstone that stands shall remain dead
+      and be drawn as before.
+    normative: true
+    derived: false
+    attrs: {}

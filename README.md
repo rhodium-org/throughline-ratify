@@ -117,7 +117,7 @@ text already says whether the item is signed and by whom.
 | --- | --- |
 | `j` / `↓`, `k` / `↑` | move |
 | `g` / `G`, PgUp / PgDn | jump / page |
-| `r` / `Enter` | ratify the selected item (with confirm); on a stale one, accept the wording that has changed since it was signed; on an item that overshot ratification, record the missed sign-off. Where the item's status cannot reach ratified directly, a route the project's transitions permit carries it there and back |
+| `r` / `Enter` | ratify the selected item (with confirm); on a stale one, accept the wording that has changed since it was signed; on an item that overshot ratification, record the missed sign-off. Where the item's status cannot reach ratified directly, a route the project's transitions permit carries it there and back. On a proposed deletion, sign the deletion record: the item is retired and everything grounded on it is marked suspect |
 | `x` | reject (invalidate) the selected item, cascading suspect to dependents |
 | `a` | toggle the wide view — also show already-ratified and dead (rejected/tombstoned) items |
 | `/` | filter by uid or title |
@@ -137,13 +137,26 @@ In a graph opened from that list, `q` goes back to the list instead of ending th
 
 Without a terminal to ask on (`--list`, or output piped), an ambiguous path is refused, with the `-C` command that selects each graph.
 
+### Deletions
+
+Since throughline 4.1.0, `tl delete` leaves a *proposed* tombstone: the item is
+still live scope until a human ratifies the deletion. The cockpit lists it among
+the proposals with `☠ deletion:` before its title, and the pane shows the
+deletion record the signature is taken over, in the lines `tl ratify` prints —
+the reason, the day, the status the item held, the content retired, whose
+acceptance the deletion undoes, and the items grounded on it. The confirmation
+names those items, because ratifying the deletion retires the item and marks
+every one of them suspect; a dependent whose lifecycle allows no move to suspect
+is named afterwards as left unflagged, never dropped. `--list` marks the row
+`deletion`.
+
 ### Concerns
 
 Every row is classified by the one thing you most need to know about it:
 
 | Glyph | Concern | Meaning |
 | --- | --- | --- |
-| ● | proposed | AI-proposed, awaiting a human's accountability |
+| ● | proposed | AI-proposed, awaiting a human's accountability — including a proposed deletion, marked `☠ deletion:` in the row |
 | ◉ | ready | already approved, one move from ratified |
 | ↺ | stale | signed off, but the wording has changed since — the signature no longer covers it |
 | ○ | blocked | pending, but not directly ratifiable from its status |

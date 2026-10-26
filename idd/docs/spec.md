@@ -1392,6 +1392,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0017 | A screen left open does not sign wording I was not shown | SR-0061, SR-0062, SR-0067, SR-0070, SR-0071 |
 | UR-0018 | Leaving a graph takes me back to the list I picked it from | SR-0063, SR-0064, SR-0066 |
 | UR-0019 | Sign in the role the graph declares, and see who has signed before me | SR-0078, SR-0079, SR-0080 |
+| UR-0020 | Ratify a proposed deletion from the cockpit, knowing what it undoes and what it marks suspect | SR-0082, SR-0083, SR-0084 |
 <!-- tl:end -->
 
 
@@ -1487,4 +1488,7 @@ checked by a workflow or a document, or not at all.
 | SR-0079 | Every signature an item carries is listed in the pane | TEST-0068 |
 | SR-0080 | The role a sitting signs in is settled before the cockpit opens and shown in every confirmation | TEST-0069 |
 | SR-0081 | A graph at an older format opens read-only for a program that asks, and nothing is written through it | TEST-0070 |
+| SR-0082 | Signing a deletion receives throughline's cascade, writes every dependent it marked, and reports what it could not | TEST-0071 |
+| SR-0083 | The pane shows a proposed deletion as the record throughline renders for its signer | TEST-0072 |
+| SR-0084 | A proposed deletion is named as one in the row, the printed list and the confirmation | TEST-0073 |
 <!-- tl:end -->
