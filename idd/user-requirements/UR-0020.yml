@@ -1,6 +1,6 @@
 uid: UR-0020
 type: user_requirement
-status: proposed
+status: ratified
 title: Ratify a proposed deletion from the cockpit, knowing what it undoes and what
   it marks suspect
 text: As a reviewer, I want a tombstone whose deletion awaits a signature offered
@@ -29,3 +29,18 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-26T21:57:51Z'
+  fingerprint: sha256:1bf64770bff1d36568a9dfe6c0009191c6f234b55a122fc17d39caa648582c06
+  content:
+    type: user_requirement
+    text: As a reviewer, I want a tombstone whose deletion awaits a signature offered
+      to me as the deletion it is, to read the record I am signing — why, when, what
+      the item said and whose acceptance it undoes — and to be told before I sign
+      which items will be marked suspect and afterwards which were and which could
+      not be, so that retiring an item is as deliberate an act as accepting one and
+      nothing grounded on it loses its footing unseen.
+    normative: true
+    derived: false
+    attrs: {}

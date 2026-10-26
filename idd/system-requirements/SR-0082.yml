@@ -1,6 +1,6 @@
 uid: SR-0082
 type: system_requirement
-status: proposed
+status: ratified
 title: Signing a deletion receives throughline's cascade, writes every dependent
   it marked, and reports what it could not
 text: ratify_item shall hand throughline's ratify a Cascade with every signature.
@@ -33,3 +33,19 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-26T21:57:52Z'
+  fingerprint: sha256:3563a6f5cdac4625dd42969251ebd8f6d372877aff5e59349a4188dc9f01023d
+  content:
+    type: system_requirement
+    text: ratify_item shall hand throughline's ratify a Cascade with every signature.
+      After writing the signed item it shall write every item the cascade marked
+      to this project's own registers, and return whether the tombstone now stands,
+      the dependents marked suspect and the refusals, each with the move refused.
+      The cockpit shall report what was marked and name each refusal as left unflagged,
+      in the flash and in the sitting's account, and never drop one. reratify_item
+      shall offer the cascade likewise.
+    normative: true
+    derived: false
+    attrs: {}

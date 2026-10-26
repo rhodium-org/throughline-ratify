@@ -1,6 +1,6 @@
 uid: TEST-0073
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0084: A proposed deletion is named as one in the row, the printed
   list and the confirmation'
 text: The shipped pytest suite checks SR-0084 with the test functions this item lists.
@@ -16,3 +16,14 @@ attrs:
     tests/test_ratified_deletion.py::test_the_confirmation_names_the_deletion_and_its_dependents
     tests/test_ratified_deletion.py::test_a_confirmation_for_wording_shows_no_dependents
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-26T21:57:54Z'
+  fingerprint: sha256:d54a52afacae1ad4b66e304eff5091624a65b281bb2f5514fe65f6e61a101b85
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0084 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

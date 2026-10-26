@@ -1,6 +1,6 @@
 uid: TEST-0072
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0083: The pane shows a proposed deletion as the record throughline
   renders for its signer'
 text: The shipped pytest suite checks SR-0083 with the test functions this item lists.
@@ -13,3 +13,14 @@ attrs:
     tests/test_ratified_deletion.py::test_the_pane_shows_the_deletion_record_as_the_tool_renders_it
     tests/test_ratified_deletion.py::test_the_pane_says_when_nothing_is_grounded_on_the_deletion
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-26T21:57:54Z'
+  fingerprint: sha256:7f8ce21c44f5b510d2cb3f3dcdbf2548e93c62fea6258719fe47066763f77281
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0083 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

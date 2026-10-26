@@ -1,6 +1,6 @@
 uid: SR-0083
 type: system_requirement
-status: proposed
+status: ratified
 title: The pane shows a proposed deletion as the record throughline renders for its
   signer
 text: For a tombstone the Tool does not count as dead, the detail pane shall head
@@ -33,3 +33,20 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-26T21:57:52Z'
+  fingerprint: sha256:a2d4f8b967d22b41b8fd4a930dcbd5acb77d4b02c9048b840937b8493c948a33
+  content:
+    type: system_requirement
+    text: For a tombstone the Tool does not count as dead, the detail pane shall
+      head the item as a proposed deletion and draw the deletion record in the lines
+      throughline's render_for_ratification emits — the reason, the date, the status
+      the item held, the content retired, what the item said, whose acceptance the
+      deletion undoes and the dependents ratifying it marks suspect — in place of
+      the text, rationale and attributes a live item gets. Its readiness line shall
+      say that ratifying retires the item and how many dependents it marks, or that
+      nothing is grounded on it, and name the signature it would be given as.
+    normative: true
+    derived: false
+    attrs: {}
