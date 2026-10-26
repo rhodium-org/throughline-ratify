@@ -1,0 +1,17 @@
+uid: TEST-0071
+type: test
+status: proposed
+title: 'Tests of SR-0082: Signing a deletion receives throughline''s cascade, writes
+  every dependent it marked, and reports what it could not'
+text: The shipped pytest suite checks SR-0082 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0082
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_ratified_deletion.py::test_ratifying_a_deletion_writes_the_dependents_the_cascade_marked
+    tests/test_ratified_deletion.py::test_a_signature_over_wording_marks_nothing
+    tests/test_ratified_deletion.py::test_a_deletion_short_of_its_requirement_is_signed_but_retires_nothing
+    tests/test_ratified_deletion.py::test_ratifying_from_the_cockpit_reports_what_was_marked_and_what_was_refused
+  origin: ai

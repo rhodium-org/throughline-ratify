@@ -104,11 +104,17 @@ _ITEMS = [
      "Abandoned requirement",
      "attrs:\n  invalidated_reason: superseded by FR-0002\n"
      "links:\n- target: INT-0001\n  type: derives_from\n"),
-    # DELETED (tombstoned) -> dead: hidden by default, visible under show_all as
-    # concern "deleted".
+    # DELETED (tombstoned) and standing -> dead: hidden by default, visible under
+    # show_all as concern "deleted". Since throughline 4.1.0 a tombstone stands
+    # only once its deletion is ratified or it was retired outright (tl:SR-0267,
+    # tl:SR-0272); this one was retired outright, so it is the settled tombstone
+    # it always was. A tombstone still awaiting a signature is a *proposed*
+    # deletion, and tests/test_ratified_deletion.py writes its own.
     ("FR-0009", "requirements", "FR", "Requirements", "requirement", "deleted",
      "Tombstoned requirement",
-     "links:\n- target: INT-0001\n  type: derives_from\n"),
+     "links:\n- target: INT-0001\n  type: derives_from\n"
+     "deleted:\n  date: '2026-07-01'\n  reason: superseded\n  from: proposed\n"
+     "  outright: true\n"),
     # STALE: ratified, and stamped with a fingerprint that does not match the content
     # below it — the state throughline's check reports as ratified-stale. It sits at
     # 'ratified', which may always move to itself, so it is directly ratifiable again.

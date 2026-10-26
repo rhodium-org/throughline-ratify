@@ -1,0 +1,18 @@
+uid: TEST-0073
+type: test
+status: proposed
+title: 'Tests of SR-0084: A proposed deletion is named as one in the row, the printed
+  list and the confirmation'
+text: The shipped pytest suite checks SR-0084 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0084
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_ratified_deletion.py::test_a_proposed_deletion_is_in_the_backlog_as_a_deletion
+    tests/test_ratified_deletion.py::test_a_tombstone_that_stands_is_dead_not_a_deletion
+    tests/test_ratified_deletion.py::test_the_list_row_and_the_printed_list_say_deletion
+    tests/test_ratified_deletion.py::test_the_confirmation_names_the_deletion_and_its_dependents
+    tests/test_ratified_deletion.py::test_a_confirmation_for_wording_shows_no_dependents
+  origin: ai

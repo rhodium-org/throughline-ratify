@@ -46,6 +46,7 @@ except ModuleNotFoundError:  # pragma: no cover
 # else.
 from throughline import (
     CONCERNS,
+    Cascade,
     fingerprint,
     CONFIG_NAME,
     ComposeError,
@@ -71,7 +72,9 @@ from throughline import (
     parse_sources,
     read_project,
     reaches_root,
+    render_for_ratification,
     resolve_sources,
+    retired,
     set_status,
     write_item,
 )
@@ -229,6 +232,20 @@ class QueueItem:
     # Why the item cannot be signed as the graph stands, in the words throughline's
     # own ratify would use to refuse it (SR-0058); None when it can.
     obstacle: str | None = None
+    # A proposed deletion (throughline SR-0267): the item is a tombstone whose
+    # deletion no human has yet ratified, so it is still live scope and what a
+    # signature on it accepts is the deletion record, not the wording (SR-0084).
+    # False for a tombstone that stands, which is dead and drawn as such.
+    deletion: bool = False
+    # For a proposed deletion: the live items grounded on it along the withdrawing
+    # link types — the ones ratifying it marks suspect (throughline SR-0270). The
+    # confirmation names them, so the consequence is read before it is accepted.
+    dependents: tuple[str, ...] = ()
+    # For a proposed deletion: the record the signature is taken over, in the
+    # lines throughline puts in front of a signer at `tl ratify` (SR-0083) — the
+    # reason, the day, the status the item held, the content retired, whose
+    # acceptance the deletion undoes and what it marks suspect.
+    record: tuple[str, ...] = ()
 
     @property
     def icon(self) -> str:
@@ -884,6 +901,10 @@ def _row(session: Session, entry: WorklistEntry) -> QueueItem:
         if not entry.ratifiable and entry.concern == "blocked"
         else None
     )
+    # A tombstone the Tool does not count as dead is a proposed deletion
+    # (throughline SR-0267): the worklist offers it like any other proposal, and
+    # the row says what kind of proposal it is (SR-0084).
+    deletion = item.is_deleted and not entry.dead
     return QueueItem(
         uid=entry.uid,
         title=entry.title,
@@ -910,7 +931,23 @@ def _row(session: Session, entry: WorklistEntry) -> QueueItem:
         signatures=tuple(_describe(e) for e in throughline_signatures(item)),
         standing=entry.standing,
         obstacle=entry.obstacle,
+        deletion=deletion,
+        dependents=tuple(_withdrawal_reaches(session, item.uid)) if deletion else (),
+        record=_deletion_record(session, item) if deletion else (),
     )
+
+
+def _deletion_record(session: Session, item: Item) -> tuple[str, ...]:
+    """The deletion record as throughline renders it for a signer (SR-0083): the
+    very lines `tl ratify` prints, so the cockpit and the command put one account
+    in front of the person, and the fields are the Tool's to choose."""
+    lines: list[str] = []
+    render_for_ratification(session.project, item, emit=lines.append)
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    while lines and not lines[-1].strip():
+        lines.pop()
+    return tuple(lines)
 
 
 def _describe(entry: dict) -> str:
@@ -1148,8 +1185,34 @@ def normalise_identifier(raw: str | None) -> str | None:
         raise RatifierError(str(exc)) from exc
 
 
+@dataclass
+class Signing:
+    """What one signature did beyond the item it was written on (SR-0082).
+
+    ``retired`` is whether the item was a tombstone that now stands — its deletion
+    ratified to the standing its kind requires (throughline SR-0269). ``marked``
+    are the dependents that signature made suspect and ``refused`` the ones whose
+    configured lifecycle declared no route to suspect, each with the move refused
+    (throughline SR-0270, SR-0173). Both empty for a signature over wording, which
+    marks nothing. A refusal is carried, never dropped: a dependent whose footing
+    is gone and carries no flag is the drift the cockpit exists to show (SR-0037)."""
+
+    retired: bool = False
+    marked: list[str] = field(default_factory=list)
+    refused: list[Refusal] = field(default_factory=list)
+
+
+def _write_cascade(session: Session, cascade: Cascade) -> None:
+    """Persist every dependent the Tool's cascade marked (SR-0082). The marking is
+    throughline's; this writes what it reports moved, as `tl ratify` does, and
+    only to this project's own registers — a borrowed item is never reached."""
+    project = session.project
+    for aid in cascade.marked:
+        write_item(project.get(aid), project.register_of(aid))
+
+
 def ratify_item(session: Session, uid: str, by: str, by_id: str | None = None,
-                role: str | None = None) -> None:
+                role: str | None = None) -> Signing:
     """Take human accountability for ``uid``, grounding over the composed union.
 
     The sign-off itself is throughline's own :func:`throughline.grounding.ratify`
@@ -1165,16 +1228,28 @@ def ratify_item(session: Session, uid: str, by: str, by_id: str | None = None,
     one is well formed is throughline's judgement, surfaced as it stands. ``role``
     is the role the signature is given in where the graph declares roles
     (throughline SR-0259); whether it is needed, and whether this person holds it,
-    is the Tool's to say."""
+    is the Tool's to say.
+
+    On a tombstone the signature is over the deletion record (throughline
+    SR-0269), and the one that brings it to the standing its kind requires
+    retires the item and marks everything grounded on it suspect (throughline
+    SR-0270). The Tool refuses to sign such a deletion unless the caller receives
+    that cascade, so it is received here and every dependent it marked is written
+    beside the item (SR-0082). What it did, and what it could not, is returned for
+    the reviewer to be told."""
     _refuse_if_read_only(session)
     if session.project.get(uid) is None:
         raise RatifierError(f"{uid} does not exist")
+    cascade = Cascade()
     try:
         item = core_ratify(session.project, uid, by, by_id=by_id, index=session.index,
-                           role=role)
+                           role=role, cascade=cascade)
     except (GroundingError, IdentityError) as exc:
         raise RatifierError(str(exc)) from exc
     write_item(item, session.project.register_of(uid))
+    _write_cascade(session, cascade)
+    return Signing(retired=retired(item, session.schema),
+                   marked=list(cascade.marked), refused=list(cascade.refused))
 
 
 def reratify_item(session: Session, uid: str, by: str,
@@ -1210,6 +1285,10 @@ def reratify_item(session: Session, uid: str, by: str,
     schema = session.schema
     pivot = route.index(session.ratified_status)
     was = item.status
+    # A tombstone is never routed here — it is signed where it stands — but the
+    # Tool refuses any signature whose cascade has no writer, so one is offered
+    # and whatever it marks is written (SR-0082).
+    cascade = Cascade()
     try:
         # Up to, but not including, the hop onto ratified — that one is not ours.
         for to in route[1:pivot]:
@@ -1217,7 +1296,7 @@ def reratify_item(session: Session, uid: str, by: str,
         # throughline moves it the last step and records who accepted what. Its
         # gates (ambiguous, ungrounded, unchanged-already-ratified) bite here.
         core_ratify(session.project, uid, by, by_id=by_id, index=session.index,
-                    role=role)
+                    role=role, cascade=cascade)
         for to in route[pivot + 1:]:
             set_status(schema, item, to)
     except (GroundingError, IdentityError) as exc:
@@ -1227,6 +1306,7 @@ def reratify_item(session: Session, uid: str, by: str,
         item.status = was
         raise RatifierError(str(exc)) from exc
     write_item(item, session.project.register_of(uid))
+    _write_cascade(session, cascade)
     return route
 
 
@@ -1255,14 +1335,26 @@ def preview_reject(session: Session, uid: str) -> list[str]:
     if suspect is None:
         return []
     schema = session.schema
+    return [
+        aid for aid in _withdrawal_reaches(session, uid)
+        if schema.allows_transition(project.get(aid).status, suspect)
+    ]
+
+
+def _withdrawal_reaches(session: Session, uid: str) -> list[str]:
+    """The live items whose footing withdrawing ``uid`` takes away: its transitive
+    dependents along the project's own ``withdrawing_link_types``, the walk
+    throughline's cascade makes (tl:SR-0159), less those already dead. Shared by
+    the rejection preview (SR-0025) and the deletion row (SR-0084), so the
+    consequence a confirmation states is the one the Tool then enacts."""
+    project = session.project
+    schema = session.schema
     dead = schema.dead_statuses()
     return [
         aid
         for aid in sorted(Index.build(project).impact(
             uid, schema.withdrawing_link_types()))
-        if (dep := project.get(aid)) is not None
-        and dep.status not in dead
-        and schema.allows_transition(dep.status, suspect)
+        if (dep := project.get(aid)) is not None and dep.status not in dead
     ]
 
 

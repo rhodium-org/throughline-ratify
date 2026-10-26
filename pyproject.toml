@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "throughline-ratify"
-version = "0.14.0"
+version = "0.15.0"
 description = "A full-screen, htop-style terminal assistant for reviewing and ratifying throughline requirement items. Compose-aware: grounds items over the composed union so borrowed clauses count. Ships the tl-ratify TUI."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -92,8 +92,13 @@ classifiers = [
 # `ratify(role=)` and `default_identifier` all arrive in 4.0.0, the format-4 release
 # (throughline SR-0254 to SR-0264); below it the cockpit reads a record that is not
 # there and draws a concern it has no icon for.
+# Ratifying a deletion (throughline SR-0267 to SR-0270) arrives in 4.1.0: `ratify`
+# takes `cascade=` and refuses a tombstone with live dependents without it, and
+# `Cascade`, `retired` and `render_for_ratification`'s deletion view are what the
+# cockpit reads to write what the retirement marked and to show the record signed
+# (SR-0082 to SR-0084). Below it the cockpit passes a keyword the Tool rejects.
 dependencies = [
-  "throughline>=4.0.0",
+  "throughline>=4.1.0",
   # The cockpit is drawn with the standard library's curses, which CPython on
   # Windows does not ship; windows-curses is the published build of it for that
   # platform, and the marker keeps it off every other (SR-0077). Without this a

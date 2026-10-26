@@ -43,6 +43,10 @@ RERATIFIED = "re-ratified"
 # when somebody had — a false statement about the very record the report exists for.
 RESIGNED = "re-signed"
 REJECTED = "rejected"
+# A signature over a deletion record (throughline SR-0269). The account says
+# whether the tombstone now stands and what the retirement marked suspect, as a
+# rejection's does (SR-0082): the two withdraw footing by the one walk.
+RETIRED = "retired"
 LINK_REMOVED = "link removed"
 
 # The destination meaning "stdout" — what ``--summary`` with no path resolves to.
@@ -76,6 +80,10 @@ class Decision:
     # Recorded because footing withdrawn without a flag is drift, and a record that
     # named only the successes would hide it (SR-0037).
     refused: tuple[tuple[str, str, str], ...] = ()
+    # retirement only: whether the signature brought the deletion to the standing
+    # its kind requires. False when more signatures are still asked for, in which
+    # case nothing was marked.
+    stands: bool = True
     # link removal only.
     link_type: str = ""
     link_ref: str = ""
@@ -117,6 +125,14 @@ class DecisionLog:
                      refused=tuple(tuple(r) for r in refused))
         )
 
+    def retired(self, uid: str, title: str, suspected: list[str],
+                refused: Sequence[tuple[str, str, str]] = (), *,
+                retired: bool = True) -> None:
+        self.decisions.append(
+            Decision(RETIRED, uid, title, suspected=tuple(suspected),
+                     refused=tuple(tuple(r) for r in refused), stands=retired)
+        )
+
     def link_removed(
         self, uid: str, title: str, link_type: str, ref: str, *, grounding: bool = False
     ) -> None:
@@ -141,7 +157,8 @@ class DecisionLog:
 
     def tally(self) -> list[tuple[str, int]]:
         """``(kind, count)`` in a fixed order, omitting kinds that did not occur."""
-        counts = {k: 0 for k in (RATIFIED, RERATIFIED, RESIGNED, REJECTED, LINK_REMOVED)}
+        counts = {k: 0 for k in (RATIFIED, RERATIFIED, RESIGNED, REJECTED, RETIRED,
+                                 LINK_REMOVED)}
         for d in self.decisions:
             counts[d.kind] = counts.get(d.kind, 0) + 1
         return [(k, n) for k, n in counts.items() if n]
@@ -165,8 +182,12 @@ def _entry(n: int, d: Decision) -> list[str]:
     if d.kind == RESIGNED:
         out += _wrapped(
             f"content changed since {d.superseded or 'a human'} ratified it", "     ")
+    if d.kind == RETIRED:
+        out += _wrapped("deletion ratified" + ("" if d.stands else
+                        "; signed, not yet retired (more signatures required)"), "     ")
     if d.kind == REJECTED:
         out += _wrapped(f"reason: {d.reason or '(none given)'}", "     ")
+    if d.kind in (REJECTED, RETIRED):
         if d.suspected:
             out += _wrapped(
                 "dependents made suspect: " + ", ".join(d.suspected), "     "

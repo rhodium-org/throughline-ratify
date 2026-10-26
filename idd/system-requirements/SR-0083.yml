@@ -1,0 +1,35 @@
+uid: SR-0083
+type: system_requirement
+status: proposed
+title: The pane shows a proposed deletion as the record throughline renders for its
+  signer
+text: For a tombstone the Tool does not count as dead, the detail pane shall head
+  the item as a proposed deletion and draw the deletion record in the lines throughline's
+  render_for_ratification emits — the reason, the date, the status the item held,
+  the content retired, what the item said, whose acceptance the deletion undoes and
+  the dependents ratifying it marks suspect — in place of the text, rationale and
+  attributes a live item gets. Its readiness line shall say that ratifying retires
+  the item and how many dependents it marks, or that nothing is grounded on it, and
+  name the signature it would be given as.
+rationale: 'What the signature is taken over is the deletion record, not the wording
+  (throughline SR-0269), so the record is what the signer reads; drawing the text,
+  rationale and attributes under their usual headings would show a signature over
+  words it does not cover (SR-0076). The lines are the Tool''s own, so the account
+  at tl ratify and the account in the cockpit are one account and the fields are
+  the Tool''s to choose, as the worklist is (SR-0058). Rejected, mirroring the fields
+  here from the record''s keys: a field the Tool adds would then be missing from
+  the pane until a release here. Who pays, a reviewer reads a record formatted for
+  a terminal inside a pane that wraps it.'
+normative: true
+links:
+- target: UR-0020
+  type: derives_from
+- target: tl:SR-0269
+  type: satisfies
+  stamp: sha256:c4f42f04ab5f23e2021a864e3452d3f70f4b5d34c04010dc99cc25d67669ca81
+- target: SR-0076
+  type: relates
+- target: SR-0058
+  type: relates
+attrs:
+  origin: ai

@@ -1,0 +1,35 @@
+uid: SR-0082
+type: system_requirement
+status: proposed
+title: Signing a deletion receives throughline's cascade, writes every dependent
+  it marked, and reports what it could not
+text: ratify_item shall hand throughline's ratify a Cascade with every signature.
+  After writing the signed item it shall write every item the cascade marked to this
+  project's own registers, and return whether the tombstone now stands, the dependents
+  marked suspect and the refusals, each with the move refused. The cockpit shall
+  report what was marked and name each refusal as left unflagged, in the flash and
+  in the sitting's account, and never drop one. reratify_item shall offer the cascade
+  likewise.
+rationale: 'The marking is throughline''s (throughline SR-0270, the walk a rejection
+  makes); the cockpit''s part is to write what the Tool reports moved, as tl ratify
+  does, and to say so. Receiving the cascade is what the Tool requires of a caller
+  before it will sign a deletion with live dependents, so passing one is what makes
+  a tombstone signable from here at all. A refusal is named rather than dropped for
+  the reason a rejection''s is (SR-0037): a dependent whose footing is gone and carries
+  no flag is the drift the cockpit exists to show. Rejected, writing the dependents
+  only when the tombstone retires, judged here: whether it stands is the Tool''s
+  judgement (retired), read, not reproduced. Who pays, nobody new; the dependents
+  a reviewer sees marked are the ones tl ratify would mark.'
+normative: true
+links:
+- target: UR-0020
+  type: derives_from
+- target: tl:SR-0270
+  type: satisfies
+  stamp: sha256:c89c94cd6f7428340eb66ff82039cf176b6bd8bfa394cb96c45b40577ecefe73
+- target: SR-0022
+  type: relates
+- target: SR-0037
+  type: relates
+attrs:
+  origin: ai

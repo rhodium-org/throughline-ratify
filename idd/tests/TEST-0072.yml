@@ -1,0 +1,15 @@
+uid: TEST-0072
+type: test
+status: proposed
+title: 'Tests of SR-0083: The pane shows a proposed deletion as the record throughline
+  renders for its signer'
+text: The shipped pytest suite checks SR-0083 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0083
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_ratified_deletion.py::test_the_pane_shows_the_deletion_record_as_the_tool_renders_it
+    tests/test_ratified_deletion.py::test_the_pane_says_when_nothing_is_grounded_on_the_deletion
+  origin: ai
