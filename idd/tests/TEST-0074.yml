@@ -1,0 +1,32 @@
+uid: TEST-0074
+type: test
+status: ratified
+title: 'Tests of SR-0085: An item not yet proposed is carried forward to ratified
+  and stays there'
+text: The shipped pytest suite checks SR-0085 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0085
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_not_yet_proposed.py::test_an_item_before_ratified_can_be_put_forward
+    tests/test_not_yet_proposed.py::test_p_puts_it_forward_and_takes_no_signature
+    tests/test_not_yet_proposed.py::test_r_on_an_item_not_yet_proposed_refuses_and_names_p
+    tests/test_not_yet_proposed.py::test_the_plan_standard_lifecycle_puts_draft_forward
+    tests/test_not_yet_proposed.py::test_an_overshot_item_still_takes_the_round_trip
+    tests/test_not_yet_proposed.py::test_p_refuses_an_item_that_cannot_be_put_forward
+    tests/test_not_yet_proposed.py::test_a_draft_with_no_move_to_proposed_is_not_offered_p
+    tests/test_not_yet_proposed.py::test_no_suspect_role_offers_no_round_trip
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-31T17:34:23Z'
+  fingerprint: sha256:6426f5e52eb77fd0bae211c35d93ac08e3c1687a07eb96d45156bd2195e12929
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0085 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

@@ -148,6 +148,13 @@ CONCERN_ICONS: dict[str, str] = {
 }
 assert set(CONCERN_ICONS) >= set(CONCERNS), sorted(set(CONCERNS) - set(CONCERN_ICONS))
 
+# A blocked row that p can put forward (SR-0086): a dotted circle,
+# the blocked glyph not yet filled in. The concern stays the Tool's (SR-0058).
+NOT_YET_PROPOSED_ICON = "\u25cc"
+# A signed row whose status has not reached ratified (SR-0087): a tick that is
+# not yet the settled one.
+UNSETTLED_ICON = "\u2611"
+
 # The orderings the queue can be sorted by (SR-0011). "concern" is the default
 # most-actionable-first ranking; "roots"/"leaves" walk grounding depth so a large
 # graph can be worked top-down (roots first) or bottom-up (leaves first).
@@ -208,10 +215,19 @@ class QueueItem:
     # not drawn; only a departure from them is.
     normative: bool = True
     derived: bool = False
-    # For an item that overshot ratification (its status can no longer move straight
-    # to ratified) yet was never signed off: the config-permitted status itinerary
-    # that records the missed ratification and restores its status. None otherwise.
+    # For an item whose status cannot move straight to ratified and that was never
+    # signed off: the config-permitted status itinerary that takes the sign-off.
+    # For one that overshot ratification it records the missed sign-off and
+    # restores its status (SR-0019); for one not yet proposed it carries the item
+    # to ratified, where it stays (SR-0085). None otherwise.
     reratify_path: list[str] | None = None
+    # For an item not yet proposed: the status p puts it forward to, as
+    # table.iddn.uk's Put forward would (SR-0085). None otherwise.
+    put_forward_to: str | None = None
+    # A signed item whose status has not reached ratified (SR-0087), and the route
+    # r would walk to settle it on the signature it carries (None if there is none).
+    unsettled: bool = False
+    settle_path: list[str] | None = None
     # Why a dead (rejected) item was invalidated, if it recorded a reason. Empty
     # for live items and for tombstones with no reason.
     reason: str = ""
@@ -248,7 +264,17 @@ class QueueItem:
     record: tuple[str, ...] = ()
 
     @property
+    def not_yet_proposed(self) -> bool:
+        """The Tool calls this row blocked, and p can put it forward (SR-0085): it
+        is drawn apart from a row that is stuck (SR-0086)."""
+        return self.put_forward_to is not None
+
+    @property
     def icon(self) -> str:
+        if self.not_yet_proposed:
+            return NOT_YET_PROPOSED_ICON
+        if self.unsettled:
+            return UNSETTLED_ICON
         return CONCERN_ICONS.get(self.concern, "\u25cb")
 
 
@@ -876,7 +902,11 @@ def build_queue(
     entries = [entry_for(session.project, item, index=session.index, depths=depths)
                for item in session.project.items()]
     if not show_all:
-        entries = [e for e in entries if e.concern not in ("ratified", "rejected", "deleted")]
+        # A signed item whose status has not reached ratified is still outstanding
+        # (SR-0087), though the Tool calls it ratified.
+        entries = [e for e in entries
+                   if e.concern not in ("ratified", "rejected", "deleted")
+                   or unsettled(session, session.project.get(e.uid), e.concern)]
     order = {name: n for n, name in enumerate(CONCERNS)}
     entries.sort(key=lambda e: (order.get(e.concern, len(CONCERNS)),
                                 e.depth if e.depth is not None else 1 << 30, e.uid))
@@ -905,6 +935,8 @@ def _row(session: Session, entry: WorklistEntry) -> QueueItem:
     # (throughline SR-0267): the worklist offers it like any other proposal, and
     # the row says what kind of proposal it is (SR-0084).
     deletion = item.is_deleted and not entry.dead
+    blocked = not entry.ratifiable and entry.concern == "blocked"
+    is_unsettled = unsettled(session, item, entry.concern)
     return QueueItem(
         uid=entry.uid,
         title=entry.title,
@@ -923,6 +955,9 @@ def _row(session: Session, entry: WorklistEntry) -> QueueItem:
         normative=item.normative,
         derived=item.derived,
         reratify_path=reratify_path,
+        put_forward_to=put_forward_to(session, item) if blocked else None,
+        unsettled=is_unsettled,
+        settle_path=settle_route(session, item) if is_unsettled else None,
         reason=str(item.attrs.get("invalidated_reason") or ""),
         # A dead row is drawn as dead; the staleness of the record it still carries
         # is a fact the Tool reports, not an action this view offers (SR-0030).
@@ -1022,7 +1057,13 @@ def ratification_progress(session: Session) -> tuple[int, int]:
     watches climb — as throughline counts it (SR-0058). Counts the whole project,
     not just the filtered queue, so ratifying a row makes the number move even
     when it then leaves view."""
-    return throughline_ratification_progress(session.project, index=session.index)
+    done, total = throughline_ratification_progress(session.project, index=session.index)
+    # Less the signed items whose status has not reached ratified (SR-0087).
+    short = sum(1 for item in session.project.items()
+                if item.ratifications and not item.is_deleted
+                and unsettled(session, item,
+                              entry_for(session.project, item, index=session.index).concern))
+    return done - short, total
 
 
 def _resolve_links(session: Session, item: Item) -> list[LinkView]:
@@ -1095,7 +1136,9 @@ def _transition_path(
         cur = q.popleft()
         if cur == dst:
             break
-        for nxt in transitions.get(cur, frozenset()):
+        # Sorted, because the Tool holds each move's targets as a set: a tie between
+        # two equally short routes must not be settled by hash order.
+        for nxt in sorted(transitions.get(cur, frozenset())):
             if nxt in prev:
                 continue
             if nxt in blocked and nxt != dst:
@@ -1113,25 +1156,64 @@ def _transition_path(
     return out
 
 
+def _forward_of(schema, ratified: str, avoid: frozenset[str]) -> set[str]:
+    """Every status the ratified status reaches by moving forward: along the
+    project's ``[transitions]``, through no status in ``avoid`` (SR-0085)."""
+    seen = {ratified}
+    todo = [ratified]
+    while todo:
+        for nxt in schema.transitions.get(todo.pop(), frozenset()):
+            if nxt not in seen and nxt not in avoid:
+                seen.add(nxt)
+                todo.append(nxt)
+    return seen
+
+
+def _settled_avoid(session: Session) -> frozenset[str] | None:
+    """The statuses a forward move never passes through: the dead ones and the one
+    in the suspect role (SR-0085). ``None`` where the project declares transitions
+    but no suspect role, so forward cannot be told from back."""
+    schema = session.schema
+    if schema.transitions is None:
+        return schema.dead_statuses()
+    try:
+        return schema.dead_statuses() | {schema.status_role("suspect")}
+    except SchemaError:
+        return None
+
+
+def _settled_statuses(session: Session) -> set[str] | None:
+    """The ratified status and every status it reaches moving forward: where a
+    signed item has finished being ratified (SR-0085, SR-0087). ``None`` when that
+    cannot be told (see :func:`_settled_avoid`) or when transitions are free, in
+    which case every status is reachable and nothing can be said either way."""
+    avoid = _settled_avoid(session)
+    if avoid is None or session.schema.transitions is None:
+        return None
+    return _forward_of(session.schema, session.ratified_status, avoid)
+
+
 def _reratify_route(session: Session, item: Item) -> list[str] | None:
-    """For a grounded, unambiguous item whose current status can no longer move
-    straight to ratified, the full status itinerary that revisits ratified and returns
-    to where it is now, computed purely from the project's ``[transitions]``. ``None``
-    when the config offers no such round-trip, in which case no re-ratify affordance
-    is shown.
+    """For a grounded, unambiguous item whose current status cannot move straight
+    to ratified, the round trip that records a sign-off it missed by going *past*
+    ratified (SR-0019), computed purely from the project's ``[transitions]`` and
+    ``[status.roles]``: ``current → … → ratified → … → current``. Persisting only
+    its end state leaves the item where it was, now carrying the stamp. ``None``
+    when the config offers no such round trip, in which case no affordance is shown.
 
-    One situation needs this round trip: an item that advanced past ratified without
-    ever being signed off (SR-0019). An item that was signed off and whose wording has
-    since moved is re-signed where it stands by the Tool itself (throughline SR-0237)
-    and never arrives here.
-
-    The itinerary is ``current → … → ratified → … → current``; persisting only its
-    end state leaves the item exactly where it was but now carrying the ratification
-    stamp, honouring the missed sign-off without a fabricated status change."""
+    Past is told from before by reading the transitions forward from ratified,
+    through neither the suspect status nor a dead one (SR-0085). An item still
+    *before* ratified gets no route here: it is put forward with :func:`put_forward`
+    and signed after, two acts, as table.iddn.uk keeps them. An item that was signed
+    off and whose wording has since moved is re-signed where it stands by the Tool
+    itself (throughline SR-0237) and never arrives here."""
     schema = session.schema
     start = item.status
     ratified = session.ratified_status
     if start == ratified:
+        return None
+    settled = _settled_statuses(session)
+    if schema.transitions is not None and (settled is None or start not in settled):
         return None
     blocked = schema.dead_statuses()
     out_leg = _transition_path(schema, start, ratified, blocked)
@@ -1142,6 +1224,41 @@ def _reratify_route(session: Session, item: Item) -> list[str] | None:
         return None
     # Splice the legs, dropping the shared ``ratified`` pivot from the return leg.
     return out_leg + back_leg[1:]
+
+
+def put_forward_to(session: Session, item: Item) -> str | None:
+    """The status ``p`` would put ``item`` forward to, or ``None`` (SR-0085). The
+    rule is table.iddn.uk's ``putForwardTo`` (table REQ-0214): the proposed role's
+    status, where the item is not already there, its status may not move straight
+    to ratified and may move to proposed. Read from the project's roles and
+    transitions alone; an item already carrying a signature is never offered."""
+    schema = session.schema
+    proposed = session.proposed_status
+    if item.status == proposed or item.ratifications or item.is_deleted:
+        return None
+    if schema.allows_transition(item.status, session.ratified_status):
+        return None
+    return proposed if schema.allows_transition(item.status, proposed) else None
+
+
+def unsettled(session: Session, item: Item, concern: str) -> bool:
+    """A signed item whose status has not reached ratified (SR-0087): the Tool
+    calls it ratified, because the signature covers the wording, but where this
+    project's ratify moves status the lifecycle says it is not settled."""
+    if concern != "ratified" or not session.schema.ratify_moves_status:
+        return False
+    settled = _settled_statuses(session)
+    return settled is not None and item.status not in settled
+
+
+def settle_route(session: Session, item: Item) -> list[str] | None:
+    """The route that moves a signed, unsettled item to ratified on the signature
+    it already carries (SR-0087): the shortest the transitions permit, through
+    neither the suspect status nor a dead one. ``None`` when there is none."""
+    avoid = _settled_avoid(session)
+    if avoid is None:
+        return None
+    return _transition_path(session.schema, item.status, session.ratified_status, avoid)
 
 
 # --------------------------------------------------------------------------- #
@@ -1254,9 +1371,10 @@ def ratify_item(session: Session, uid: str, by: str, by_id: str | None = None,
 
 def reratify_item(session: Session, uid: str, by: str,
                   by_id: str | None = None, role: str | None = None) -> list[str]:
-    """Take a sign-off an item's own status cannot reach directly, then restore that
-    status — for a grounded, unambiguous item that overshot ratification without
-    ever being signed off (SR-0019). A signature that was taken and since outgrown by
+    """Take a sign-off an item's own status cannot reach directly — for a grounded,
+    unambiguous item that was never signed off. One that overshot ratification has
+    its status restored afterwards (SR-0019); one not yet proposed is carried to
+    ratified and stays there, its route ending on ratified (SR-0085). A signature that was taken and since outgrown by
     the wording beneath it is not this case: the Tool records the replacement where
     the item stands (throughline SR-0237), through :func:`ratify_item`.
 
@@ -1265,9 +1383,9 @@ def reratify_item(session: Session, uid: str, by: str,
     would — except the hop that lands on ratified, which is handed to throughline's
     own ratify (SR-0022). That keeps the sign-off, and the whole record it stamps,
     the tool's rather than ours: we only get the item *to* the point of ratification,
-    never perform it. Only the end state is written, and it equals the item's original
-    status — the item ends up precisely where it started, now carrying the full
-    ratification stamp. Walking on afterwards does not stale the signature: the
+    never perform it. Only the end state is written: for an overshot item it equals
+    the item's original status, so it ends up precisely where it started, now
+    carrying the full ratification stamp. Walking on afterwards does not stale the signature: the
     content fingerprint deliberately excludes status. Returns the status itinerary
     that was walked, for the caller to report."""
     _refuse_if_read_only(session)
@@ -1307,6 +1425,55 @@ def reratify_item(session: Session, uid: str, by: str,
         raise RatifierError(str(exc)) from exc
     write_item(item, session.project.register_of(uid))
     _write_cascade(session, cascade)
+    return route
+
+
+def put_forward(session: Session, uid: str) -> str:
+    """Put ``uid`` forward to the proposed status (SR-0085): the move tl status
+    makes, through throughline's own choke point, and no signature. Refused where
+    :func:`put_forward_to` offers nothing. Returns the status it now holds."""
+    _refuse_if_read_only(session)
+    item = session.project.get(uid)
+    if item is None:
+        raise RatifierError(f"{uid} does not exist")
+    to = put_forward_to(session, item)
+    if to is None:
+        raise RatifierError(
+            f"{uid} is at '{item.status}' and cannot be put forward: it can be signed "
+            f"as it stands, is signed already, or this project's transitions do not "
+            f"move it to '{session.proposed_status}'")
+    try:
+        set_status(session.schema, item, to)
+    except GroundingError as exc:
+        raise RatifierError(str(exc)) from exc
+    write_item(item, session.project.register_of(uid))
+    return to
+
+
+def settle_item(session: Session, uid: str) -> list[str]:
+    """Move a signed item whose status has not reached ratified to ratified, on the
+    signature it already carries (SR-0087). Every hop goes through throughline's
+    own :func:`set_status`; no signature is taken. Returns the route walked."""
+    _refuse_if_read_only(session)
+    item = session.project.get(uid)
+    if item is None:
+        raise RatifierError(f"{uid} does not exist")
+    entry = entry_for(session.project, item, index=session.index)
+    if not unsettled(session, item, entry.concern):
+        raise RatifierError(f"{uid} has no signed status left to settle")
+    route = settle_route(session, item)
+    if route is None:
+        raise RatifierError(
+            f"{uid} is at '{item.status}', from which this project's transitions offer "
+            f"no route to '{session.ratified_status}' that avoids suspect")
+    was = item.status
+    try:
+        for to in route[1:]:
+            set_status(session.schema, item, to)
+    except GroundingError as exc:
+        item.status = was
+        raise RatifierError(str(exc)) from exc
+    write_item(item, session.project.register_of(uid))
     return route
 
 

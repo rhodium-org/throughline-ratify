@@ -48,6 +48,10 @@ REJECTED = "rejected"
 # rejection's does (SR-0082): the two withdraw footing by the one walk.
 RETIRED = "retired"
 LINK_REMOVED = "link removed"
+# A status move that took no signature: an item put forward to proposed
+# (SR-0085), and a signed item moved to ratified on its signature (SR-0087).
+PUT_FORWARD = "put forward"
+SETTLED = "settled"
 
 # The destination meaning "stdout" — what ``--summary`` with no path resolves to.
 STDOUT = "-"
@@ -114,6 +118,12 @@ class DecisionLog:
     def reratified(self, uid: str, title: str, route: list[str]) -> None:
         self.decisions.append(Decision(RERATIFIED, uid, title, route=tuple(route)))
 
+    def put_forward(self, uid: str, title: str, was: str, to: str) -> None:
+        self.decisions.append(Decision(PUT_FORWARD, uid, title, route=(was, to)))
+
+    def settled(self, uid: str, title: str, route: list[str]) -> None:
+        self.decisions.append(Decision(SETTLED, uid, title, route=tuple(route)))
+
     def resigned(self, uid: str, title: str, superseded: str = "") -> None:
         # Signed where it stood: a replaced signature walks no route (SR-0030).
         self.decisions.append(Decision(RESIGNED, uid, title, superseded=superseded))
@@ -157,8 +167,8 @@ class DecisionLog:
 
     def tally(self) -> list[tuple[str, int]]:
         """``(kind, count)`` in a fixed order, omitting kinds that did not occur."""
-        counts = {k: 0 for k in (RATIFIED, RERATIFIED, RESIGNED, REJECTED, RETIRED,
-                                 LINK_REMOVED)}
+        counts = {k: 0 for k in (RATIFIED, RERATIFIED, RESIGNED, SETTLED, PUT_FORWARD,
+                                 REJECTED, RETIRED, LINK_REMOVED)}
         for d in self.decisions:
             counts[d.kind] = counts.get(d.kind, 0) + 1
         return [(k, n) for k, n in counts.items() if n]
@@ -177,6 +187,9 @@ def _entry(n: int, d: Decision) -> list[str]:
     """One decision, as the block of lines the report prints for it."""
     head = f"  {n}. {d.kind:<12} {d.uid}"
     out = [head, *_wrapped(d.title, "     ")]
+    if d.kind in (PUT_FORWARD, SETTLED) and d.route:
+        out += _wrapped("status moved, no signature taken: " + " -> ".join(d.route),
+                        "     ")
     if d.kind == RERATIFIED and d.route:
         out += _wrapped("route walked: " + " -> ".join(d.route), "     ")
     if d.kind == RESIGNED:

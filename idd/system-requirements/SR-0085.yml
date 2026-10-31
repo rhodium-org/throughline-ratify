@@ -1,0 +1,71 @@
+uid: SR-0085
+type: system_requirement
+status: ratified
+title: An item not yet proposed is put forward with p, never carried to ratified
+  by r
+text: 'Where an item cannot be signed where it stands, the item carries no signature,
+  the project declares a status in the proposed role, the item is not at that status,
+  the project''s [transitions] do not allow its status to move to ratified and do
+  allow it to move to the proposed status, the key p shall put the item forward:
+  it shall move the item to the proposed status through throughline''s own status
+  move (the choke point tl status uses), write the item, and take no signature. This
+  is the rule table.iddn.uk''s putForwardTo applies (table REQ-0214), so the two
+  tools offer one act under one condition. Pressing r on such an item shall refuse
+  with a message that names p, and shall write nothing. The round trip of SR-0019
+  shall be offered only for an item past ratified, being one whose status the ratified
+  status reaches by moving forward through neither the status in the suspect role
+  nor a dead status; where the project declares no suspect role, forward cannot be
+  told from back and no round trip shall be offered. Pressing p on any other item
+  shall refuse and write nothing.'
+rationale: 'Found on the plan standard''s conformance example, 2026-10-31: seventeen
+  items sat at the initial status, below proposed. The worklist called them blocked,
+  the only route offered was the overshoot round trip of SR-0019, and under that
+  project''s transitions it ran draft, suspect, ratified, suspect, approved, deferred,
+  draft. The reviewer pressed r; each item ended at draft carrying a signature, a
+  state tl check --strict does not report. The round trip exists to record a sign-off
+  missed by an item that went past ratified, so it is now offered only there, and
+  past is told from before by the project''s own transitions read forward from ratified.
+  An item before proposal needs to be put forward, and that is a different act from
+  signing it: proposing says the content is ready for a human''s acceptance, signing
+  is the acceptance. table.iddn.uk already keeps the two apart with Put forward (REQ-0214),
+  and a reviewer who works in both should meet the same act under the same condition.
+  Rejected, carrying the item forward to ratified inside r (this item''s first draft):
+  it folds two acts into one keystroke, so a reviewer who meant only to accept could
+  not see that they were also proposing, and the cockpit would disagree with the
+  table about what r does. Rejected, falling back to the old round trip where no
+  suspect role is declared: on the plan standard''s transitions that is exactly the
+  walk that left signatures on draft items. Who pays, a reviewer facing a page of
+  drafts presses p and then r for each, where r alone once seemed to do; a project
+  that declares transitions but no suspect role loses the round trip until it declares
+  one, which tl migrate backfills.'
+normative: true
+links:
+- target: SR-0019
+  type: refines
+- target: SR-0022
+  type: relates
+attrs:
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-31T17:34:11Z'
+  fingerprint: sha256:ef12444e11d894d94658062a3b22c9350c7e0c28e5cc9a18916eb66729617625
+  content:
+    type: system_requirement
+    text: 'Where an item cannot be signed where it stands, the item carries no signature,
+      the project declares a status in the proposed role, the item is not at that
+      status, the project''s [transitions] do not allow its status to move to ratified
+      and do allow it to move to the proposed status, the key p shall put the item
+      forward: it shall move the item to the proposed status through throughline''s
+      own status move (the choke point tl status uses), write the item, and take
+      no signature. This is the rule table.iddn.uk''s putForwardTo applies (table
+      REQ-0214), so the two tools offer one act under one condition. Pressing r on
+      such an item shall refuse with a message that names p, and shall write nothing.
+      The round trip of SR-0019 shall be offered only for an item past ratified,
+      being one whose status the ratified status reaches by moving forward through
+      neither the status in the suspect role nor a dead status; where the project
+      declares no suspect role, forward cannot be told from back and no round trip
+      shall be offered. Pressing p on any other item shall refuse and write nothing.'
+    normative: true
+    derived: false
+    attrs: {}
