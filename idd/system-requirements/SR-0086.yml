@@ -1,24 +1,25 @@
 uid: SR-0086
 type: system_requirement
-status: proposed
-title: A row not yet proposed says so, not blocked
-text: 'A worklist row that pressing r would carry forward to ratified (SR-0085) shall
-  be drawn as not yet proposed rather than as blocked: the row and --list shall carry
-  a glyph of its own, --list shall mark it not-yet-proposed, the queue summary shall
-  count it apart from the blocked rows, the detail pane shall say it is not yet proposed
-  and name the route r walks, and the confirmation shall say that signing carries
-  the item to ratified by that route. The help''s legend shall describe not yet proposed
-  and blocked separately, blocked being an item no route the project permits can
-  sign now or one that went past ratified without a sign-off. The concern recorded
-  on the row remains the one throughline gives.'
+status: ratified
+title: A row not yet proposed says so, not blocked, and names p
+text: 'A worklist row that p can put forward (SR-0085) shall be drawn as not yet
+  proposed rather than as blocked: the row and --list shall carry a glyph of its
+  own, --list shall mark it not-yet-proposed, the queue summary shall count it apart
+  from the blocked rows, and the detail pane shall say it is not yet proposed and
+  that p puts it forward to the proposed status, naming that status. The help shall
+  describe the key p, and its legend shall describe not yet proposed and blocked
+  separately, blocked being an item no move the project permits lets anyone sign
+  now or one that went past ratified without a sign-off. The concern recorded on
+  the row remains the one throughline gives.'
 rationale: 'The seventeen items of SR-0085 were drawn with the same glyph and word
-  as an item no route can sign, so the reviewer could not tell an item waiting for
+  as an item no move can help, so the reviewer could not tell an item waiting for
   proposal from one that is stuck, and the help offered only the overshoot reading
-  of r. The concern stays throughline''s (SR-0058): the Tool calls these rows blocked,
-  and this cockpit draws a subset of them differently, as SR-0084 does for a proposed
-  deletion within the proposed concern. Rejected, a concern of its own in core: that
-  would be a worklist which is not the Tool''s. Who pays, a script reading --list
-  sees not-yet-proposed where it saw blocked.'
+  of r. The row names p because that is what it needs next; naming r would invite
+  the refusal SR-0085 requires. The concern stays throughline''s (SR-0058): the Tool
+  calls these rows blocked, and this cockpit draws a subset of them differently,
+  as SR-0084 does for a proposed deletion within the proposed concern. Rejected,
+  a concern of its own in core: that would be a worklist which is not the Tool''s.
+  Who pays, a script reading --list sees not-yet-proposed where it saw blocked.'
 normative: true
 links:
 - target: SR-0085
@@ -29,3 +30,21 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-31T17:34:16Z'
+  fingerprint: sha256:b8563cc93f734231f2cdbfa2a53afd43703fdef071100e086213c7547e7bbcf8
+  content:
+    type: system_requirement
+    text: 'A worklist row that p can put forward (SR-0085) shall be drawn as not
+      yet proposed rather than as blocked: the row and --list shall carry a glyph
+      of its own, --list shall mark it not-yet-proposed, the queue summary shall
+      count it apart from the blocked rows, and the detail pane shall say it is not
+      yet proposed and that p puts it forward to the proposed status, naming that
+      status. The help shall describe the key p, and its legend shall describe not
+      yet proposed and blocked separately, blocked being an item no move the project
+      permits lets anyone sign now or one that went past ratified without a sign-off.
+      The concern recorded on the row remains the one throughline gives.'
+    normative: true
+    derived: false
+    attrs: {}

@@ -1,0 +1,66 @@
+uid: SR-0087
+type: system_requirement
+status: ratified
+title: A signed item counts as ratified only once its status has reached ratified
+text: 'Where the project''s ratify moves an item''s status, an item that carries
+  a signature covering its wording but whose status is neither the ratified status
+  nor one the ratified status reaches by moving forward through neither the status
+  in the suspect role nor a dead status shall be counted as outstanding, not as ratified:
+  it shall appear in the default worklist, it shall not be counted as ratified in
+  the progress figure, and its row shall say that it is signed but its status is
+  not settled. Pressing r on it shall offer, with a confirmation naming the signer
+  and the route, to move its status to ratified on the signature it already carries,
+  through throughline''s own status move and along the shortest route the project''s
+  [transitions] permit through neither the suspect status nor a dead one; it shall
+  take no new signature. Where no such route exists r shall refuse and write nothing.
+  Where the project''s ratify leaves status where it is, a signature alone settles
+  the item, as before.'
+rationale: 'Seen on throughline-plan-standard conformance/full-plan at 54f5b87, 2026-10-31:
+  after the defect of SR-0085, seventeen items were moved to proposed by hand so
+  they could be signed again, and they still carried the signatures. The Tool judged
+  each ratified because the signature covered the wording, so the cockpit showed
+  18/18 ratified and offered nothing, while seventeen of the items stood at proposed.
+  Where ratification moves status, the status is half of what a ratification is,
+  and a count that ignores it reports a graph as settled when the lifecycle says
+  otherwise. This narrows SR-0058 for this one case: the concern on the row stays
+  the Tool''s, but the worklist and the progress figure stop treating the item as
+  settled. It should move to throughline, which owns the worklist, and this item
+  retire with it. r settles the status on the existing signature, because the person
+  who signed has already accepted the wording; asking for a new signature would record
+  a second acceptance of the same content. Rejected, re-signing: it would replace
+  an honest record with a new one dated today. Rejected, leaving it to tl status
+  by hand: the cockpit is where the reviewer sees the item. Who pays, a project holding
+  signed items below ratified sees them reappear in the worklist and its progress
+  figure drop.'
+normative: true
+links:
+- target: SR-0085
+  type: refines
+- target: SR-0058
+  type: relates
+- target: SR-0030
+  type: relates
+attrs:
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-31T17:34:23Z'
+  fingerprint: sha256:2e762acdf023b5bcb9e0571c5e26777ffd96d54be654954c60e856535952ef87
+  content:
+    type: system_requirement
+    text: 'Where the project''s ratify moves an item''s status, an item that carries
+      a signature covering its wording but whose status is neither the ratified status
+      nor one the ratified status reaches by moving forward through neither the status
+      in the suspect role nor a dead status shall be counted as outstanding, not
+      as ratified: it shall appear in the default worklist, it shall not be counted
+      as ratified in the progress figure, and its row shall say that it is signed
+      but its status is not settled. Pressing r on it shall offer, with a confirmation
+      naming the signer and the route, to move its status to ratified on the signature
+      it already carries, through throughline''s own status move and along the shortest
+      route the project''s [transitions] permit through neither the suspect status
+      nor a dead one; it shall take no new signature. Where no such route exists
+      r shall refuse and write nothing. Where the project''s ratify leaves status
+      where it is, a signature alone settles the item, as before.'
+    normative: true
+    derived: false
+    attrs: {}

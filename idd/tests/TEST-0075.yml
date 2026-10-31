@@ -1,6 +1,6 @@
 uid: TEST-0075
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0086: A row not yet proposed says so, not blocked'
 text: The shipped pytest suite checks SR-0086 with the test functions this item lists.
 normative: false
@@ -11,6 +11,17 @@ attrs:
   checks: |-
     tests/test_not_yet_proposed.py::test_the_row_and_the_printed_list_say_not_yet_proposed
     tests/test_not_yet_proposed.py::test_the_summary_counts_not_yet_proposed_apart_from_blocked
-    tests/test_not_yet_proposed.py::test_the_pane_and_the_confirmation_name_the_carry
+    tests/test_not_yet_proposed.py::test_the_pane_names_p
     tests/test_not_yet_proposed.py::test_the_help_tells_not_yet_proposed_from_blocked
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-31T17:34:24Z'
+  fingerprint: sha256:f3d121ec48f17d71ffa09643713a63459b303f37fd74932ef1a0974e6d59ad9a
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0086 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}
