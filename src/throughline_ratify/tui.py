@@ -89,7 +89,12 @@ def _attr(name: str, *, bold: bool = False) -> int:
     return a
 
 
+# A blocked row r would carry forward to ratified is counted and named apart
+# (SR-0086). It is a way of drawing the Tool's blocked concern, not a concern.
+_NOT_YET_PROPOSED = "not yet proposed"
+
 _CONCERN_LABEL = {
+    _NOT_YET_PROPOSED: _NOT_YET_PROPOSED,
     "proposed": "proposed",
     "ready": "ready",
     "stale": "stale",
@@ -489,8 +494,9 @@ class App:
             return
         if not item.ratifiable_now:
             # An item that overshot ratification without ever being signed can still
-            # be put right via a route the project's own transitions permit. Offer
-            # that instead of a dead-end "cannot move to ratified" message. (A signed
+            # be put right via a route the project's own transitions permit, and one
+            # not yet proposed carried forward to ratified (SR-0085). Offer that
+            # instead of a dead-end "cannot move to ratified" message. (A signed
             # item rewritten since is ratifiable as it stands — the Tool re-signs it
             # in place, throughline SR-0237 — so it never arrives here.)
             if item.reratify_path:
@@ -601,12 +607,19 @@ class App:
         the one core computed from this project's ``[transitions]`` — we only present
         it and confirm; nothing about which statuses are traversed is decided here.
 
-        Only an item that overshot ratification without ever being signed off
-        arrives here (SR-0019); a signed item rewritten since is re-signed where it
+        An item that overshot ratification without ever being signed off arrives
+        here (SR-0019), and so does one not yet proposed, which the route carries
+        to ratified (SR-0085); a signed item rewritten since is re-signed where it
         stands by the Tool (SR-0030, throughline SR-0237)."""
         route = " \u2192 ".join(item.reratify_path or [])
-        question = (f"{item.uid} is at '{item.status}' and was never ratified. "
-                    f"Record sign-off as {self._signature()} via {route}?")
+        if item.not_yet_proposed:
+            # Carried forward, and it stays at ratified (SR-0085, SR-0086).
+            question = (f"{item.uid} is at '{item.status}' and not yet proposed. "
+                        f"Sign it as {self._signature()} and carry it to "
+                        f"{self.session.ratified_status} via {route}?")
+        else:
+            question = (f"{item.uid} is at '{item.status}' and was never ratified. "
+                        f"Record sign-off as {self._signature()} via {route}?")
         if not self._confirm(question):
             self.flash = _Flash("re-ratify cancelled", "dim")
             return
@@ -853,18 +866,22 @@ class App:
     def _draw_summary(self, w: int) -> None:
         counts: dict[str, int] = {}
         for r in self.rows:
-            counts[r.concern] = counts.get(r.concern, 0) + 1
+            # Counted apart from the rows that are stuck (SR-0086).
+            bucket = _NOT_YET_PROPOSED if r.not_yet_proposed else r.concern
+            counts[bucket] = counts.get(bucket, 0) + 1
         x = 1
         _safe_addstr(self.scr, 1, x, "queue:", _attr("dim"))
         x += 7
-        concerns = ["proposed", "ready", "stale", "blocked", "ungrounded", "ambiguous"]
+        concerns = ["proposed", "ready", "stale", _NOT_YET_PROPOSED, "blocked",
+                    "ungrounded", "ambiguous"]
         if self.show_all:
             # Also account for the settled outcomes the wide view reveals.
             concerns += ["ratified", "rejected", "deleted"]
         for concern in concerns:
-            icon = core.CONCERN_ICONS[concern]
+            icon = core.CONCERN_ICONS.get(concern, core.NOT_YET_PROPOSED_ICON)
             seg = f"{icon} {counts.get(concern, 0)} {_CONCERN_LABEL[concern]}  "
-            _safe_addstr(self.scr, 1, x, seg, _attr(concern, bold=concern in ("proposed",)))
+            colour = "blocked" if concern == _NOT_YET_PROPOSED else concern
+            _safe_addstr(self.scr, 1, x, seg, _attr(colour, bold=concern in ("proposed",)))
             x += len(seg)
         done, total = core.ratification_progress(self.session)
         tail = f"\u2713 {done}/{total} ratified \u2502 sort:{self._sort_label(self.sort)} \u2502 "
@@ -976,6 +993,8 @@ class App:
         head = f"{item.icon} {item.uid}"
         if item.deletion:
             head += "  \u2620 proposed deletion"
+        elif item.not_yet_proposed:
+            head += "  not yet proposed"
         add(head, _attr(item.concern, bold=True))
         meta = f"  {item.type}  \u2502  status: {item.status}"
         # Both flags are read by the fingerprint, so both are signed content (SR-0076).
@@ -1035,6 +1054,13 @@ class App:
         elif item.ratifiable_now:
             add(f"  \u2713 ready to ratify  ({item.status} \u2192 {self.session.ratified_status})",
                 _attr("ok"))
+        elif item.not_yet_proposed:
+            # before ratified: r carries it forward and it stays there (SR-0085)
+            add(f"  {core.NOT_YET_PROPOSED_ICON} not yet proposed — at '{item.status}'",
+                _attr("blocked"))
+            route = " \u2192 ".join(item.reratify_path)
+            add(f"  \u21ba press r to sign it and carry it to "
+                f"{self.session.ratified_status} via {route}", _attr("key"))
         elif item.reratify_path:
             # overshot ratification: a config-permitted route can still record it
             add(f"  \u2717 never ratified — advanced to '{item.status}'", _attr("warn"))
@@ -1271,11 +1297,12 @@ class App:
             "  g / G        jump to top / bottom",
             "  PgUp/PgDn    page",
             "  r / Enter    [\u2713] ratify the selected item; on a stale one, accept the",
-            "               wording that has changed since it was signed; on a",
-            "               blocked item that overshot ratification, record the",
-            "               missed sign-off. Where the item's status cannot reach",
-            "               ratified directly, a route the project's transitions",
-            "               permit carries it there and back. On a proposed",
+            "               wording that has changed since it was signed; on an",
+            "               item not yet proposed, sign it and carry it forward to",
+            "               ratified by a route the project's transitions permit;",
+            "               on a blocked item that overshot ratification, record",
+            "               the missed sign-off by a route there and back, which",
+            "               leaves its status as it was. On a proposed",
             "               deletion (\u2620 in the row), sign the deletion record: the",
             "               item is retired and what is grounded on it marked suspect",
             "  x            [\u2717] reject (invalidate) the selected item",
@@ -1302,7 +1329,13 @@ class App:
             "  \u25c9 ready       approved, one move from ratified",
             "  \u21ba stale       signed off, but the wording has changed since \u2014",
             "               the signature no longer covers it",
-            "  \u25cb blocked     pending but not directly ratifiable",
+            "  \u25cc not yet proposed",
+            "               before ratified, short of proposal; r signs it and",
+            "               carries it forward to ratified",
+            "  \u25cb blocked     pending but not directly ratifiable: it went past",
+            "               ratified unsigned (r records the sign-off where a",
+            "               route allows), or no route the project permits reaches",
+            "               ratified",
             "  \u26a0 ungrounded  reaches no root \u2014 link it first",
             "  \u2691 ambiguous   flagged ambiguous \u2014 clarify first",
             "  \u2713 ratified    already signed off (shown under 'a')",

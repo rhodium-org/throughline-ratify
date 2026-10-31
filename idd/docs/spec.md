@@ -1491,4 +1491,6 @@ checked by a workflow or a document, or not at all.
 | SR-0082 | Signing a deletion receives throughline's cascade, writes every dependent it marked, and reports what it could not | TEST-0071 |
 | SR-0083 | The pane shows a proposed deletion as the record throughline renders for its signer | TEST-0072 |
 | SR-0084 | A proposed deletion is named as one in the row, the printed list and the confirmation | TEST-0073 |
+| SR-0085 | An item not yet proposed is carried forward to ratified and stays there | TEST-0074 |
+| SR-0086 | A row not yet proposed says so, not blocked | TEST-0075 |
 <!-- tl:end -->

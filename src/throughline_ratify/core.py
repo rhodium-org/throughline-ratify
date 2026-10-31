@@ -148,6 +148,10 @@ CONCERN_ICONS: dict[str, str] = {
 }
 assert set(CONCERN_ICONS) >= set(CONCERNS), sorted(set(CONCERNS) - set(CONCERN_ICONS))
 
+# A blocked row that r would carry forward to ratified (SR-0086): a dotted circle,
+# the blocked glyph not yet filled in. The concern stays the Tool's (SR-0058).
+NOT_YET_PROPOSED_ICON = "\u25cc"
+
 # The orderings the queue can be sorted by (SR-0011). "concern" is the default
 # most-actionable-first ranking; "roots"/"leaves" walk grounding depth so a large
 # graph can be worked top-down (roots first) or bottom-up (leaves first).
@@ -208,9 +212,11 @@ class QueueItem:
     # not drawn; only a departure from them is.
     normative: bool = True
     derived: bool = False
-    # For an item that overshot ratification (its status can no longer move straight
-    # to ratified) yet was never signed off: the config-permitted status itinerary
-    # that records the missed ratification and restores its status. None otherwise.
+    # For an item whose status cannot move straight to ratified and that was never
+    # signed off: the config-permitted status itinerary that takes the sign-off.
+    # For one that overshot ratification it records the missed sign-off and
+    # restores its status (SR-0019); for one not yet proposed it carries the item
+    # to ratified, where it stays (SR-0085). None otherwise.
     reratify_path: list[str] | None = None
     # Why a dead (rejected) item was invalidated, if it recorded a reason. Empty
     # for live items and for tombstones with no reason.
@@ -248,7 +254,17 @@ class QueueItem:
     record: tuple[str, ...] = ()
 
     @property
+    def not_yet_proposed(self) -> bool:
+        """The Tool calls this row blocked, and pressing r carries it forward to
+        ratified rather than round to where it is (SR-0085): it is drawn apart from
+        a row that is stuck (SR-0086). A round trip ends where it began; a carry
+        ends at ratified."""
+        return bool(self.reratify_path) and self.reratify_path[-1] != self.status
+
+    @property
     def icon(self) -> str:
+        if self.not_yet_proposed:
+            return NOT_YET_PROPOSED_ICON
         return CONCERN_ICONS.get(self.concern, "\u25cb")
 
 
@@ -1095,7 +1111,9 @@ def _transition_path(
         cur = q.popleft()
         if cur == dst:
             break
-        for nxt in transitions.get(cur, frozenset()):
+        # Sorted, because the Tool holds each move's targets as a set: a tie between
+        # two equally short routes must not be settled by hash order.
+        for nxt in sorted(transitions.get(cur, frozenset())):
             if nxt in prev:
                 continue
             if nxt in blocked and nxt != dst:
@@ -1113,27 +1131,65 @@ def _transition_path(
     return out
 
 
+def _forward_of(schema, ratified: str, avoid: frozenset[str]) -> set[str]:
+    """Every status the ratified status reaches by moving forward: along the
+    project's ``[transitions]``, through no status in ``avoid`` (SR-0085)."""
+    seen = {ratified}
+    todo = [ratified]
+    while todo:
+        for nxt in schema.transitions.get(todo.pop(), frozenset()):
+            if nxt not in seen and nxt not in avoid:
+                seen.add(nxt)
+                todo.append(nxt)
+    return seen
+
+
+def _carry(schema, start: str, ratified: str, proposed: str,
+           avoid: frozenset[str]) -> list[str] | None:
+    """The route that carries an item not yet proposed to ratified (SR-0085):
+    through the status in the proposed role where the transitions allow, since
+    that is the step the item has not yet taken, and otherwise the shortest."""
+    to_proposal = _transition_path(schema, start, proposed, avoid)
+    if to_proposal is not None and proposed not in (start, ratified):
+        onward = _transition_path(schema, proposed, ratified, avoid)
+        if onward is not None:
+            return to_proposal + onward[1:]
+    return _transition_path(schema, start, ratified, avoid)
+
+
 def _reratify_route(session: Session, item: Item) -> list[str] | None:
-    """For a grounded, unambiguous item whose current status can no longer move
-    straight to ratified, the full status itinerary that revisits ratified and returns
-    to where it is now, computed purely from the project's ``[transitions]``. ``None``
-    when the config offers no such round-trip, in which case no re-ratify affordance
-    is shown.
+    """For a grounded, unambiguous item whose current status cannot move straight
+    to ratified, the status itinerary that takes the sign-off, computed purely from
+    the project's ``[transitions]`` and ``[status.roles]``. ``None`` when the config
+    offers no such route, in which case no affordance is shown.
 
-    One situation needs this round trip: an item that advanced past ratified without
-    ever being signed off (SR-0019). An item that was signed off and whose wording has
-    since moved is re-signed where it stands by the Tool itself (throughline SR-0237)
-    and never arrives here.
-
-    The itinerary is ``current → … → ratified → … → current``; persisting only its
-    end state leaves the item exactly where it was but now carrying the ratification
-    stamp, honouring the missed sign-off without a fabricated status change."""
+    Two situations differ in where the item belongs once signed (SR-0085). One that
+    went *past* ratified without ever being signed off — its status is one the
+    ratified status reaches moving forward — takes the round trip of SR-0019,
+    ``current → … → ratified → … → current``, and persisting only its end state
+    leaves it where it was, now carrying the stamp. One still *before* ratified has
+    not been accepted yet, so the signature is its acceptance and it stays at
+    ratified: the itinerary is ``current → … → ratified`` alone. Moving forward, and
+    the carry, pass through neither the suspect status nor a dead one, so neither
+    records a withdrawal that never happened. An item that was signed off and whose
+    wording has since moved is re-signed where it stands by the Tool itself
+    (throughline SR-0237) and never arrives here."""
     schema = session.schema
     start = item.status
     ratified = session.ratified_status
     if start == ratified:
         return None
     blocked = schema.dead_statuses()
+    if schema.transitions is not None:
+        try:
+            suspect = schema.status_role("suspect")
+        except SchemaError:
+            return None
+        settled = blocked | {suspect}
+        if start not in _forward_of(schema, ratified, settled):
+            carry = _carry(schema, start, ratified, session.proposed_status, settled)
+            # One hop is the move ratify itself makes; there is nothing to walk.
+            return carry if carry is not None and len(carry) > 2 else None
     out_leg = _transition_path(schema, start, ratified, blocked)
     if out_leg is None:
         return None
@@ -1254,9 +1310,10 @@ def ratify_item(session: Session, uid: str, by: str, by_id: str | None = None,
 
 def reratify_item(session: Session, uid: str, by: str,
                   by_id: str | None = None, role: str | None = None) -> list[str]:
-    """Take a sign-off an item's own status cannot reach directly, then restore that
-    status — for a grounded, unambiguous item that overshot ratification without
-    ever being signed off (SR-0019). A signature that was taken and since outgrown by
+    """Take a sign-off an item's own status cannot reach directly — for a grounded,
+    unambiguous item that was never signed off. One that overshot ratification has
+    its status restored afterwards (SR-0019); one not yet proposed is carried to
+    ratified and stays there, its route ending on ratified (SR-0085). A signature that was taken and since outgrown by
     the wording beneath it is not this case: the Tool records the replacement where
     the item stands (throughline SR-0237), through :func:`ratify_item`.
 
@@ -1265,9 +1322,9 @@ def reratify_item(session: Session, uid: str, by: str,
     would — except the hop that lands on ratified, which is handed to throughline's
     own ratify (SR-0022). That keeps the sign-off, and the whole record it stamps,
     the tool's rather than ours: we only get the item *to* the point of ratification,
-    never perform it. Only the end state is written, and it equals the item's original
-    status — the item ends up precisely where it started, now carrying the full
-    ratification stamp. Walking on afterwards does not stale the signature: the
+    never perform it. Only the end state is written: for an overshot item it equals
+    the item's original status, so it ends up precisely where it started, now
+    carrying the full ratification stamp. Walking on afterwards does not stale the signature: the
     content fingerprint deliberately excludes status. Returns the status itinerary
     that was walked, for the caller to report."""
     _refuse_if_read_only(session)
