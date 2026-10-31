@@ -695,9 +695,9 @@ class App:
             if self.log is not None:
                 self.log.settled(item.uid, item.title, walked)
             self.refresh_queue()
+            route = " \u2192 ".join(walked)
             self.flash = _Flash(f"\u2713 {item.uid} settled at "
-                                f"{self.session.ratified_status} (via "
-                                f"{' \u2192 '.join(walked)})", "ok")
+                                f"{self.session.ratified_status} (via {route})", "ok")
         except core.RatifierError as exc:
             self.flash = _Flash(str(exc), "err")
 
