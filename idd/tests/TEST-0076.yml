@@ -1,6 +1,6 @@
 uid: TEST-0076
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0087: A signed item counts as ratified only once its status has
   reached ratified'
 text: The shipped pytest suite checks SR-0087 with the test functions this item lists.
@@ -18,3 +18,14 @@ attrs:
     tests/test_settled_by_status.py::test_in_place_ratification_is_settled_by_the_signature
     tests/test_settled_by_status.py::test_the_row_says_signed_but_not_settled
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-10-31T17:38:56Z'
+  fingerprint: sha256:e98d6b8f4233781c784ec9ba425a55b8ba7730e82a835001c57b0381f12032d8
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0087 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}
