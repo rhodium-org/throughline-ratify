@@ -1,0 +1,49 @@
+uid: SR-0085
+type: system_requirement
+status: proposed
+title: An item not yet proposed is carried forward to ratified and stays there
+text: An item that cannot be signed where it stands and whose status lies before
+  ratified shall be carried forward to the ratified status and shall stay there.
+  A status lies before ratified when no forward move from the ratified status reaches
+  it, a forward move being one that passes through neither the status in the suspect
+  role nor a dead status. The carry shall pass through neither the suspect status
+  nor a dead one; it shall pass through the status in the proposed role where the
+  project's [transitions] allow, and shall otherwise be the shortest route they permit
+  to ratified. The sign-off is taken by throughline's own ratify as the route lands
+  on ratified (SR-0022). The round trip of SR-0019, which returns the item to its
+  own status, shall be offered only for an item whose status the ratified status
+  reaches forward. Where the project declares no suspect role, forward cannot be
+  told from back and neither route shall be offered; where no such route reaches
+  ratified, no carry shall be offered. Both routes are computed from [transitions]
+  and [status.roles] alone; no status name is written in the code.
+rationale: 'Found on the plan standard''s conformance example, 2026-10-31: seventeen
+  items sat at the initial status, below proposed. The worklist called them blocked,
+  the only route offered was the overshoot round trip of SR-0019, and under that
+  project''s transitions it ran draft, suspect, ratified, suspect, approved, deferred,
+  draft. The reviewer pressed r; each item ended at draft carrying a signature, a
+  state tl check --strict does not report and which then read as settled in the worklist.
+  The round trip exists to record a sign-off missed by an item that went past ratified,
+  and returning it to its own status is right only there: an item before ratified
+  has not been accepted yet, and the signature is the acceptance, so it belongs at
+  ratified like any other signed item. Before and past are told apart by the project''s
+  own transitions, read forward from ratified, so no status name is assumed. The
+  suspect status is kept out of the carry because walking an item through suspect
+  records a withdrawal of its footing that never happened, and the carry goes through
+  the proposed status where it can because proposal is the step the item has not
+  yet taken. Rejected, refusing r on such an item and sending the reviewer to the
+  command line to propose it first: the reviewer has the item open and is accountable
+  for it, and the route through proposal is the project''s own. Rejected, falling
+  back to the old round trip where no suspect role is declared: on the plan standard''s
+  own transitions that is exactly the walk that left signatures on draft items. Who
+  pays, a project whose initial status sits below proposed now sees r move such an
+  item to ratified rather than leave it where it was; a project that declares transitions
+  but no suspect role loses the round trip until it declares one, which tl migrate
+  backfills.'
+normative: true
+links:
+- target: SR-0019
+  type: refines
+- target: SR-0022
+  type: relates
+attrs:
+  origin: ai
