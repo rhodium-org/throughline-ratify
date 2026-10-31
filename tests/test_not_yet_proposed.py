@@ -1,15 +1,15 @@
 # Copyright (c) 2026 Henry J Grech-Cini
 # SPDX-License-Identifier: Apache-2.0
-"""SR-0085, SR-0086 — an item not yet proposed is carried forward to ratified,
-and the cockpit says it is not yet proposed rather than blocked.
+"""SR-0085, SR-0086 — an item not yet proposed is put forward with p, never
+signed by r, and the cockpit says it is not yet proposed rather than blocked.
 
 Found on the plan standard's conformance example: seventeen items at the initial
 status, below proposed, were offered only the overshoot round trip of SR-0019.
 Under that project's transitions it walked draft, suspect, ratified and back to
-draft, so each item ended where it began carrying a signature. These tests put an
-item at the initial status into the fixture graph and into one governed by the
-plan standard's own transitions, and check the route, what is written and what is
-drawn.
+draft, so each item ended where it began carrying a signature. Proposing and
+signing are two acts, as table.iddn.uk keeps them (table REQ-0214). These tests
+put an item at the initial status into the fixture graph and into one governed by
+the plan standard's own transitions, and check what p and r do and what is drawn.
 """
 from __future__ import annotations
 
@@ -71,6 +71,10 @@ def _with_transitions(text: str, table: str) -> str:
 
 @pytest.fixture
 def draft(demo_project: Path) -> Path:
+    """The fixture graph, with the move from draft to proposed it lacks."""
+    _rewrite(demo_project, lambda t: t.replace(
+        'draft       = ["approved", "rejected", "deleted"]',
+        'draft       = ["proposed", "approved", "rejected", "deleted"]'))
     return _add_draft(demo_project)
 
 
@@ -93,53 +97,59 @@ def _on_disk(root: Path, uid: str) -> dict:
 
 # ------------------------------------------------------------------ SR-0085
 
-def test_an_item_before_ratified_is_carried_forward_not_round_tripped(draft):
-    """The fixture's draft reaches ratified only through approved, and nothing
-    moving forward from ratified reaches draft: the route ends on ratified."""
+def test_an_item_before_ratified_can_be_put_forward(draft):
+    """The fixture's draft cannot move to ratified, and may move to proposed:
+    table's putForwardTo would offer Put forward, and so does the row."""
     row = _rows(draft)[DRAFT]
     assert row.concern == "blocked" and not row.ratifiable_now
-    assert row.reratify_path == ["draft", "approved", "ratified"]
-    assert row.not_yet_proposed
+    assert row.put_forward_to == "proposed" and row.not_yet_proposed
+    assert row.reratify_path is None                    # no round trip, no carry
 
 
-def test_carrying_it_forward_signs_it_and_leaves_it_at_ratified(draft):
-    walked = core.reratify_item(core.open_session(draft), DRAFT, by="tester")
-    assert walked == ["draft", "approved", "ratified"]
+def test_p_puts_it_forward_and_takes_no_signature(draft, monkeypatch):
+    app, asked = _cockpit_on(draft, DRAFT, monkeypatch)
+    app.handle(ord("p"))
+    assert asked == []                                  # a status move, not a decision to confirm
     item = _on_disk(draft, DRAFT)
-    assert item["status"] == "ratified"
-    assert item["ratifications"][-1]["by"] == "tester"
-    assert DRAFT not in _rows(draft)
-    assert _rows(draft, show_all=True)[DRAFT].concern == "ratified"
+    assert item["status"] == "proposed"
+    assert "ratifications" not in item
+    assert app.flash.text == f"\u25cf {DRAFT} put forward: draft \u2192 proposed"
+    (decision,) = app.log.decisions
+    assert decision.kind == report.PUT_FORWARD and decision.route == ("draft", "proposed")
+    row = _rows(draft)[DRAFT]
+    assert row.concern == "proposed" and row.ratifiable_now   # r signs it now
 
 
-def test_the_plan_standard_lifecycle_carries_draft_through_proposed(plan):
-    """The reported case. The old round trip here was draft, suspect, ratified,
-    suspect, approved, deferred, draft; the carry goes through proposal."""
+def test_r_on_an_item_not_yet_proposed_refuses_and_names_p(draft, monkeypatch):
+    app, asked = _cockpit_on(draft, DRAFT, monkeypatch)
+    app.do_ratify()
+    assert asked == []
+    assert app.flash.text == (f"{DRAFT} is at 'draft' and not yet proposed \u2014 press p "
+                              "to put it forward to 'proposed', then r to sign it")
+    item = _on_disk(draft, DRAFT)
+    assert item["status"] == "draft" and "ratifications" not in item
+    with pytest.raises(core.RatifierError, match="no route"):
+        core.reratify_item(core.open_session(draft), DRAFT, by="tester")
+    assert "ratifications" not in _on_disk(draft, DRAFT)
+
+
+def test_the_plan_standard_lifecycle_puts_draft_forward(plan):
+    """The reported case: the old round trip ran draft, suspect, ratified, suspect,
+    approved, deferred, draft. Now p proposes and r signs, two acts."""
     row = _rows(plan)[DRAFT]
-    assert row.reratify_path == ["draft", "proposed", "ratified"]
-    core.reratify_item(core.open_session(plan), DRAFT, by="tester")
+    assert row.reratify_path is None and row.put_forward_to == "proposed"
+    session = core.open_session(plan)
+    assert core.put_forward(session, DRAFT) == "proposed"
+    core.ratify_item(core.open_session(plan), DRAFT, by="tester")
     item = _on_disk(plan, DRAFT)
     assert item["status"] == "ratified"
     assert item["ratifications"][-1]["by"] == "tester"
 
 
-def test_the_carry_never_walks_through_suspect(demo_project):
-    """Draft reaches ratified in two moves through suspect, and in three without
-    it. Walking an item through suspect records a withdrawal that never happened."""
-    _rewrite(demo_project, lambda t: t.replace(
-        'draft       = ["approved", "rejected", "deleted"]',
-        'draft       = ["suspect", "approved", "rejected", "deleted"]').replace(
-        'approved    = ["ratified", "implemented", "suspect", "rejected", "deleted"]',
-        'approved    = ["proposed", "suspect", "rejected", "deleted"]'))
-    _add_draft(demo_project)
-    row = _rows(demo_project)[DRAFT]
-    assert row.reratify_path == ["draft", "approved", "proposed", "ratified"]
-    assert "suspect" not in row.reratify_path
-
-
 @pytest.mark.parametrize("graph", ["draft", "plan"])
 def test_an_overshot_item_still_takes_the_round_trip(graph, request):
-    """An item past ratified keeps the route of SR-0019 and its own status."""
+    """An item past ratified keeps the route of SR-0019 and its own status, and
+    is never offered p."""
     root = request.getfixturevalue(graph)
     row = _rows(root)[OVERSHOT]
     assert row.reratify_path[0] == row.reratify_path[-1] == "implemented"
@@ -149,15 +159,35 @@ def test_an_overshot_item_still_takes_the_round_trip(graph, request):
     assert _on_disk(root, OVERSHOT)["status"] == "implemented"
 
 
-def test_no_suspect_role_offers_no_carry(draft):
+def test_p_refuses_an_item_that_cannot_be_put_forward(draft, monkeypatch):
+    """Signable as it stands (proposed, approved), past ratified, or with no move
+    to proposed: p offers nothing and writes nothing."""
+    for uid in ("FR-0001", "FR-0002", OVERSHOT):
+        before = _on_disk(draft, uid)
+        app, _ = _cockpit_on(draft, uid, monkeypatch)
+        app.handle(ord("p"))
+        assert app.flash.text == f"{uid} has nothing to put forward"
+        assert _on_disk(draft, uid) == before
+        with pytest.raises(core.RatifierError, match="cannot be put forward"):
+            core.put_forward(core.open_session(draft), uid)
+
+
+def test_a_draft_with_no_move_to_proposed_is_not_offered_p(demo_project):
+    _add_draft(demo_project)
+    row = _rows(demo_project)[DRAFT]
+    assert row.put_forward_to is None and not row.not_yet_proposed
+    with pytest.raises(core.RatifierError, match="cannot be put forward"):
+        core.put_forward(core.open_session(demo_project), DRAFT)
+
+
+def test_no_suspect_role_offers_no_round_trip(draft):
     """Without a suspect role forward cannot be told from back, and on the plan
-    standard's transitions the old round trip is the walk that went wrong."""
+    standard's transitions the old round trip is the walk that went wrong. Put
+    forward needs only the proposed role, so it is still offered."""
     _rewrite(draft, lambda t: t.replace('suspect = "suspect"\n', ""))
     rows = _rows(draft)
-    assert rows[DRAFT].reratify_path is None
     assert rows[OVERSHOT].reratify_path is None
-    with pytest.raises(core.RatifierError, match="no route"):
-        core.reratify_item(core.open_session(draft), DRAFT, by="tester")
+    assert rows[DRAFT].put_forward_to == "proposed"
 
 
 # ------------------------------------------------------------------ SR-0086
@@ -202,51 +232,40 @@ def test_the_row_and_the_printed_list_say_not_yet_proposed(draft, capsys):
     app = tui.App(_Screen(), core.open_session(draft), "Ada Lovelace", None)
     app._draw_list(0, 20, 120)
     painted = app.scr.painted()
-    assert f"◌ {DRAFT}" in painted
-    assert f"○ {OVERSHOT}" in painted
+    assert f"\u25cc {DRAFT}" in painted
+    assert f"\u25cb {OVERSHOT}" in painted
 
     cli.main(["-C", str(draft), "--list"])
     lines = capsys.readouterr().out.splitlines()
     mine = next(ln for ln in lines if DRAFT in ln)
-    assert "◌" in mine and "not-yet-proposed" in mine and "blocked" not in mine
+    assert "\u25cc" in mine and "not-yet-proposed" in mine and "blocked" not in mine
     other = next(ln for ln in lines if OVERSHOT in ln)
-    assert "○" in other and "blocked" in other
+    assert "\u25cb" in other and "blocked" in other
 
 
 def test_the_summary_counts_not_yet_proposed_apart_from_blocked(draft):
     app = tui.App(_Screen(), core.open_session(draft), "Ada Lovelace", None)
     app._draw_summary(200)
     summary = app.scr.painted()
-    assert "◌ 1 not yet proposed" in summary
-    assert "○ 1 blocked" in summary
+    assert "\u25cc 1 not yet proposed" in summary
+    assert "\u25cb 1 blocked" in summary
 
 
-def test_the_pane_and_the_confirmation_name_the_carry(draft, monkeypatch):
-    app, asked = _cockpit_on(draft, DRAFT, monkeypatch, answer=False)
-    row = app.rows[app.sel]
-    lines = [text for text, _ in app._detail_lines(row, 120)]
-    assert lines[0] == f"◌ {DRAFT}  not yet proposed"
-    assert "  ◌ not yet proposed — at 'draft'" in lines
-    assert ("  ↺ press r to sign it and carry it to ratified via "
-            "draft → approved → ratified") in lines
-
-    app.do_ratify()
-    assert asked == [f"{DRAFT} is at 'draft' and not yet proposed. Sign it as "
-                     "Ada Lovelace and carry it to ratified via "
-                     "draft → approved → ratified?"]
-    assert "ratifications" not in _on_disk(draft, DRAFT)
-
-    app, _ = _cockpit_on(draft, DRAFT, monkeypatch, answer=True)
-    app.do_ratify()
-    assert _on_disk(draft, DRAFT)["status"] == "ratified"
-    assert app.flash.text.startswith(f"✓ {DRAFT} ratified by Ada Lovelace")
+def test_the_pane_names_p(draft, monkeypatch):
+    app, _ = _cockpit_on(draft, DRAFT, monkeypatch)
+    lines = [text for text, _ in app._detail_lines(app.rows[app.sel], 120)]
+    assert lines[0] == f"\u25cc {DRAFT}  not yet proposed"
+    assert "  \u25cc not yet proposed \u2014 at 'draft'" in lines
+    assert "  \u25cf press p to put it forward to 'proposed'" in lines
+    assert not any("press r" in ln for ln in lines)
 
 
 def test_the_help_tells_not_yet_proposed_from_blocked(draft):
-    scr = Keys(80, 80, [ord("q")])
+    scr = Keys(90, 80, [ord("q")])
     tui.App(scr, core.open_session(draft), "Ada Lovelace", None).show_help()
     text = scr.frames[0]
-    assert "◌ not yet proposed" in text
-    assert "○ blocked" in text
-    assert "item not yet proposed, sign it and carry it forward to" in text
-    assert "leaves its status as it was" in text
+    assert "  p            put the selected item forward to proposed" in text
+    assert "\u25cc not yet proposed" in text
+    assert "p puts it forward, then r signs it" in text
+    assert "\u25cb blocked" in text
+    assert "leaves its status as it" in text

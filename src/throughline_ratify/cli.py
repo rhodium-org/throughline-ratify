@@ -93,8 +93,11 @@ def _print_list(session: core.Session, show_all: bool, sort: str) -> int:
             # but what is ready to be ratified is that the item goes.
             mark = "deletion"
         elif r.not_yet_proposed:
-            # Blocked to the Tool, but r carries it forward to ratified (SR-0086).
+            # Blocked to the Tool, but p puts it forward (SR-0086).
             mark = "not-yet-proposed"
+        elif r.unsettled:
+            # Ratified to the Tool, but its status is short of ratified (SR-0087).
+            mark = "unsettled"
         else:
             mark = "ratify-ready" if r.ratifiable_now else r.concern
         print(f"  {r.icon} {r.uid:<14} [{r.status:<10}] {mark:<12} {r.title}")
