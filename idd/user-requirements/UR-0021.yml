@@ -1,0 +1,22 @@
+uid: UR-0021
+type: user_requirement
+status: proposed
+title: Choose among the graphs beneath several paths in one sitting
+text: As a reviewer whose graphs live in more than one tree, I want to give tl-ratify
+  several paths at once and choose among the graphs beneath all of them, so that
+  one sitting covers my work without my pointing the tool at a common parent that
+  holds far more than I mean to review.
+rationale: 'Asked for by the operator on 1 November 2026. SR-0045 searches beneath
+  the one path given, so graphs kept in sibling trees — a repository of applications
+  and a repository of standards, say — can share a sitting only when the tool is
+  pointed at a parent of both, and that parent usually holds dozens of graphs the
+  reviewer did not mean to include. Rejected, a configured list of trees: SR-0026
+  keeps settings out of the assistant, and the command line already says where to
+  look. Who pays: nobody who gives one path; a reviewer who gives several waits for
+  each tree to be searched.'
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+attrs:
+  origin: ai

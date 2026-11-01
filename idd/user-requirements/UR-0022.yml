@@ -1,0 +1,24 @@
+uid: UR-0022
+type: user_requirement
+status: proposed
+title: Keep favourite graphs and switch the list between them and the rest
+text: As a reviewer who returns to the same few graphs among many, I want to mark
+  graphs as favourites, have the marks kept between sittings, and switch the selection
+  screen between my favourites, every graph found and the graphs not yet marked,
+  so that the graphs I work on are one key away and the rest are still there when
+  I want them.
+rationale: 'Asked for by the operator on 1 November 2026. A workspace searched from
+  its top holds many graphs, and the reviewer works on a few of them. The selection
+  screen orders by path, by what is outstanding or by recency (SR-0052), and none
+  of those puts the graphs a reviewer has chosen to follow first and keeps them there.
+  Marks that vanished at the end of the sitting would have to be made again each
+  time, so they are kept. Rejected, hiding the unmarked graphs for good: a graph
+  newly proposed into must still be reachable, which is why the rest are one key
+  away rather than gone. Who pays: the reviewer, who has a file of their own under
+  their state directory; no project gains a file or a setting.'
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+attrs:
+  origin: ai

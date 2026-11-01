@@ -1,0 +1,43 @@
+uid: SR-0089
+type: system_requirement
+status: proposed
+title: f marks a graph as a favourite, kept between runs in the reviewer's own file
+text: 'On the selection screen, f shall mark the highlighted graph as a favourite,
+  or unmark it where it is one, and a favourite''s row shall carry a star. The reviewer''s
+  favourites shall be kept between runs in a file of their own outside every project:
+  tl-ratify/favourites under $XDG_STATE_HOME, or ~/.local/state where that is unset,
+  and under %LOCALAPPDATA% on Windows, holding one graph per line named by the absolute
+  path of its root. tl-ratify shall write nothing about favourites into any project.
+  Marking or unmarking shall change that one line in the file as it then stands,
+  so a sitting never undoes marks another sitting has made, and the file shall be
+  replaced whole, never left half-written. A file that is absent shall be read as
+  no favourites. Where the file cannot be read or written, the screen shall say so,
+  the mark shall not change, and the list shall stay usable. A favourite whose graph
+  is not among those found is kept and not shown. Favourites shall decide only which
+  graphs a view lists and which carry the star, and nothing about how a graph is
+  read, shown or signed.'
+rationale: 'The marks have to outlive the sitting or they are not favourites, and
+  they must live somewhere: the reviewer''s own state directory is the one place
+  that belongs to the person rather than to the assistant or to any project, which
+  is what SR-0026, as amended, permits. A state directory rather than a configuration
+  one, because the file holds absolute paths on this machine and is not meant to
+  travel. Plain lines, so the reviewer can read and edit the file with anything.
+  Each change re-reads the file before writing it, because two sittings open at once
+  is ordinary here and the second to save would otherwise erase the first one''s
+  marks. A favourite that is not found is kept, because the reviewer may have given
+  different paths this time, and pruning it would lose a mark they made on purpose.
+  Rejected, a marker file inside the graph: it would put the reviewer''s preference
+  into a repository other people share. Rejected, git config: it starts a process
+  (SR-0039) and has no place for a repository holding several graphs. Test: f stars
+  the highlighted row and the file then names that graph; f again removes it; a second
+  sitting''s mark made meanwhile survives the first one''s change; an unwritable
+  file leaves the mark as it was and says so; an absent file reads as none. Who pays:
+  one small file under the reviewer''s state directory.'
+normative: true
+links:
+- target: UR-0022
+  type: derives_from
+- target: SR-0026
+  type: relates
+attrs:
+  origin: ai
