@@ -136,6 +136,8 @@ Point `tl-ratify` at a tree that holds several graphs (`tl-ratify -C .` at the r
 
 In a graph opened from that list, `q` goes back to the list instead of ending the program, and the footer says `q:projects`. The list comes back with the highlight on the graph you just closed and its figure read again, so the next graph is one key away. The full-screen view stays up throughout: while a graph is being opened it says which one, and your shell is not shown until you leave. `q` on the list, or `Ctrl-C` anywhere, ends the program. With `--summary`, a sitting that took decisions in more than one graph gets one account for each, in the order you opened them, all in the one file.
 
+While it searches the paths you gave, a line on the terminal says which path, how many directories it has looked in and how many graphs it has found. Each graph's figure is kept in `tl-ratify/assessments` beside your favourites, so a graph is read again only when its own files change; the first run over a large tree reads every graph, later runs only what moved. `R` reads every graph afresh.
+
 A graph you pick that will not open — an older on-disk format that needs `tl migrate`, a source that cannot be reached, a role it needs you to name with `--as` — brings the list back with the reason, so you can pick another. A graph that cannot be read says so on its row, and the reason shows above the list while it is highlighted.
 
 Without a terminal to ask on (`--list`, or output piped), an ambiguous path is refused, with the `-C` command that selects each graph.

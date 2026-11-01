@@ -1581,8 +1581,11 @@ class _Picker:
                  sort: str = core.PICKER_SORTS[0], at: Path | None = None,
                  reload=None, note: str = "", several: bool = False,
                  favourites: core.Favourites | None = None,
-                 view: str | None = None, filter: str = "") -> None:
+                 view: str | None = None, filter: str = "",
+                 kept: core.Assessments | None = None) -> None:
         self.scr = stdscr
+        # Where figures read while the screen is up are kept (SR-0095).
+        self.kept = kept
         # Kept for the sitting by the chooser, as the view is (SR-0093).
         self.filter = filter
         self.sort = sort
@@ -1714,7 +1717,7 @@ class _Picker:
             return
         held = self._held()
         fresh = iter(core.describe_candidates(
-            [c for c in self.found if c.root in changed]))
+            [c for c in self.found if c.root in changed], kept=self.kept))
         self.found = core.sort_candidates(
             [next(fresh) if c.root in changed else c for c in self.found],
             self.sort)
@@ -1862,6 +1865,8 @@ class ProjectChooser:
         self.search = search
         self.several = several
         self.favourites = favourites if favourites is not None else core.Favourites()
+        # Each graph's figure, kept between askings and between runs (SR-0095).
+        self.kept = core.Assessments()
         self.sort = core.PICKER_SORTS[0]
         # Settled by the first asking, then kept for the sitting (SR-0090).
         self.view: str | None = None
@@ -1881,19 +1886,22 @@ class ProjectChooser:
         row must not go on showing the figure from before (SR-0064)."""
         curses.curs_set(0)
 
-        def _read() -> list[core.Candidate]:
+        def _read(reuse: bool = True) -> list[core.Candidate]:
             return core.describe_candidates(
                 self.candidates,
-                on_progress=lambda i, total, c: _draw_reading(stdscr, i, total, c))
+                on_progress=lambda i, total, c: _draw_reading(stdscr, i, total, c),
+                kept=self.kept, reuse=reuse)
 
         def _reload() -> list[core.Candidate]:
+            # R reads every graph afresh (SR-0068, SR-0095).
             if self.search is not None:
                 self.candidates = self.search()
-            return _read()
+            return _read(reuse=False)
 
         picker = _Picker(stdscr, _read(), sort=self.sort, at=self.last, reload=_reload,
                          note=self.note, several=self.several,
-                         favourites=self.favourites, view=self.view, filter=self.filter)
+                         favourites=self.favourites, view=self.view, filter=self.filter,
+                         kept=self.kept)
         self.note = ""
         chosen = picker.choose()
         self.sort = picker.sort
