@@ -1,6 +1,6 @@
 uid: SR-0090
 type: system_requirement
-status: proposed
+status: ratified
 title: v switches the selection screen between favourites, every graph and those
   not yet favourites
 text: 'The selection screen shall offer three views: every graph found, the favourites
@@ -39,3 +39,26 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T17:41:50Z'
+  fingerprint: sha256:6feb653f78e93ea26bb617288e85e3fe8601ef8c361ba89680637ce4d1db0860
+  content:
+    type: system_requirement
+    text: 'The selection screen shall offer three views: every graph found, the favourites
+      only, and the graphs not yet favourites. v shall cycle them in that order.
+      The screen shall open on the favourites where at least one graph found is a
+      favourite, and on every graph otherwise. The view in force shall be named on
+      the screen with how many graphs it shows of how many were found. The order
+      in force (SR-0052) shall apply within each view. Changing the view shall keep
+      the highlight on the graph it was on where that graph is in the new view, and
+      put it on the first row otherwise. A graph unmarked in the favourites view,
+      or marked in the view of those not yet favourites, shall leave the view, and
+      the highlight shall stay on the row it occupied, or the last row where the
+      list is now shorter. Where a view is empty the screen shall say so and name
+      the key that changes it, and Enter shall open nothing. The view shall be kept
+      for the sitting, as the order is (SR-0064), and shall not be remembered between
+      runs. The footer shall name f and v.'
+    normative: true
+    derived: false
+    attrs: {}

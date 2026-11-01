@@ -1,6 +1,6 @@
 uid: SR-0088
 type: system_requirement
-status: proposed
+status: ratified
 title: -C may be given more than once, and the graphs found beneath every path are
   offered together
 text: 'tl-ratify shall accept -C more than once. Each path shall be resolved as SR-0045
@@ -44,3 +44,26 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T17:41:35Z'
+  fingerprint: sha256:07539dcded2151ee31d228214b42bfd2849faa45fb8b8b2d473a1322ad95f460
+  content:
+    type: system_requirement
+    text: 'tl-ratify shall accept -C more than once. Each path shall be resolved
+      as SR-0045 resolves a single path, and shall contribute the graphs that resolution
+      would consider: the path itself where it is a graph, the graphs beneath it
+      otherwise, and the nearest enclosing graph where none lies beneath it. The
+      graphs from every path shall be offered as one list, each graph once however
+      many of the paths reach it, with SR-0046 applied across the whole list. Where
+      the list holds exactly one graph it shall be opened; where it holds more, they
+      shall be offered as SR-0048 offers them and refused as SR-0047 refuses them.
+      A path that reaches no graph shall be refused with its name, and no graph opened.
+      Each candidate shall be labelled by its path relative to the deepest directory
+      every given path lies within. The selection screen shall say the graphs lie
+      beneath the paths given, and R (SR-0068) shall repeat the search beneath every
+      one of them. Given -C once, or not at all, tl-ratify shall behave exactly as
+      it did before.'
+    normative: true
+    derived: false
+    attrs: {}

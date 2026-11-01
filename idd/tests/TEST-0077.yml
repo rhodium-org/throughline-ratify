@@ -1,6 +1,6 @@
 uid: TEST-0077
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0088: -C may be given more than once, and the graphs found beneath
   every path are offered together'
 text: The shipped pytest suite checks SR-0088 with the test functions this item lists.
@@ -25,3 +25,14 @@ attrs:
     tests/test_several_paths.py::test_the_screen_says_the_graphs_lie_beneath_the_paths_given
     tests/test_several_paths.py::test_one_path_reads_as_it_always_did
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T17:41:54Z'
+  fingerprint: sha256:b99ebddb570fb6b6c440c720bbb5e00afcc53fb88630f10b935262c81a0fc30e
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0088 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

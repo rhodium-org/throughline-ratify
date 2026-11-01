@@ -1,6 +1,6 @@
 uid: UR-0021
 type: user_requirement
-status: proposed
+status: ratified
 title: Choose among the graphs beneath several paths in one sitting
 text: As a reviewer whose graphs live in more than one tree, I want to give tl-ratify
   several paths at once and choose among the graphs beneath all of them, so that
@@ -20,3 +20,16 @@ links:
   type: derives_from
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T17:41:25Z'
+  fingerprint: sha256:0a384631ed45ba0c555fcb38e5499ad7b41c586eae3d9133a150551bee8ea778
+  content:
+    type: user_requirement
+    text: As a reviewer whose graphs live in more than one tree, I want to give tl-ratify
+      several paths at once and choose among the graphs beneath all of them, so that
+      one sitting covers my work without my pointing the tool at a common parent
+      that holds far more than I mean to review.
+    normative: true
+    derived: false
+    attrs: {}

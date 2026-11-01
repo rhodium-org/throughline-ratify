@@ -1,6 +1,6 @@
 uid: UR-0022
 type: user_requirement
-status: proposed
+status: ratified
 title: Keep favourite graphs and switch the list between them and the rest
 text: As a reviewer who returns to the same few graphs among many, I want to mark
   graphs as favourites, have the marks kept between sittings, and switch the selection
@@ -22,3 +22,17 @@ links:
   type: derives_from
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T17:41:30Z'
+  fingerprint: sha256:2d8b5c9de0de5d568ff4677a07a4e0ae3c35fc4d7015aeb07d3dd9031fe78616
+  content:
+    type: user_requirement
+    text: As a reviewer who returns to the same few graphs among many, I want to
+      mark graphs as favourites, have the marks kept between sittings, and switch
+      the selection screen between my favourites, every graph found and the graphs
+      not yet marked, so that the graphs I work on are one key away and the rest
+      are still there when I want them.
+    normative: true
+    derived: false
+    attrs: {}

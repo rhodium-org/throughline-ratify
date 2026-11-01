@@ -1,6 +1,6 @@
 uid: SR-0089
 type: system_requirement
-status: proposed
+status: ratified
 title: f marks a graph as a favourite, kept between runs in the reviewer's own file
 text: 'On the selection screen, f shall mark the highlighted graph as a favourite,
   or unmark it where it is one, and a favourite''s row shall carry a star. The reviewer''s
@@ -41,3 +41,26 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T17:41:44Z'
+  fingerprint: sha256:3e2c6e21e6cfcdb4ec616b128f125b90f42d4d956bf5bfe223c8faec1b78f220
+  content:
+    type: system_requirement
+    text: 'On the selection screen, f shall mark the highlighted graph as a favourite,
+      or unmark it where it is one, and a favourite''s row shall carry a star. The
+      reviewer''s favourites shall be kept between runs in a file of their own outside
+      every project: tl-ratify/favourites under $XDG_STATE_HOME, or ~/.local/state
+      where that is unset, and under %LOCALAPPDATA% on Windows, holding one graph
+      per line named by the absolute path of its root. tl-ratify shall write nothing
+      about favourites into any project. Marking or unmarking shall change that one
+      line in the file as it then stands, so a sitting never undoes marks another
+      sitting has made, and the file shall be replaced whole, never left half-written.
+      A file that is absent shall be read as no favourites. Where the file cannot
+      be read or written, the screen shall say so, the mark shall not change, and
+      the list shall stay usable. A favourite whose graph is not among those found
+      is kept and not shown. Favourites shall decide only which graphs a view lists
+      and which carry the star, and nothing about how a graph is read, shown or signed.'
+    normative: true
+    derived: false
+    attrs: {}
