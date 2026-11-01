@@ -6,10 +6,11 @@ title: The selection screen comes back where the reviewer left it, with its figu
 text: When the selection screen is shown again after a graph has been closed, the
   highlight shall rest on the graph that was just closed and the candidates shall
   be in the order the reviewer last chose. Each candidate's ratification figure shall
-  be read again from its own registers before the screen is drawn, under the same
-  progress display as the first reading. The list of candidates shall be the one
-  found when the program started; the search beneath the path shall not be repeated.
-  No candidate's declared sources shall be resolved in order to show the screen again.
+  be brought up to date from its own registers before the screen is drawn, reading
+  again those whose own files have changed (SR-0095), under the same progress display
+  as the first reading. The list of candidates shall be the one found when the program
+  started; the search beneath the path shall not be repeated. No candidate's declared
+  sources shall be resolved in order to show the screen again.
 rationale: |-
   The reviewer has just signed items in one of these graphs, so the figure on its row is the one fact on the screen known to be out of date. Showing the old figure would have the screen and the worklist disagree about the same number, which SR-0050 exists to prevent.
 

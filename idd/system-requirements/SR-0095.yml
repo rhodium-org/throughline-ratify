@@ -1,0 +1,50 @@
+uid: SR-0095
+type: system_requirement
+status: proposed
+title: Each graph's figure is kept, and read again only when its own files change
+text: tl-ratify shall keep each candidate's figure — how far it has been signed off,
+  its latest change, or why it cannot be read — together with the state of its own
+  files it was read from and the versions of tl-ratify and throughline that read
+  it, in a file of the reviewer's own beside their favourites (tl-ratify/assessments
+  under the state directory SR-0089 names). Whenever the selection screen needs the
+  candidates' figures, a candidate whose own files stand as they were when its figure
+  was kept, read by the same versions, shall take the kept figure without being read;
+  only the others shall be read, and the progress display shall count only those.
+  Whether its files stand as they were shall be judged from file sizes and modification
+  times alone. R (SR-0068) shall read every candidate afresh. Every figure read shall
+  be kept. A file that is absent, unreadable or not in the shape this version writes
+  shall be read as keeping nothing and be replaced; one that cannot be written shall
+  not stop the screen. tl-ratify shall write nothing about figures into any project.
+rationale: 'Asked for by the operator on 1 November 2026. Over 430 graphs, reading
+  every figure took 89 seconds, at start and again every time a graph was closed
+  (SR-0064), while learning that a graph''s files had not moved took about one second
+  for all of them (SR-0069 already does it at every idle interval). Keeping the figure
+  against the file state it came from makes the second reading the one that is paid
+  for. The versions are part of the key because the figure is throughline''s to compute
+  (SR-0050): a new release may count differently, and a figure kept by the old one
+  would then be a second account. What is kept is derived from each graph and is
+  no account of a project that tl does not share, so SR-0026 is not engaged; it is
+  beside the favourites because it too is the reviewer''s own and machine-local.
+  R reads every graph afresh because it is the reviewer''s way to say they do not
+  trust what is shown, and the figure can depend on things outside the graph''s own
+  files, such as a schema it inherits. Test: a second run over the same tree reads
+  no graph; changing one graph''s item file makes that one read; a different throughline
+  version reads all; R reads all; a corrupt file is replaced; an unwritable one leaves
+  the screen working. Who pays: one file under the reviewer''s state directory, rewritten
+  when a figure is read.'
+normative: true
+links:
+- target: UR-0014
+  type: derives_from
+- target: SR-0064
+  type: relates
+- target: SR-0069
+  type: relates
+- target: SR-0068
+  type: relates
+- target: SR-0089
+  type: relates
+- target: SR-0050
+  type: relates
+attrs:
+  origin: ai
