@@ -1188,7 +1188,7 @@ What the software must do to meet them.
 <!-- tl:item SR-0064 -->
 **SR-0064 — The selection screen comes back where the reviewer left it, with its figures read again** — `system_requirement`, status `ratified`
 
-> When the selection screen is shown again after a graph has been closed, the highlight shall rest on the graph that was just closed and the candidates shall be in the order the reviewer last chose. Each candidate's ratification figure shall be read again from its own registers before the screen is drawn, under the same progress display as the first reading. The list of candidates shall be the one found when the program started; the search beneath the path shall not be repeated. No candidate's declared sources shall be resolved in order to show the screen again.
+> When the selection screen is shown again after a graph has been closed, the highlight shall rest on the graph that was just closed and the candidates shall be in the order the reviewer last chose. Each candidate's ratification figure shall be brought up to date from its own registers before the screen is drawn, reading again those whose own files have changed (SR-0095), under the same progress display as the first reading. The list of candidates shall be the one found when the program started; the search beneath the path shall not be repeated. No candidate's declared sources shall be resolved in order to show the screen again.
 
 *Rationale:* The reviewer has just signed items in one of these graphs, so the figure on its row is the one fact on the screen known to be out of date. Showing the old figure would have the screen and the worklist disagree about the same number, which SR-0050 exists to prevent. Keeping the highlight and the order means the next graph down is one key away. A screen that reset to the top in path order would make the reviewer find their place again after every graph. The search is not repeated because it asks the version control system which directories it ignores, which starts a process, and the set of graphs in a repository does not change in the course of a sitting in any way the reviewer cannot recover from by starting again. Who pays: the reviewer, who waits for the candidates to be read once for every graph they close. The reading is of files on disk only.
 
@@ -1386,7 +1386,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0011 | The published distribution passes the suite it ships | SR-0040, SR-0041, SR-0055 |
 | UR-0012 | The requirements this tool is built to can be read, and read whole | SR-0042 |
 | UR-0013 | Choose which graph to open when the path I give holds more than one | SR-0045, SR-0047, SR-0048, SR-0091 |
-| UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052, SR-0068, SR-0069, SR-0092, SR-0093 |
+| UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052, SR-0068, SR-0069, SR-0092, SR-0093, SR-0094, SR-0095 |
 | UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053, SR-0056 |
 | UR-0016 | Upgrading throughline does not cost me a new cockpit | SR-0057, SR-0058, SR-0059, SR-0060, SR-0081 |
 | UR-0017 | A screen left open does not sign wording I was not shown | SR-0061, SR-0062, SR-0067, SR-0070, SR-0071 |
@@ -1502,4 +1502,6 @@ checked by a workflow or a document, or not at all.
 | SR-0091 | A graph picked from the list that will not open sends the reviewer back to the list, saying why | TEST-0080 |
 | SR-0092 | Every row on the selection screen shows its name, its figure and its path within the screen's width | TEST-0081 |
 | SR-0093 | / filters the selection screen by name or path | TEST-0082 |
+| SR-0094 | The search for graphs at start shows how far it has got | TEST-0083 |
+| SR-0095 | Each graph's figure is kept, and read again only when its own files change | TEST-0084 |
 <!-- tl:end -->

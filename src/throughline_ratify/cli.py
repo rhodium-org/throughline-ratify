@@ -12,7 +12,10 @@ that carries the work (see :mod:`throughline_ratify.report`).
 from __future__ import annotations
 
 import argparse
+import shutil
 import sys
+import threading
+import time
 from pathlib import Path
 
 from throughline import distribution_version as _v
@@ -108,6 +111,61 @@ def _print_list(session: core.Session, show_all: bool, sort: str) -> int:
     return 0
 
 
+class _SearchLine:
+    """One line on standard error saying how far the search for graphs has got
+    (SR-0094), rewritten as the counts move and at least once a second: the
+    walk can sit in one call to git for a while, and a line that stops moving
+    reads as a hang. Cleared before anything else is drawn or printed."""
+
+    def __init__(self, stream=None) -> None:
+        self.stream = stream if stream is not None else sys.stderr
+        self.base = ""
+        self.counts: tuple[int, int] | None = None
+        self._lock = threading.Lock()
+        self._stop = threading.Event()
+        self._started = time.monotonic()
+        self._ticker = threading.Thread(target=self._tick, daemon=True)
+        self._ticker.start()
+
+    def update(self, base: Path, directories: int, graphs: int) -> None:
+        with self._lock:
+            first = self.counts is None
+            self.base, self.counts = str(base), (directories, graphs)
+        if first:
+            self._write()     # at once, so even a quick search is seen to start
+
+    def _tick(self) -> None:
+        while not self._stop.wait(0.25):
+            self._write()
+
+    def _write(self) -> None:
+        with self._lock:
+            if self.counts is None or self._stop.is_set():
+                return
+            seconds = int(time.monotonic() - self._started)
+            head = "tl-ratify: searching "
+            tail = (f" \u2014 {self.counts[0]} directories, {self.counts[1]} graphs found"
+                    f" ({seconds}s)")
+            # The path gives way, from its start, before the counts do.
+            room = shutil.get_terminal_size((80, 24)).columns - 1 - len(head) - len(tail)
+            base = self.base if len(self.base) <= room else \
+                "\u2026" + self.base[len(self.base) - max(room, 2) + 1:]
+            self.stream.write(f"\r\x1b[K{head}{base}{tail}")
+            self.stream.flush()
+
+    def clear(self) -> None:
+        """Stop and wipe the line; safe to call more than once."""
+        if self._stop.is_set():
+            return
+        with self._lock:
+            self._stop.set()
+            wrote = self.counts is not None
+        self._ticker.join(timeout=1)
+        if wrote:
+            self.stream.write("\r\x1b[K")
+            self.stream.flush()
+
+
 def _refuse_ambiguous(exc: core.AmbiguousProjectError) -> None:
     """Name every candidate and the command that selects it (SR-0047).
 
@@ -157,9 +215,14 @@ def main(argv: list[str] | None = None) -> int:
     paths = args.path or ["."]
     interactive = not args.list and sys.stdout.isatty()
     candidates = None
+    # Shown while the trees are searched, on a terminal only (SR-0094).
+    searching = _SearchLine() if interactive and sys.stderr.isatty() else None
     try:
-        session = core.open_session(*paths)
+        session = core.open_session(
+            *paths, on_search=searching.update if searching else None)
     except core.AmbiguousProjectError as exc:
+        if searching:
+            searching.clear()
         # Which graph to open is the reviewer's to say (SR-0045). Where they cannot
         # be asked, refusing is the only honest answer — every rule for picking one
         # silently is wrong somewhere, and under --list the worklist for the wrong
@@ -169,8 +232,13 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         session, candidates = None, exc.candidates
     except core.RatifierError as exc:
+        if searching:
+            searching.clear()
         print(f"tl-ratify: {exc}", file=sys.stderr)
         return 2
+    finally:
+        if searching:
+            searching.clear()
 
     if args.list:
         return _print_list(session, args.all, args.sort)

@@ -1,0 +1,20 @@
+uid: TEST-0083
+type: test
+status: proposed
+title: 'Tests of SR-0094: The search for graphs at start shows how far it has got'
+text: The shipped pytest suite checks SR-0094 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0094
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_startup_and_kept_figures.py::test_the_search_reports_its_path_and_counts
+    tests/test_startup_and_kept_figures.py::test_the_counts_run_on_across_several_paths
+    tests/test_startup_and_kept_figures.py::test_the_line_names_the_path_and_counts_and_is_cleared
+    tests/test_startup_and_kept_figures.py::test_the_line_moves_at_least_once_a_second_while_nothing_reports
+    tests/test_startup_and_kept_figures.py::test_a_terminal_sees_the_search_and_the_line_is_gone_before_the_list
+    tests/test_startup_and_kept_figures.py::test_list_shows_no_search_line
+    tests/test_startup_and_kept_figures.py::test_no_terminal_on_standard_error_shows_no_search_line
+    tests/test_startup_and_kept_figures.py::test_naming_a_graph_directly_shows_nothing
+  origin: ai

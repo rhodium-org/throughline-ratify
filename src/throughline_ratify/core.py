@@ -25,6 +25,7 @@ ratified through this cockpit signed but unbound. One implementation, not two.
 """
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 from dataclasses import dataclass, field, replace
@@ -79,6 +80,7 @@ from throughline import (
     set_status,
     write_item,
 )
+from throughline import distribution_version
 from throughline import default_identifier as throughline_default_identifier
 from throughline import default_ratifier as throughline_default_ratifier
 from throughline import normalise_identifier as throughline_normalise_identifier
@@ -489,7 +491,13 @@ def _is_excluded(d: Path) -> bool:
     )
 
 
-def discover_projects(path: str | Path, *more: str | Path) -> list[Candidate]:
+# Called as the search goes, with the directory being searched beneath, how many
+# directories have been looked in and how many graphs found so far (SR-0094).
+SearchProgress = Callable[[Path, int, int], None]
+
+
+def discover_projects(path: str | Path, *more: str | Path,
+                      on_search: SearchProgress | None = None) -> list[Candidate]:
     """Every graph at or beneath ``path`` — and beneath each of ``more``, where
     several paths were given (SR-0088) — in the order they should be offered.
 
@@ -503,8 +511,10 @@ def discover_projects(path: str | Path, *more: str | Path) -> list[Candidate]:
     """
     bases = [base_of(p) for p in (path, *more)]
     roots: list[Path] = []
+    search = _Search(on_search)
     for base in bases:
-        roots.extend(r for r in _graphs_beneath(base) if r not in roots)
+        roots.extend(r for r in _graphs_beneath(base, search.path(roots))
+                     if r not in roots)
     return _candidates(_drop_borrowed(roots), shared_directory(bases))
 
 
@@ -516,17 +526,42 @@ def base_of(path: str | Path) -> Path:
     return base if base.is_dir() else base.parent
 
 
-def _graphs_beneath(base: Path) -> list[Path]:
+class _Search:
+    """One running total over every path searched (SR-0094): each path's walk
+    counts from zero, and this carries the counts of the paths before it."""
+
+    def __init__(self, on_search: SearchProgress | None) -> None:
+        self.on_search = on_search
+        self.before = 0     # directories looked in beneath the earlier paths
+        self.last = 0       # directories looked in beneath the present one
+
+    def path(self, found_before: list[Path]) -> SearchProgress | None:
+        """The progress callback for the next path's walk."""
+        self.before, self.last = self.before + self.last, 0
+        if self.on_search is None:
+            return None
+
+        def _report(base: Path, directories: int, graphs: int) -> None:
+            self.last = directories
+            self.on_search(base, self.before + directories, len(found_before) + graphs)
+        return _report
+
+
+def _graphs_beneath(base: Path, on_search: SearchProgress | None = None) -> list[Path]:
     """The roots of every graph at or beneath ``base``, before SR-0046's rule on
-    borrowed graphs is applied."""
+    borrowed graphs is applied. ``on_search`` hears how far the walk has got."""
     roots: list[Path] = []
     if (base / CONFIG_NAME).exists():
         roots.append(base)
 
+    looked = 0
     level = [base]
     for _ in range(_MAX_SEARCH_DEPTH):
         children: list[Path] = []
         for parent in level:
+            looked += 1
+            if on_search is not None:
+                on_search(base, looked, len(roots))
             try:
                 children.extend(
                     c for c in sorted(parent.iterdir())
@@ -621,6 +656,8 @@ def _latest_change(project: Project) -> float:
 def describe_candidates(
     candidates: list[Candidate],
     on_progress: Callable[[int, int, Candidate], None] | None = None,
+    kept: "Assessments | None" = None,
+    reuse: bool = True,
 ) -> list[Candidate]:
     """Read each candidate's own registers so its row can say how far it has been
     signed off (SR-0050).
@@ -636,7 +673,29 @@ def describe_candidates(
     own header, from the same items, so the screen and the cockpit cannot give two
     accounts of one number. Sources are never resolved here — SR-0048 keeps that
     for the graph the reviewer picks.
+
+    With ``kept``, a candidate whose own files stand as they did when its figure
+    was kept takes that figure without being read, and only the rest are read
+    and counted by ``on_progress`` (SR-0095); every figure read is kept. Without
+    ``reuse`` every candidate is read, and still kept: that is R (SR-0068).
     """
+    reused = {}
+    if kept is not None and reuse:
+        for candidate in candidates:
+            known = kept.recall(candidate)
+            if known is not None:
+                reused[candidate.root] = known
+    to_read = [c for c in candidates if c.root not in reused]
+    read = {c.root: c for c in _read_candidates(to_read, on_progress)}
+    if kept is not None and read:
+        kept.keep(read.values())
+    return [reused.get(c.root) or read[c.root] for c in candidates]
+
+
+def _read_candidates(
+    candidates: list[Candidate],
+    on_progress: Callable[[int, int, Candidate], None] | None,
+) -> list[Candidate]:
     described: list[Candidate] = []
     total = len(candidates)
     for i, candidate in enumerate(candidates):
@@ -682,6 +741,81 @@ def _candidate_state(candidate: Candidate) -> tuple:
             files.extend(sorted(folder.glob("*.yml")))
             files.append(folder / ".register.yml")
     return _files_state(files)
+
+
+def assessments_path() -> Path:
+    """Where the candidates' figures are kept (SR-0095): beside the favourites,
+    in the reviewer's own state directory."""
+    return favourites_path().with_name("assessments")
+
+
+# Names what wrote a kept figure. A figure is throughline's to compute (SR-0050),
+# so one kept by another release of either package is read again, not trusted.
+def _reader() -> str:
+    return f"{distribution_version('throughline-ratify')}/{distribution_version('throughline')}"
+
+
+class Assessments:
+    """Each candidate's figure, kept with the state of its own files it was read
+    from (SR-0095). The reviewer's own and derived from the graphs, so it is no
+    account of a project that tl does not share; nothing here is ever read in
+    place of a graph whose files have moved.
+    """
+
+    _SHAPE = 1
+
+    def __init__(self, path: Path | None = None) -> None:
+        self.path = path if path is not None else assessments_path()
+        self._entries: dict[str, dict] | None = None
+
+    def _load(self) -> dict[str, dict]:
+        if self._entries is None:
+            self._entries = {}
+            try:
+                data = json.loads(self.path.read_text(encoding="utf-8"))
+                if data.get("shape") == self._SHAPE and data.get("reader") == _reader():
+                    self._entries = dict(data["graphs"])
+            except (OSError, ValueError, TypeError, KeyError, AttributeError):
+                pass   # absent, unreadable or another shape: keeps nothing
+        return self._entries
+
+    def recall(self, candidate: Candidate) -> Candidate | None:
+        """``candidate`` with its kept figure, where its own files stand as they
+        did when that figure was kept; ``None`` where it must be read."""
+        entry = self._load().get(str(candidate.root))
+        if entry is None:
+            return None
+        try:
+            watched = None if entry["watched"] is None else \
+                tuple(Path(w) for w in entry["watched"])
+            known = replace(candidate, ratified=entry["ratified"],
+                            gradable=entry["gradable"], modified=entry["modified"],
+                            error=entry["error"], watched=watched)
+            seen = tuple(tuple(f) for f in entry["seen"])
+        except (KeyError, TypeError):
+            return None
+        state = _candidate_state(known)
+        return replace(known, seen=state) if state == seen else None
+
+    def keep(self, described) -> None:
+        """Keep each of ``described``'s figures, and write the file. A file that
+        cannot be written leaves the figures unkept and the screen working."""
+        entries = self._load()
+        for c in described:
+            entries[str(c.root)] = {
+                "ratified": c.ratified, "gradable": c.gradable,
+                "modified": c.modified, "error": c.error,
+                "watched": None if c.watched is None else [str(w) for w in c.watched],
+                "seen": [list(f) for f in c.seen],
+            }
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            spare = self.path.with_name(self.path.name + ".new")
+            spare.write_text(json.dumps({"shape": self._SHAPE, "reader": _reader(),
+                                         "graphs": entries}), encoding="utf-8")
+            os.replace(spare, self.path)
+        except OSError:
+            pass
 
 
 def candidate_changed(candidate: Candidate) -> bool:
@@ -803,7 +937,8 @@ class Favourites:
         return [line.strip() for line in text.splitlines() if line.strip()]
 
 
-def resolve_root(path: str | Path, *more: str | Path) -> Path:
+def resolve_root(path: str | Path, *more: str | Path,
+                 on_search: SearchProgress | None = None) -> Path:
     """Which graph ``path`` means (SR-0045) — or, where several paths were given,
     which graph they mean between them (SR-0088).
 
@@ -817,8 +952,10 @@ def resolve_root(path: str | Path, *more: str | Path) -> Path:
     paths = (path, *more)
     bases = [base_of(_start_of(p)) for p in paths]
     roots: list[Path] = []
+    search = _Search(on_search)
     for given, base in zip(paths, bases):
-        roots.extend(r for r in _graphs_reached(given, base) if r not in roots)
+        roots.extend(r for r in _graphs_reached(given, base, search.path(roots))
+                     if r not in roots)
     if len(paths) > 1:
         # A graph in one tree may be a source declared by a graph in another.
         roots = _drop_borrowed(roots)
@@ -843,13 +980,14 @@ def _start_of(path: str | Path) -> Path:
             "or give an absolute path with -C") from exc
 
 
-def _graphs_reached(given: str | Path, base: Path) -> list[Path]:
+def _graphs_reached(given: str | Path, base: Path,
+                    on_search: SearchProgress | None = None) -> list[Path]:
     """The graphs one given path contributes (SR-0045): itself where it is a
     graph, those beneath it otherwise, and the nearest enclosing one where none
     lies beneath. A path that reaches none is refused by its name (SR-0088)."""
     if (base / CONFIG_NAME).exists():
         return [base]
-    beneath = _drop_borrowed(_graphs_beneath(base))
+    beneath = _drop_borrowed(_graphs_beneath(base, on_search))
     if beneath:
         return beneath
     root = _find_root(base)
@@ -906,7 +1044,8 @@ def changed_on_disk(session: Session) -> bool:
 
 
 def open_session(path: str | Path, *more: str | Path,
-                 read_older: bool = False) -> Session:
+                 read_older: bool = False,
+                 on_search: SearchProgress | None = None) -> Session:
     """Open the throughline project ``path`` names, composing its sources when it
     declares any. Raises :class:`AmbiguousProjectError` when the path encloses
     more than one graph and the choice is the reviewer's to make.
@@ -914,7 +1053,7 @@ def open_session(path: str | Path, *more: str | Path,
     A graph at an older on-disk format is refused unless ``read_older``, which
     reads it with the Tool's tolerant reader into a session every write through
     is refused (SR-0081). A graph at the Tool's own format opens as always."""
-    return open_root(resolve_root(path, *more), read_older=read_older)
+    return open_root(resolve_root(path, *more, on_search=on_search), read_older=read_older)
 
 
 def open_root(root: Path, *, read_older: bool = False) -> Session:
