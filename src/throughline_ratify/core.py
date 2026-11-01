@@ -1751,10 +1751,25 @@ def put_forward(session: Session, uid: str) -> str:
     return to
 
 
+def settle_in_steps(session: Session, item: "Item | QueueItem",
+                    route: list[str]) -> str | None:
+    """Why ``route`` cannot be walked by r, and how to settle the item instead, or
+    ``None`` where it is one move (SR-0096). throughline judges a status change
+    against the status last committed (its baseline), so a route of several moves
+    written at once is one move to the gate, and that move is not permitted."""
+    if len(route) <= 2:
+        return None
+    return (f"{item.uid} is at '{item.status}', which cannot move straight to "
+            f"'{session.ratified_status}', and tl check judges a move against the last "
+            f"commit — settle it one move at a time: tl status {item.uid} {route[1]}, "
+            "commit, then r")
+
+
 def settle_item(session: Session, uid: str) -> list[str]:
     """Move a signed item whose status has not reached ratified to ratified, on the
-    signature it already carries (SR-0087). Every hop goes through throughline's
-    own :func:`set_status`; no signature is taken. Returns the route walked."""
+    signature it already carries (SR-0087), where that is one permitted move
+    (SR-0096). The move goes through throughline's own :func:`set_status`; no
+    signature is taken. Returns the route walked."""
     _refuse_if_read_only(session)
     item = session.project.get(uid)
     if item is None:
@@ -1767,6 +1782,9 @@ def settle_item(session: Session, uid: str) -> list[str]:
         raise RatifierError(
             f"{uid} is at '{item.status}', from which this project's transitions offer "
             f"no route to '{session.ratified_status}' that avoids suspect")
+    in_steps = settle_in_steps(session, item, route)
+    if in_steps is not None:
+        raise RatifierError(in_steps)
     was = item.status
     try:
         for to in route[1:]:

@@ -1504,4 +1504,5 @@ checked by a workflow or a document, or not at all.
 | SR-0093 | / filters the selection screen by name or path | TEST-0082 |
 | SR-0094 | The search for graphs at start shows how far it has got | TEST-0083 |
 | SR-0095 | Each graph's figure is kept, and read again only when its own files change | TEST-0084 |
+| SR-0096 | r settles a signed item only where one permitted move reaches ratified, and otherwise names the first move | TEST-0085 |
 <!-- tl:end -->

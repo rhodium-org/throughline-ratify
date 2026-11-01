@@ -1,0 +1,42 @@
+uid: SR-0096
+type: system_requirement
+status: proposed
+title: r settles a signed item only where one permitted move reaches ratified, and
+  otherwise names the first move
+text: Where the project's ratify moves an item's status, r shall settle a signed,
+  unsettled item (SR-0087) only where the project's [transitions] permit its status
+  to move straight to ratified, in one move. Where the shortest route to ratified
+  through neither the suspect status nor a dead one takes more than one move, r shall
+  move nothing and write nothing, and shall say that the item can be settled only
+  one move at a time, naming the first status on that route and the command that
+  makes the move (tl status <UID> <status>), to be committed before r is pressed
+  again. Where there is no such route, r shall refuse as SR-0087 says. The row shall
+  go on saying the item is signed but not settled.
+rationale: 'Seen by the operator on 1 November 2026, signing in throughline''s own
+  graph: r settled SR-0008 and SR-0105 from deferred to ratified along deferred →
+  approved → ratified, two permitted moves, and tl check --strict then failed both
+  with bad-transition, deferred -> ratified. throughline judges a status change against
+  the status last committed (its baseline, SR-0083), not against the moves made since,
+  so a route of several moves written in one sitting is one move as far as the gate
+  is concerned, and that move is not permitted. The cockpit had produced a graph
+  the project''s own CI rejects. Settling one move at a time, with a commit between,
+  is what the gate can see. The other two routes are safe and untouched: p puts an
+  item forward in one permitted move (SR-0085), and the round trip of SR-0019 ends
+  on the status it started from, so it is no change at all. Rejected, walking the
+  route and asking the reviewer to commit after each move: two presses in one sitting
+  would make the same jump again, and the cockpit cannot tell what was committed
+  without asking git, which SR-0039 keeps out of the module the decisions live in.
+  Rejected, leaving it to the reviewer to notice: it surfaced only as a red check
+  in another repository. Test: a signed item at a status with a permitted move straight
+  to ratified settles as before; one two moves away is refused, nothing is written,
+  and the message names the first status and the tl status command; the --list mark
+  and the row are unchanged. Who pays: a reviewer settling an item that is several
+  moves short makes the moves by hand, each committed.'
+normative: true
+links:
+- target: SR-0087
+  type: refines
+- target: SR-0039
+  type: relates
+attrs:
+  origin: ai

@@ -10,9 +10,10 @@ text: 'Where the project''s ratify moves an item''s status, an item that carries
   the progress figure, and its row shall say that it is signed but its status is
   not settled. Pressing r on it shall offer, with a confirmation naming the signer
   and the route, to move its status to ratified on the signature it already carries,
-  through throughline''s own status move and along the shortest route the project''s
-  [transitions] permit through neither the suspect status nor a dead one; it shall
-  take no new signature. Where no such route exists r shall refuse and write nothing.
+  through throughline''s own status move, where the project''s [transitions] permit
+  that one move; it shall take no new signature. Where the route is longer, r shall
+  move nothing and say how to settle it, as SR-0096 requires. Where there is no route
+  through neither the suspect status nor a dead one, r shall refuse and write nothing.
   Where the project''s ratify leaves status where it is, a signature alone settles
   the item, as before.'
 rationale: 'Seen on throughline-plan-standard conformance/full-plan at 54f5b87, 2026-10-31:
