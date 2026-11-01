@@ -18,6 +18,11 @@ from test_back_to_the_list import Screen, no_curses  # noqa: F401 - fixture
 from throughline_ratify import cli, core, tui
 
 
+def _label(posix: str) -> str:
+    """A label as this platform writes it: labels use its own separator."""
+    return str(Path(posix))
+
+
 @pytest.fixture
 def two_trees(tmp_path: Path) -> tuple[Path, Path]:
     """Two sibling repositories, each keeping its graph in idd/ — the shape where
@@ -41,7 +46,7 @@ def test_each_graph_is_labelled_from_the_directory_the_paths_share(two_trees):
     apps, standards = two_trees
     with pytest.raises(core.AmbiguousProjectError) as exc:
         core.resolve_root(apps, standards)
-    assert [c.rel for c in exc.value.candidates] == ["apps/idd", "standards/idd"]
+    assert [c.rel for c in exc.value.candidates] == [_label("apps/idd"), _label("standards/idd")]
     assert exc.value.base == apps.parent
 
 
@@ -117,21 +122,21 @@ def test_the_cli_opens_the_graph_picked_from_several_paths(two_trees, monkeypatc
     monkeypatch.setattr(tui, "work_through", _work_through)
     assert cli.main(["-C", str(apps), "-C", str(standards), "--by", "Ada"]) == 0
     assert handed == {"names": ["Apps Graph", "Standards Graph"], "several": True,
-                      "again": ["apps/idd", "standards/idd"]}
+                      "again": [_label("apps/idd"), _label("standards/idd")]}
 
 
 def test_a_reload_searches_beneath_every_path(two_trees):
     apps, standards = two_trees
     _named_project(standards / "extra", "Extra Graph")
     found = cli._search_beneath(apps, standards)
-    assert [c.rel for c in found] == ["apps/idd", "standards/extra", "standards/idd"]
+    assert [c.rel for c in found] == [_label("apps/idd"), _label("standards/extra"), _label("standards/idd")]
 
 
 def test_a_reload_after_one_path_has_gone_keeps_the_others_labels(two_trees):
     apps, standards = two_trees
     shutil.rmtree(standards)
     found = cli._search_beneath(apps, standards)
-    assert [c.rel for c in found] == ["apps/idd"]
+    assert [c.rel for c in found] == [_label("apps/idd")]
 
 
 def test_the_screen_says_the_graphs_lie_beneath_the_paths_given(two_trees, no_curses):
