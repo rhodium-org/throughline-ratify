@@ -61,20 +61,22 @@ def test_the_counts_run_on_across_several_paths(multi_project, tmp_path):
 def test_the_line_names_the_path_and_counts_and_is_cleared():
     stream = io.StringIO()
     line = cli._SearchLine(stream)
-    line.update(core.Path("/somewhere"), 12, 3)
+    somewhere = core.Path("/somewhere")
+    line.update(somewhere, 12, 3)
     line.clear()
     written = stream.getvalue()
-    assert "searching /somewhere" in written and "12 directories, 3 graphs found" in written
+    assert f"searching {somewhere}" in written and "12 directories, 3 graphs found" in written
     assert written.endswith("\r\x1b[K")
 
 
 def test_the_line_moves_at_least_once_a_second_while_nothing_reports():
     stream = io.StringIO()
     line = cli._SearchLine(stream)
-    line.update(core.Path("/somewhere"), 1, 0)
+    somewhere = core.Path("/somewhere")
+    line.update(somewhere, 1, 0)
     time.sleep(1.1)
     line.clear()
-    assert stream.getvalue().count("searching /somewhere") >= 3
+    assert stream.getvalue().count(f"searching {somewhere}") >= 3
 
 
 def test_a_terminal_sees_the_search_and_the_line_is_gone_before_the_list(
