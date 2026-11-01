@@ -240,15 +240,22 @@ def terminal(monkeypatch):
 
 def _picking(monkeypatch, *indexes):
     """Stand in for the selection screen: the reviewer picks these candidates in
-    turn, and leaves without choosing once they run out."""
+    turn, and leaves without choosing once they run out. Returns what the screen
+    was asked to say each time it was shown (SR-0067, SR-0091)."""
+    shown = []
+
     class Scripted:
         def __init__(self, candidates, search=None, **kwargs):
             self.picks = [candidates[i] for i in indexes]
+            self.note = ""
 
         def ask(self, stdscr):
+            shown.append(self.note)
+            self.note = ""
             return self.picks.pop(0) if self.picks else None
 
     monkeypatch.setattr(tui, "ProjectChooser", Scripted)
+    return shown
 
 
 def test_the_picked_graph_is_the_one_opened(multi_project, terminal, monkeypatch):
@@ -267,14 +274,17 @@ def test_a_chosen_graph_that_will_not_open_says_so(multi_project, capfd, termina
                                                    monkeypatch):
     """The other half of the price SR-0048 pays for listing without composing: a
     graph whose sources cannot be resolved looks sound until it is chosen, so the
-    failure has to arrive legibly at that moment rather than as a traceback."""
+    failure has to arrive legibly at that moment rather than as a traceback. It
+    arrives on the list, which comes back so the other graphs can still be
+    opened (SR-0091)."""
     monkeypatch.setattr(cli.sys.stdout, "isatty", lambda: True, raising=False)
-    _picking(monkeypatch, 0)
+    shown = _picking(monkeypatch, 0)
     monkeypatch.setattr(core, "open_root", lambda root: (_ for _ in ()).throw(
         core.RatifierError("source 'base' could not be resolved")))
     rc = cli.main(["-C", str(multi_project)])
-    assert rc == 2
-    assert "source 'base' could not be resolved" in capfd.readouterr().err
+    assert rc == 0
+    assert shown == ["", "source 'base' could not be resolved \u2014 alpha"]
+    assert "Traceback" not in capfd.readouterr().err
     assert terminal == {}
 
 
@@ -544,16 +554,15 @@ def test_a_graph_that_cannot_be_read_says_so_and_stays_selectable(multi_project,
 
 def test_choosing_the_broken_graph_fails_with_its_reason(multi_project, capfd,
                                                          terminal, monkeypatch):
-    """The failure SR-0051 sends the reviewer to is the one SR-0048 already
-    specifies for a chosen graph that will not open — a legible message and an
-    exit code, not a traceback over a terminal curses has just restored."""
+    """The refusal SR-0051 sends the reviewer to is the one SR-0091 specifies for
+    a chosen graph that will not open: the list again, saying why."""
     monkeypatch.setattr(cli.sys.stdout, "isatty", lambda: True, raising=False)
     (multi_project / "beta" / "requirements" / "FR-0001.yml").write_text(
         "uid: [unclosed\n", encoding="utf-8")
-    _picking(monkeypatch, 1)
-    assert cli.main(["-C", str(multi_project)]) == 2
-    assert "beta" in capfd.readouterr().err
-    assert terminal == {}
+    shown = _picking(monkeypatch, 1, 0)
+    assert cli.main(["-C", str(multi_project)]) == 0
+    assert shown[1].endswith("\u2014 beta")
+    assert terminal == {"root": multi_project / "alpha"}, "the next pick still opens"
 
 
 def test_a_graph_that_could_not_be_read_does_not_crowd_out_the_work(pick):

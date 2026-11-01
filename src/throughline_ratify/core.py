@@ -723,6 +723,16 @@ def in_view(candidates: list[Candidate], view: str,
     return list(candidates)
 
 
+def matching(candidates: list[Candidate], text: str) -> list[Candidate]:
+    """Those of ``candidates`` whose name or path holds ``text``, ignoring case
+    (SR-0093). No text matches every one."""
+    needle = text.strip().casefold()
+    if not needle:
+        return list(candidates)
+    return [c for c in candidates
+            if needle in c.name.casefold() or needle in c.rel.casefold()]
+
+
 def favourites_path() -> Path:
     """Where the reviewer's favourites are kept (SR-0089): their own state
     directory, outside every project. The XDG convention elsewhere, which also

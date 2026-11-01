@@ -994,7 +994,7 @@ What the software must do to meet them.
 <!-- tl:item SR-0051 -->
 **SR-0051 — Reading the candidates is visible, and one bad graph does not withhold the rest** — `system_requirement`, status `implemented`
 
-> While the candidates are being read, tl-ratify shall show that it is working and how far through the candidates it has got. A candidate whose own registers cannot be read shall still be listed, with the reason shown on its row in place of its figure, and shall remain selectable; it shall not prevent the other candidates being offered. Choosing it shall then fail with that reason, as choosing any graph that cannot be opened does.
+> While the candidates are being read, tl-ratify shall show that it is working and how far through the candidates it has got. A candidate whose own registers cannot be read shall still be listed, with the reason shown on its row in place of its figure, and shall remain selectable; it shall not prevent the other candidates being offered. Choosing it shall then be refused with that reason, as choosing any graph that cannot be opened is (SR-0091).
 
 *Rationale:* Reading several graphs takes long enough to look like a hang, and a tool that looks hung is one the reviewer interrupts. Showing the work is what buys the right to do it at all: SR-0048 refused eager work partly because it would make the screen slow, and the answer to slow is to say so, not to hide it. A failure has to land on the row it belongs to. This screen exists precisely because the reviewer does not yet know which graph they want, so refusing to offer any of them because one is unreadable denies them the choice on the strength of a project they may not have been going to open. The broken row stays selectable because a reviewer who came to fix that graph still needs a way into it, and the failure they then meet is the one SR-0048 already specifies for a chosen graph that will not open. Who pays: nobody beyond the reviewer, and only in the time the reading takes.
 
@@ -1385,8 +1385,8 @@ with an empty right-hand column is a requirement nothing yet delivers.
 | UR-0010 | What is expected of participants, and where a breach is taken | SR-0036 |
 | UR-0011 | The published distribution passes the suite it ships | SR-0040, SR-0041, SR-0055 |
 | UR-0012 | The requirements this tool is built to can be read, and read whole | SR-0042 |
-| UR-0013 | Choose which graph to open when the path I give holds more than one | SR-0045, SR-0047, SR-0048 |
-| UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052, SR-0068, SR-0069 |
+| UR-0013 | Choose which graph to open when the path I give holds more than one | SR-0045, SR-0047, SR-0048, SR-0091 |
+| UR-0014 | Tell me enough about each graph to choose between them | SR-0050, SR-0051, SR-0052, SR-0068, SR-0069, SR-0092, SR-0093 |
 | UR-0015 | Tell me what changed when a signature no longer covers the wording | SR-0053, SR-0056 |
 | UR-0016 | Upgrading throughline does not cost me a new cockpit | SR-0057, SR-0058, SR-0059, SR-0060, SR-0081 |
 | UR-0017 | A screen left open does not sign wording I was not shown | SR-0061, SR-0062, SR-0067, SR-0070, SR-0071 |
@@ -1499,4 +1499,7 @@ checked by a workflow or a document, or not at all.
 | SR-0088 | -C may be given more than once, and the graphs found beneath every path are offered together | TEST-0077 |
 | SR-0089 | f marks a graph as a favourite, kept between runs in the reviewer's own file | TEST-0078 |
 | SR-0090 | v switches the selection screen between favourites, every graph and those not yet favourites | TEST-0079 |
+| SR-0091 | A graph picked from the list that will not open sends the reviewer back to the list, saying why | TEST-0080 |
+| SR-0092 | Every row on the selection screen shows its name, its figure and its path within the screen's width | TEST-0081 |
+| SR-0093 | / filters the selection screen by name or path | TEST-0082 |
 <!-- tl:end -->

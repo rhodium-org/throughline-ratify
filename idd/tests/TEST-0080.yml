@@ -1,0 +1,20 @@
+uid: TEST-0080
+type: test
+status: proposed
+title: 'Tests of SR-0091: A graph picked from the list that will not open sends the
+  reviewer back to the list, saying why'
+text: The shipped pytest suite checks SR-0091 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0091
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_picker_fit_and_filter.py::test_an_older_graph_picked_brings_the_list_back_saying_why
+    tests/test_picker_fit_and_filter.py::test_an_identity_that_cannot_be_settled_brings_the_list_back
+    tests/test_picker_fit_and_filter.py::test_the_reason_shows_until_the_next_key
+    tests/test_picker_fit_and_filter.py::test_a_graph_opened_directly_is_still_refused_on_standard_error
+    tests/test_project_selection.py::test_a_chosen_graph_that_will_not_open_says_so
+    tests/test_project_selection.py::test_choosing_the_broken_graph_fails_with_its_reason
+    tests/test_back_to_the_list.py::test_a_graph_that_will_not_open_prints_nothing_and_the_list_comes_back
+  origin: ai

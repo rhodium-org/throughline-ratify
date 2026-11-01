@@ -41,6 +41,9 @@ class Screen:
     def keypad(self, on):
         pass
 
+    def move(self, y, x):
+        pass
+
     def timeout(self, ms):
         pass
 
@@ -335,7 +338,7 @@ def test_decisions_already_taken_are_reported_when_a_later_graph_will_not_open(
         return opening(root, **kw)
 
     monkeypatch.setattr(core, "open_root", _open)
-    assert start(picks=[0, 1], decide=_deciding, argv=["--summary", str(dest)]) == 2
+    assert start(picks=[0, 1], decide=_deciding, argv=["--summary", str(dest)]) == 0
     assert seen["opened"] == ["alpha"]
     assert f"{report.TRAILER_TOKEN}: ALPHA-1" in dest.read_text(encoding="utf-8")
 
@@ -403,10 +406,10 @@ def test_the_opening_screen_names_the_graph_and_its_path(multi_project, no_curse
     assert "opening Beta Graph  beta" in screen.painted()
 
 
-def test_a_graph_that_will_not_open_is_reported_after_the_view_has_closed(
+def test_a_graph_that_will_not_open_prints_nothing_and_the_list_comes_back(
         capfd, sitting, monkeypatch):
-    """The reason has to outlive the view, so it is printed once curses.wrapper
-    has returned and not drawn inside it (SR-0048)."""
+    """The reason is given on the list, which comes back (SR-0091); nothing is
+    printed over the full-screen view, before or after it closes."""
     start, seen = sitting
     # capfd stands a stream of its own in for stdout, which is not a terminal.
     monkeypatch.setattr("sys.stdout.isatty", lambda: True)
@@ -422,9 +425,10 @@ def test_a_graph_that_will_not_open_is_reported_after_the_view_has_closed(
     monkeypatch.setattr(tui.curses, "wrapper", _wrapper)
     monkeypatch.setattr(core, "open_root", lambda root: (_ for _ in ()).throw(
         core.RatifierError("source 'base' could not be resolved")))
-    assert start(picks=[0]) == 2
+    assert start(picks=[0]) == 0
     assert closed == [""], "nothing was printed while the view was up"
-    assert "source 'base' could not be resolved" in capfd.readouterr().err
+    assert seen["asked"] == 2, "the list was shown again"
+    assert capfd.readouterr().err == ""
 
 
 def test_an_interrupt_while_a_graph_is_opening_ends_cleanly(sitting, monkeypatch):

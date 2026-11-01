@@ -10,7 +10,7 @@ links:
   type: verifies
 attrs:
   checks: |-
-    tests/test_back_to_the_list.py::test_a_graph_that_will_not_open_is_reported_after_the_view_has_closed
+    tests/test_back_to_the_list.py::test_a_graph_that_will_not_open_prints_nothing_and_the_list_comes_back
     tests/test_project_selection.py::test_a_chosen_graph_that_will_not_open_says_so
     tests/test_project_selection.py::test_choosing_the_broken_graph_fails_with_its_reason
     tests/test_project_selection.py::test_describing_a_candidate_never_composes_it
