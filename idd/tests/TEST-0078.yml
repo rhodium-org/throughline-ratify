@@ -1,0 +1,38 @@
+uid: TEST-0078
+type: test
+status: ratified
+title: 'Tests of SR-0089: f marks a graph as a favourite, kept between runs in the
+  reviewer''s own file'
+text: The shipped pytest suite checks SR-0089 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0089
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_favourites.py::test_the_file_is_under_the_reviewers_state_directory
+    tests/test_favourites.py::test_a_relative_state_directory_is_ignored
+    tests/test_favourites.py::test_an_unset_state_directory_falls_back_to_the_home_one
+    tests/test_favourites.py::test_f_stars_the_row_and_the_file_names_the_graph
+    tests/test_favourites.py::test_f_again_unmarks_it
+    tests/test_favourites.py::test_marks_are_kept_between_runs
+    tests/test_favourites.py::test_an_absent_file_is_no_favourites
+    tests/test_favourites.py::test_a_mark_another_sitting_made_meanwhile_survives
+    tests/test_favourites.py::test_a_favourite_not_found_is_kept_and_not_shown
+    tests/test_favourites.py::test_the_file_is_replaced_whole
+    tests/test_favourites.py::test_nothing_is_written_into_a_project
+    tests/test_favourites.py::test_a_file_that_cannot_be_written_leaves_the_mark_and_says_so
+    tests/test_favourites.py::test_a_file_that_cannot_be_read_says_so_and_the_list_stays_usable
+    tests/test_favourites.py::test_f_on_an_empty_list_does_nothing
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T17:41:54Z'
+  fingerprint: sha256:01d0c9283dd5fe0fbd79da9099acd259c43ed5d6d526c7fbc88fb49e09b22da8
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0089 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

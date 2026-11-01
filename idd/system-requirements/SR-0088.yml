@@ -1,0 +1,69 @@
+uid: SR-0088
+type: system_requirement
+status: ratified
+title: -C may be given more than once, and the graphs found beneath every path are
+  offered together
+text: 'tl-ratify shall accept -C more than once. Each path shall be resolved as SR-0045
+  resolves a single path, and shall contribute the graphs that resolution would consider:
+  the path itself where it is a graph, the graphs beneath it otherwise, and the nearest
+  enclosing graph where none lies beneath it. The graphs from every path shall be
+  offered as one list, each graph once however many of the paths reach it, with SR-0046
+  applied across the whole list. Where the list holds exactly one graph it shall
+  be opened; where it holds more, they shall be offered as SR-0048 offers them and
+  refused as SR-0047 refuses them. A path that reaches no graph shall be refused
+  with its name, and no graph opened. Each candidate shall be labelled by its path
+  relative to the deepest directory every given path lies within. The selection screen
+  shall say the graphs lie beneath the paths given, and R (SR-0068) shall repeat
+  the search beneath every one of them. Given -C once, or not at all, tl-ratify shall
+  behave exactly as it did before.'
+rationale: 'SR-0045 is kept whole for each path, so a path behaves inside a list
+  exactly as it behaves alone and the reviewer has one rule to learn. Joining the
+  lists before offering them, rather than asking per path, is what lets one sitting
+  run across trees, which is the point of UR-0021. A graph reached from two paths
+  is listed once because it is one graph: listing it twice would offer two rows that
+  open the same register. SR-0046 runs over the whole list because a graph in one
+  tree may be declared as a source by a graph in another. A path that reaches nothing
+  is refused rather than skipped, because a mistyped path that silently contributed
+  nothing would look like a tree with no work in it. Labels are taken from the directory
+  the paths share, so two trees that each hold an idd/ do not both show as idd. Rejected,
+  a label per path given (the -C value and then the path beneath it): it repeats
+  a long prefix on every row. Test: two trees each holding a graph, given as two
+  -C values, are offered together and labelled by their trees; the same tree given
+  twice lists its graphs once; a path holding nothing is refused by name; one -C
+  behaves as before. Who pays: a reviewer who gives several paths waits for each
+  search, and for one version-control process per path (SR-0046).'
+normative: true
+links:
+- target: UR-0021
+  type: derives_from
+- target: SR-0045
+  type: relates
+- target: SR-0047
+  type: relates
+- target: SR-0068
+  type: relates
+attrs:
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T17:41:35Z'
+  fingerprint: sha256:07539dcded2151ee31d228214b42bfd2849faa45fb8b8b2d473a1322ad95f460
+  content:
+    type: system_requirement
+    text: 'tl-ratify shall accept -C more than once. Each path shall be resolved
+      as SR-0045 resolves a single path, and shall contribute the graphs that resolution
+      would consider: the path itself where it is a graph, the graphs beneath it
+      otherwise, and the nearest enclosing graph where none lies beneath it. The
+      graphs from every path shall be offered as one list, each graph once however
+      many of the paths reach it, with SR-0046 applied across the whole list. Where
+      the list holds exactly one graph it shall be opened; where it holds more, they
+      shall be offered as SR-0048 offers them and refused as SR-0047 refuses them.
+      A path that reaches no graph shall be refused with its name, and no graph opened.
+      Each candidate shall be labelled by its path relative to the deepest directory
+      every given path lies within. The selection screen shall say the graphs lie
+      beneath the paths given, and R (SR-0068) shall repeat the search beneath every
+      one of them. Given -C once, or not at all, tl-ratify shall behave exactly as
+      it did before.'
+    normative: true
+    derived: false
+    attrs: {}

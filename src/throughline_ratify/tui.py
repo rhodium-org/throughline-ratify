@@ -1496,6 +1496,26 @@ def _picker_status(candidate: core.Candidate) -> str:
     return f"\u2713 {candidate.ratified}/{candidate.gradable} ratified"
 
 
+# The selection screen's legend, widest first; the first that fits is drawn.
+# Moving is left out before anything else, as the arrows are the keys a reviewer
+# tries first; leaving is never left out (SR-0073 holds the worklist to the same).
+_PICKER_FOOTERS = (
+    " \u2191\u2193/jk move \u2502 s sort \u2502 v view \u2502 f favourite \u2502 R reload"
+    " \u2502 enter open \u2502 q leave without opening",
+    " s sort \u2502 v view \u2502 f favourite \u2502 R reload \u2502 \u23ce open"
+    " \u2502 q leave without opening",
+)
+
+# What an empty view says, naming the key that changes it (SR-0090). The view
+# of every graph is empty only when a reload found none (SR-0068).
+_EMPTY_VIEW = {
+    "all": "no throughline project lies beneath the path you gave \u2502 R searches again",
+    "favourites": "none of these graphs is a favourite yet \u2502 v shows the others, "
+                  "f marks the highlighted one",
+    "others": "every one of these graphs is a favourite \u2502 v shows them",
+}
+
+
 class _Picker:
     """The screen that asks which graph to open (SR-0048).
 
@@ -1504,21 +1524,55 @@ class _Picker:
     SR-0048 still forbids: that resolves declared sources — for a remote
     source, over the network — on behalf of projects the reviewer never asked
     for. Only the graph picked here is composed.
+
+    ``found`` holds every candidate, in the order in force; ``candidates`` is
+    the part of it the view in force lists (SR-0090), and the highlight is a
+    position in that.
     """
 
     def __init__(self, stdscr, candidates: list[core.Candidate],
                  sort: str = core.PICKER_SORTS[0], at: Path | None = None,
-                 reload=None, note: str = "") -> None:
+                 reload=None, note: str = "", several: bool = False,
+                 favourites: core.Favourites | None = None,
+                 view: str | None = None) -> None:
         self.scr = stdscr
         self.sort = sort
         # ``reload`` returns the candidates as they now stand on disk (SR-0068).
         self._reload = reload
         self.note = note
-        self.candidates = core.sort_candidates(candidates, sort)
+        self.several = several
+        self.favourites = favourites if favourites is not None else core.Favourites()
+        try:
+            # Read on every asking: another sitting may have marked a graph since.
+            self.favourites.load()
+        except core.FavouritesError as exc:
+            self.note = f"{note} \u2502 {exc}" if note else str(exc)
+        self.found = core.sort_candidates(candidates, sort)
+        # Opened on the favourites where there are any to show (SR-0090).
+        if view is None:
+            view = "favourites" if any(c.root in self.favourites.roots
+                                       for c in self.found) else "all"
+        self.view = view
+        self.candidates = self._in_view()
         # ``at`` is the graph the reviewer has just closed: the highlight comes
         # back to it, so the next graph is one key away (SR-0064).
         self.pos = next((i for i, c in enumerate(self.candidates) if c.root == at), 0)
         self.top = 0
+
+    def _in_view(self) -> list[core.Candidate]:
+        return core.in_view(self.found, self.view, self.favourites.roots)
+
+    def _held(self) -> Path | None:
+        return self.candidates[self.pos].root if self.candidates else None
+
+    def _relist(self, held: Path | None, to_first: bool = False) -> None:
+        """List the view again, with the highlight on ``held`` where it is still
+        listed. Otherwise on the first row where ``to_first``, and else on the
+        row it occupied, or the last row if the list is now shorter."""
+        self.candidates = self._in_view()
+        fallback = 0 if to_first else max(0, min(self.pos, len(self.candidates) - 1))
+        self.pos = next((i for i, c in enumerate(self.candidates) if c.root == held),
+                        fallback)
 
     def choose(self) -> core.Candidate | None:
         curses.curs_set(0)
@@ -1538,11 +1592,15 @@ class _Picker:
             elif ch in (curses.KEY_UP, ord("k")):
                 self.pos = max(self.pos - 1, 0)
             elif ch in (curses.KEY_ENTER, 10, 13, ord(" ")):
-                # A reload can leave nothing to open (SR-0068).
+                # A reload, or a view, can leave nothing to open (SR-0068, SR-0090).
                 if self.candidates:
                     return self.candidates[self.pos]
             elif ch in (ord("s"), ord("S")):
                 self.resort()
+            elif ch == ord("v"):
+                self.next_view()
+            elif ch == ord("f"):
+                self.toggle_favourite()
             elif ch == ord("R") and self._reload is not None:
                 self.reload_from_disk()
             elif ch in (ord("q"), 27):
@@ -1557,10 +1615,31 @@ class _Picker:
         happened to occupy."""
         self.sort = core.PICKER_SORTS[
             (core.PICKER_SORTS.index(self.sort) + 1) % len(core.PICKER_SORTS)]
-        held = self.candidates[self.pos] if self.candidates else None
-        self.candidates = core.sort_candidates(self.candidates, self.sort)
-        if held is not None:
-            self.pos = self.candidates.index(held)
+        held = self._held()
+        self.found = core.sort_candidates(self.found, self.sort)
+        self._relist(held)
+
+    def next_view(self) -> None:
+        """Show the next view (SR-0090), keeping the highlight on the graph it
+        was on where the new view lists it, and on the first row otherwise."""
+        self.view = core.PICKER_VIEWS[
+            (core.PICKER_VIEWS.index(self.view) + 1) % len(core.PICKER_VIEWS)]
+        self._relist(self._held(), to_first=True)
+
+    def toggle_favourite(self) -> None:
+        """Mark the highlighted graph a favourite, or unmark it (SR-0089). Where
+        that takes it out of the view, the highlight stays on its row."""
+        if not self.candidates:
+            return
+        chosen = self.candidates[self.pos]
+        try:
+            marked = self.favourites.toggle(chosen.root)
+        except core.FavouritesError as exc:
+            self.note = str(exc)
+            return
+        self.note = (f"{chosen.rel} is now a favourite" if marked
+                     else f"{chosen.rel} is no longer a favourite")
+        self._relist(chosen.root)
 
     def idle(self) -> None:
         """No key for a while: read again each listed graph whose files have
@@ -1568,16 +1647,16 @@ class _Picker:
         the progress display: an agent writing items changes a graph every few
         seconds, and a screen that blanked each time could not be read. The
         search is not repeated, so a graph added since is found by R (SR-0068)."""
-        changed = {c.root for c in self.candidates if core.candidate_changed(c)}
+        changed = {c.root for c in self.found if core.candidate_changed(c)}
         if not changed:
             return
-        held = self.candidates[self.pos].root
+        held = self._held()
         fresh = iter(core.describe_candidates(
-            [c for c in self.candidates if c.root in changed]))
-        self.candidates = core.sort_candidates(
-            [next(fresh) if c.root in changed else c for c in self.candidates],
+            [c for c in self.found if c.root in changed]))
+        self.found = core.sort_candidates(
+            [next(fresh) if c.root in changed else c for c in self.found],
             self.sort)
-        self.pos = next(i for i, c in enumerate(self.candidates) if c.root == held)
+        self._relist(held)
         self.note = "the list changed on disk and has been reloaded"
 
     def reload_from_disk(self) -> None:
@@ -1585,10 +1664,9 @@ class _Picker:
         highlight on the graph it was on. Where that graph is no longer there,
         the highlight stays on the row it occupied, or the last row if the list
         is now shorter."""
-        held = self.candidates[self.pos].root if self.candidates else None
-        self.candidates = core.sort_candidates(self._reload(), self.sort)
-        self.pos = next((i for i, c in enumerate(self.candidates) if c.root == held),
-                        max(0, min(self.pos, len(self.candidates) - 1)))
+        held = self._held()
+        self.found = core.sort_candidates(self._reload(), self.sort)
+        self._relist(held)
         self.note = "reloaded from disk"
 
     def draw(self) -> None:
@@ -1597,23 +1675,29 @@ class _Picker:
         _hline(self.scr, 0, 0, w, _attr("header", bold=True))
         _safe_addstr(self.scr, 0, 0, f" tl-ratify {__version__} \u2502 choose a project",
                      _attr("header", bold=True))
+        where = "the paths you gave" if self.several else "the path you gave"
         _safe_addstr(self.scr, 2, 1,
-                     f"{len(self.candidates)} throughline projects lie beneath the path "
-                     f"you gave. \u2502 sort:{self.sort}", _attr("dim"))
+                     f"{len(self.found)} throughline projects lie beneath {where}. "
+                     f"\u2502 sort:{self.sort} \u2502 view:{core.VIEW_NAMES[self.view]} "
+                     f"{len(self.candidates)}/{len(self.found)}", _attr("dim"))
         # On a row of its own: a note that names a graph by its path is as long
         # as the screen is wide, and beside the count it would be cut short.
         if self.note:
             _safe_addstr(self.scr, 3, 1, self.note, _attr("warn"))
         self._draw_list(h, w)
         _hline(self.scr, h - 1, 0, w, _attr("header"))
-        _safe_addstr(
-            self.scr, h - 1, 0,
-            " \u2191\u2193/jk move \u2502 s sort \u2502 R reload \u2502 enter open"
-            " \u2502 q leave without opening", _attr("header"))
+        legend = next((f for f in _PICKER_FOOTERS if len(f) < w), _PICKER_FOOTERS[-1])
+        _safe_addstr(self.scr, h - 1, 0, legend, _attr("header"))
         self.scr.noutrefresh()
         curses.doupdate()
 
     def _draw_list(self, h: int, w: int) -> None:
+        if not self.candidates:
+            empty = _EMPTY_VIEW[self.view]
+            if self.view == "all" and self.several:
+                empty = empty.replace("the path you gave", "the paths you gave")
+            _safe_addstr(self.scr, _PICKER_TOP, 3, empty, _attr("dim"))
+            return
         # Never below one row, so the highlighted candidate is drawn even on a
         # screen where nothing else fits.
         height = max(1, h - _PICKER_CHROME)
@@ -1639,9 +1723,10 @@ class _Picker:
             if selected:
                 _hline(self.scr, y, 0, w, _attr("sel"))
             marker = "\u25b8" if selected else " "
+            star = "\u2605" if c.root in self.favourites.roots else " "
             status = _picker_status(c).ljust(status_width)
             _safe_addstr(self.scr, y, 1,
-                         f"{marker} {c.name:<{name_width}}  {status}  {c.rel}", attr)
+                         f"{marker}{star} {c.name:<{name_width}}  {status}  {c.rel}", attr)
 
         if self.top > 0:
             _safe_addstr(self.scr, _PICKER_TOP, w - 1, "\u25b2", _attr("dim"))
@@ -1684,10 +1769,16 @@ class ProjectChooser:
     ``search`` repeats the search beneath the path the reviewer gave. It is
     called only when the reviewer asks for the list to be reloaded (SR-0068)."""
 
-    def __init__(self, candidates: list[core.Candidate], search=None) -> None:
+    def __init__(self, candidates: list[core.Candidate], search=None,
+                 several: bool = False,
+                 favourites: core.Favourites | None = None) -> None:
         self.candidates = candidates
         self.search = search
+        self.several = several
+        self.favourites = favourites if favourites is not None else core.Favourites()
         self.sort = core.PICKER_SORTS[0]
+        # Settled by the first asking, then kept for the sitting (SR-0090).
+        self.view: str | None = None
         self.last: Path | None = None
         # What the screen says when it is next shown, and only then (SR-0067).
         self.note = ""
@@ -1714,10 +1805,12 @@ class ProjectChooser:
             return _read()
 
         picker = _Picker(stdscr, _read(), sort=self.sort, at=self.last, reload=_reload,
-                         note=self.note)
+                         note=self.note, several=self.several,
+                         favourites=self.favourites, view=self.view)
         self.note = ""
         chosen = picker.choose()
         self.sort = picker.sort
+        self.view = picker.view
         if chosen is not None:
             self.last = chosen.root
         return chosen
@@ -1742,7 +1835,7 @@ def _draw_opening(scr, candidate: core.Candidate) -> None:
 
 def work_through(candidates: list[core.Candidate], open_graph,
                  ratifier_id: str | None = None, search=None,
-                 role: str | None = None) -> None:
+                 role: str | None = None, several: bool = False) -> None:
     """Ask which graph to open, open it, and ask again when it is closed, until
     the reviewer leaves the list without choosing or interrupts (SR-0063).
 
@@ -1759,8 +1852,8 @@ def work_through(candidates: list[core.Candidate], open_graph,
     Ctrl-C leaves the same way, taking no decision (SR-0016).
 
     ``search`` finds the candidates again when the reviewer reloads the list
-    (SR-0068)."""
-    chooser = ProjectChooser(candidates, search=search)
+    (SR-0068). ``several`` says the reviewer gave more than one path (SR-0088)."""
+    chooser = ProjectChooser(candidates, search=search, several=several)
 
     def _main(stdscr):
         _init_colours()

@@ -55,6 +55,16 @@ _CONFIG = textwrap.dedent(
 ).lstrip()
 
 
+@pytest.fixture(autouse=True)
+def _own_state_directory(tmp_path_factory, monkeypatch):
+    """Every test keeps favourites in a state directory of its own (SR-0089), so
+    the suite never reads or writes the reviewer's real ones."""
+    state = tmp_path_factory.mktemp("state")
+    monkeypatch.setenv("XDG_STATE_HOME", str(state))
+    monkeypatch.setenv("LOCALAPPDATA", str(state))
+    return state
+
+
 def _reg(prefix: str, title: str) -> str:
     return f"prefix: {prefix}\ndigits: 4\ntitle: {title}\n"
 
