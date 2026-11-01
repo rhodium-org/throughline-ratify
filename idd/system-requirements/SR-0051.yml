@@ -32,16 +32,16 @@ attrs:
   origin: ai
 ratifications:
 - by: Henry Grech-Cini
-  fingerprint: sha256:62bdcf23f2bfdfe15bc938a2ad183812e51238d1c330a604e40e9c5a537852e4
+  at: '2026-11-01T18:54:45Z'
+  fingerprint: sha256:20e72c99d5b8cce5c6986527089368c0aecbe416ffceb58e082eef7a65647c3f
   content:
     type: system_requirement
     text: While the candidates are being read, tl-ratify shall show that it is working
       and how far through the candidates it has got. A candidate whose own registers
       cannot be read shall still be listed, with the reason shown on its row in place
       of its figure, and shall remain selectable; it shall not prevent the other
-      candidates being offered. Choosing it shall then fail with that reason, as
-      choosing any graph that cannot be opened does.
+      candidates being offered. Choosing it shall then be refused with that reason,
+      as choosing any graph that cannot be opened is (SR-0091).
     normative: true
     derived: false
     attrs: {}
-  revision: 123b20a648021380efe501d5dc69c0a07cf6a717

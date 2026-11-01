@@ -1,6 +1,6 @@
 uid: TEST-0080
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0091: A graph picked from the list that will not open sends the
   reviewer back to the list, saying why'
 text: The shipped pytest suite checks SR-0091 with the test functions this item lists.
@@ -18,3 +18,14 @@ attrs:
     tests/test_project_selection.py::test_choosing_the_broken_graph_fails_with_its_reason
     tests/test_back_to_the_list.py::test_a_graph_that_will_not_open_prints_nothing_and_the_list_comes_back
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T18:54:44Z'
+  fingerprint: sha256:f16191b6c8f7b8e36ae0f9a4cd9a7ec79314fdd595ca83e29197ea6ca52638e1
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0091 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

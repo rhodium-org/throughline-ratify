@@ -1,6 +1,6 @@
 uid: SR-0091
 type: system_requirement
-status: proposed
+status: ratified
 title: A graph picked from the list that will not open sends the reviewer back to
   the list, saying why
 text: Where the reviewer picks a graph from the selection screen and it cannot be
@@ -38,3 +38,21 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T18:54:35Z'
+  fingerprint: sha256:db777da3ab8161ec70961d95398dceb9d37d698a107425220d96eac181f0d06b
+  content:
+    type: system_requirement
+    text: Where the reviewer picks a graph from the selection screen and it cannot
+      be opened — it cannot be read, it is at an older on-disk format, a source it
+      declares cannot be resolved, or the identity the sitting signs under cannot
+      be settled for it — tl-ratify shall write nothing to it, shall show the selection
+      screen again with the highlight on that graph, and the screen shall name the
+      graph by its label and give the reason, starting with its first line, until
+      the next key is pressed. The program shall not end. A graph opened directly,
+      not picked from the list, shall be refused as before, on standard error with
+      a non-zero status.
+    normative: true
+    derived: false
+    attrs: {}

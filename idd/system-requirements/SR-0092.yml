@@ -1,6 +1,6 @@
 uid: SR-0092
 type: system_requirement
-status: proposed
+status: ratified
 title: Every row on the selection screen shows its name, its figure and its path
   within the screen's width
 text: Each row of the selection screen shall fit the screen's width and shall show,
@@ -34,3 +34,22 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T18:54:41Z'
+  fingerprint: sha256:8ffadcb67f24ec23acb959f0e0fca2e892a98a4f24404f64830cafc4b28186bf
+  content:
+    type: system_requirement
+    text: Each row of the selection screen shall fit the screen's width and shall
+      show, in this order, the graph's name, its figure or the fact that it cannot
+      be read, and its path. The name column shall be no wider than a third of the
+      screen, a longer name being cut with an ellipsis. The figure column shall be
+      no wider than the widest figure; a graph that cannot be read shall show a short
+      mark saying so in that column, never its reason. While the highlight is on
+      such a graph and no other note is shown, the screen shall give its reason on
+      the line above the list. The path shall take the rest of the row, cut with
+      an ellipsis at the start where it does not fit, so that the part that tells
+      graphs apart is the part that shows.
+    normative: true
+    derived: false
+    attrs: {}

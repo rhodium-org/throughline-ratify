@@ -1,6 +1,6 @@
 uid: SR-0093
 type: system_requirement
-status: proposed
+status: ratified
 title: / filters the selection screen by name or path
 text: On the selection screen, / shall ask for a filter at the foot of the screen
   in the way the worklist asks for its own, offering the filter in force for editing.
@@ -33,3 +33,23 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T18:54:44Z'
+  fingerprint: sha256:b345bac8a969c9102760fc4889fcba85f578f97df48d1d8fb36d487f4d487a50
+  content:
+    type: system_requirement
+    text: On the selection screen, / shall ask for a filter at the foot of the screen
+      in the way the worklist asks for its own, offering the filter in force for
+      editing. The screen shall then list only the graphs in the view in force whose
+      name or path contains the text typed, ignoring case. Escape shall leave the
+      filter as it was, and an empty filter shall show every graph in the view. The
+      filter in force shall be named on the screen. The highlight shall stay on the
+      graph it was on where that graph is still listed, and go to the first row otherwise.
+      Where nothing matches, the screen shall say so and name the key that changes
+      the filter, and Enter shall open nothing. The filter shall be kept for the
+      sitting, as the view is (SR-0090), and not remembered between runs. The footer
+      shall name the key.
+    normative: true
+    derived: false
+    attrs: {}
