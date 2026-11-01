@@ -1,6 +1,6 @@
 uid: TEST-0084
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0095: Each graph''s figure is kept, and read again only when
   its own files change'
 text: The shipped pytest suite checks SR-0095 with the test functions this item lists.
@@ -22,3 +22,14 @@ attrs:
     tests/test_startup_and_kept_figures.py::test_the_list_shown_again_reads_no_unchanged_graph
     tests/test_startup_and_kept_figures.py::test_r_reads_every_graph_afresh
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T20:10:14Z'
+  fingerprint: sha256:b434e6625b5483093f02563ead2d414e4ab8ab7ffe0a5e8116f4e57e9e783270
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0095 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

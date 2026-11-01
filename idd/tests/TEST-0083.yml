@@ -1,6 +1,6 @@
 uid: TEST-0083
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0094: The search for graphs at start shows how far it has got'
 text: The shipped pytest suite checks SR-0094 with the test functions this item lists.
 normative: false
@@ -18,3 +18,14 @@ attrs:
     tests/test_startup_and_kept_figures.py::test_no_terminal_on_standard_error_shows_no_search_line
     tests/test_startup_and_kept_figures.py::test_naming_a_graph_directly_shows_nothing
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T20:10:13Z'
+  fingerprint: sha256:2853e9f8829d91eb535ca4849c0dfa8290a6dc6c46ee937590854dba21476bc7
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0094 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

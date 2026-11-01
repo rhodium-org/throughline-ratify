@@ -1,6 +1,6 @@
 uid: SR-0094
 type: system_requirement
-status: proposed
+status: ratified
 title: The search for graphs at start shows how far it has got
 text: While tl-ratify searches beneath the paths given for graphs, and it is running
   on a terminal, it shall show on standard error that it is searching, the path it
@@ -33,3 +33,20 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T20:10:12Z'
+  fingerprint: sha256:3fa605a2eeb953f9bdba6414af3a961ef393a635be8782c9e3d90a6f7f3ad185
+  content:
+    type: system_requirement
+    text: While tl-ratify searches beneath the paths given for graphs, and it is
+      running on a terminal, it shall show on standard error that it is searching,
+      the path it is searching beneath, how many directories it has looked in and
+      how many graphs it has found so far, on one line rewritten as the count moves
+      and at least once a second while the search goes on. The line shall be cleared
+      before the selection screen or the worklist is drawn and before any refusal
+      is printed. Under --list, or where standard error is not a terminal, nothing
+      shall be shown. Pointing at a graph directly involves no search and shows nothing.
+    normative: true
+    derived: false
+    attrs: {}

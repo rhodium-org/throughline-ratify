@@ -1,6 +1,6 @@
 uid: SR-0095
 type: system_requirement
-status: proposed
+status: ratified
 title: Each graph's figure is kept, and read again only when its own files change
 text: tl-ratify shall keep each candidate's figure — how far it has been signed off,
   its latest change, or why it cannot be read — together with the state of its own
@@ -48,3 +48,26 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T20:10:13Z'
+  fingerprint: sha256:74d5e6977128c98618e5ff1297becbd01dfd19a9599c2458e9373d9fdc16cdd4
+  content:
+    type: system_requirement
+    text: tl-ratify shall keep each candidate's figure — how far it has been signed
+      off, its latest change, or why it cannot be read — together with the state
+      of its own files it was read from and the versions of tl-ratify and throughline
+      that read it, in a file of the reviewer's own beside their favourites (tl-ratify/assessments
+      under the state directory SR-0089 names). Whenever the selection screen needs
+      the candidates' figures, a candidate whose own files stand as they were when
+      its figure was kept, read by the same versions, shall take the kept figure
+      without being read; only the others shall be read, and the progress display
+      shall count only those. Whether its files stand as they were shall be judged
+      from file sizes and modification times alone. R (SR-0068) shall read every
+      candidate afresh. Every figure read shall be kept. A file that is absent, unreadable
+      or not in the shape this version writes shall be read as keeping nothing and
+      be replaced; one that cannot be written shall not stop the screen. tl-ratify
+      shall write nothing about figures into any project.
+    normative: true
+    derived: false
+    attrs: {}
