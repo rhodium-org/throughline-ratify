@@ -11,6 +11,7 @@ off) so the eye lands on the actionable rows first.
 from __future__ import annotations
 
 import curses
+import os
 import re
 import textwrap
 from dataclasses import dataclass
@@ -1298,22 +1299,7 @@ class App:
 
     # -- modal prompts ------------------------------------------------------
     def _panel(self, lines: list[str], attr: int) -> int:
-        """Paint ``lines`` as a panel occupying the foot of the screen, growing upward
-        one line at a time, and return the row the first line landed on.
-
-        The view underneath is repainted first, so when the panel shrinks the space is
-        given straight back rather than leaving a stale line behind (SR-0023). The panel
-        never grows past the top of the screen; if the text will not fit, the *end* is
-        what stays visible, because in a prompt that is where the person is typing."""
-        self.draw()
-        h, w = self.scr.getmaxyx()
-        rows = max(1, min(len(lines), h))
-        top = h - rows
-        for i, line in enumerate(lines[-rows:]):
-            y = top + i
-            _hline(self.scr, y, 0, w, attr)
-            _safe_addstr(self.scr, y, 0, line, attr | curses.A_BOLD)
-        return top
+        return _foot_panel(self.scr, lines, attr, self.draw)
 
     def _confirm(self, question: str, detail: list[str] | None = None) -> bool:
         """Ask a yes/no question, optionally above lines spelling out what the action
@@ -1329,43 +1315,7 @@ class App:
         return ch in (ord("y"), ord("Y"))
 
     def _prompt(self, label: str, initial: str = "") -> str | None:
-        """Take a line of typed text at the foot of the screen. The whole of what has
-        been entered stays visible: the text wraps at the terminal's width and the
-        prompt area grows upward a line at a time to hold it, shrinking again as the
-        text does, with the cursor at the insertion point (SR-0023)."""
-        buf = list(initial)
-        attr = _attr("header") | curses.A_REVERSE
-        curses.curs_set(1)
-        try:
-            while True:
-                # Re-read the size every pass: the terminal can be resized mid-entry,
-                # and the wrap has to follow it rather than the width we opened with.
-                h, w = self.scr.getmaxyx()
-                width = max(1, w - 1)
-                caret = len(label) + len(buf)
-                lines = _wrap(label + "".join(buf), width)
-                row, col = divmod(caret, width)
-                while row >= len(lines):      # caret sitting just past the last line
-                    lines.append("")
-                top = self._panel(lines, attr)
-                shown = min(len(lines), max(1, h))
-                cursor_y = top + row - (len(lines) - shown)
-                if 0 <= cursor_y < h:
-                    self.scr.move(cursor_y, min(col, w - 1))
-                self.scr.noutrefresh()
-                curses.doupdate()
-                ch = self.scr.getch()
-                if ch in (27,):  # ESC
-                    return None
-                if ch in (ord("\n"), curses.KEY_ENTER):
-                    return "".join(buf)
-                if ch in (curses.KEY_BACKSPACE, 127, 8):
-                    if buf:
-                        buf.pop()
-                elif 32 <= ch < 127:
-                    buf.append(chr(ch))
-        finally:
-            curses.curs_set(0)
+        return _read_line(self.scr, label, initial, self.draw)
 
     def show_help(self) -> None:
         lines = [
@@ -1480,6 +1430,68 @@ def _help_footer(top: int, last: int) -> str:
     return f"q close \u00b7 j/k scroll \u00b7 {more} \u00b7 PgUp/PgDn page"
 
 
+def _foot_panel(scr, lines: list[str], attr: int, redraw) -> int:
+    """Paint ``lines`` as a panel occupying the foot of the screen, growing upward
+    one line at a time, and return the row the first line landed on.
+
+    The view underneath is repainted first (``redraw``), so when the panel
+    shrinks the space is given straight back rather than leaving a stale line
+    behind (SR-0023). The panel never grows past the top of the screen; if the
+    text will not fit, the *end* is what stays visible, because in a prompt that
+    is where the person is typing."""
+    redraw()
+    h, w = scr.getmaxyx()
+    rows = max(1, min(len(lines), h))
+    top = h - rows
+    for i, line in enumerate(lines[-rows:]):
+        y = top + i
+        _hline(scr, y, 0, w, attr)
+        _safe_addstr(scr, y, 0, line, attr | curses.A_BOLD)
+    return top
+
+
+def _read_line(scr, label: str, initial: str, redraw) -> str | None:
+    """Take a line of typed text at the foot of the screen, over the view
+    ``redraw`` paints, or ``None`` on Escape. The whole of what has been entered
+    stays visible: the text wraps at the terminal's width and the prompt area
+    grows upward a line at a time to hold it, shrinking again as the text does,
+    with the cursor at the insertion point (SR-0023). The worklist and the
+    selection screen ask with this one prompt (SR-0093)."""
+    buf = list(initial)
+    attr = _attr("header") | curses.A_REVERSE
+    curses.curs_set(1)
+    try:
+        while True:
+            # Re-read the size every pass: the terminal can be resized mid-entry,
+            # and the wrap has to follow it rather than the width we opened with.
+            h, w = scr.getmaxyx()
+            width = max(1, w - 1)
+            caret = len(label) + len(buf)
+            lines = _wrap(label + "".join(buf), width)
+            row, col = divmod(caret, width)
+            while row >= len(lines):      # caret sitting just past the last line
+                lines.append("")
+            top = _foot_panel(scr, lines, attr, redraw)
+            shown = min(len(lines), max(1, h))
+            cursor_y = top + row - (len(lines) - shown)
+            if 0 <= cursor_y < h:
+                scr.move(cursor_y, min(col, w - 1))
+            scr.noutrefresh()
+            curses.doupdate()
+            ch = scr.getch()
+            if ch in (27,):  # ESC
+                return None
+            if ch in (ord("\n"), curses.KEY_ENTER):
+                return "".join(buf)
+            if ch in (curses.KEY_BACKSPACE, 127, 8):
+                if buf:
+                    buf.pop()
+            elif 32 <= ch < 127:
+                buf.append(chr(ch))
+    finally:
+        curses.curs_set(0)
+
+
 _PICKER_TOP = 4                    # first list row, below the header and the count line
 _PICKER_CHROME = _PICKER_TOP + 1   # the rows above the list, plus the footer
 
@@ -1487,24 +1499,29 @@ _PICKER_CHROME = _PICKER_TOP + 1   # the rows above the list, plus the footer
 def _picker_status(candidate: core.Candidate) -> str:
     """What a row says about its graph beyond its name and path.
 
-    A candidate that could not be read says why, in place of the figure it has
-    none of, and stays a row like any other (SR-0051)."""
+    A candidate that could not be read says so, in place of the figure it has
+    none of, and stays a row like any other (SR-0051). Its reason is prose and
+    is shown on the line above the list while it is highlighted (SR-0092)."""
     if candidate.error:
-        return candidate.error
+        return _UNREADABLE
     if not candidate.described:
         return ""
     return f"\u2713 {candidate.ratified}/{candidate.gradable} ratified"
 
 
 # The selection screen's legend, widest first; the first that fits is drawn.
-# Moving is left out before anything else, as the arrows are the keys a reviewer
-# tries first; leaving is never left out (SR-0073 holds the worklist to the same).
+# Moving and opening are left out before anything else, as the arrows and Enter
+# are the keys a reviewer tries first; leaving is never left out (SR-0073 holds the worklist to the same).
 _PICKER_FOOTERS = (
-    " \u2191\u2193/jk move \u2502 s sort \u2502 v view \u2502 f favourite \u2502 R reload"
-    " \u2502 enter open \u2502 q leave without opening",
-    " s sort \u2502 v view \u2502 f favourite \u2502 R reload \u2502 \u23ce open"
+    " \u2191\u2193/jk move \u2502 / filter \u2502 s sort \u2502 v view \u2502 f favourite"
+    " \u2502 R reload \u2502 enter open \u2502 q leave without opening",
+    " / filter \u2502 s sort \u2502 v view \u2502 f favourite \u2502 R reload"
     " \u2502 q leave without opening",
 )
+
+# What a row shows in its figure column for a graph that cannot be read; the
+# reason itself goes on the line above the list (SR-0092).
+_UNREADABLE = "\u26a0 cannot be read"
 
 # What an empty view says, naming the key that changes it (SR-0090). The view
 # of every graph is empty only when a reload found none (SR-0068).
@@ -1514,6 +1531,36 @@ _EMPTY_VIEW = {
                   "f marks the highlighted one",
     "others": "every one of these graphs is a favourite \u2502 v shows them",
 }
+
+
+def _reason(candidate: core.Candidate, text: str) -> str:
+    """``text`` with the graph's own location taken out of it. Reasons name the
+    file they are about in full, and that path is as wide as the screen, so what
+    went wrong would be cut off after it (SR-0091, SR-0092); the row already
+    says which graph it is."""
+    return text.replace(f"{candidate.root}{os.sep}", "").replace(str(candidate.root), ".")
+
+
+def _about(candidate: core.Candidate, text: str) -> str:
+    """A reason about one graph as the screen gives it: what went wrong first,
+    then the graph's label, so a narrow screen cuts the label and not the
+    reason (SR-0091, SR-0092)."""
+    return f"{_reason(candidate, text)} \u2014 {candidate.rel}"
+
+
+def _cut(text: str, width: int) -> str:
+    """``text`` in ``width`` cells, its end replaced by an ellipsis if it is longer."""
+    if width <= 0:
+        return ""
+    return text if len(text) <= width else text[: width - 1] + "\u2026"
+
+
+def _cut_start(text: str, width: int) -> str:
+    """``text`` in ``width`` cells, its start replaced by an ellipsis if it is
+    longer: the end of a path is what names the graph (SR-0092)."""
+    if width <= 0:
+        return ""
+    return text if len(text) <= width else "\u2026" + text[len(text) - width + 1:]
 
 
 class _Picker:
@@ -1534,8 +1581,10 @@ class _Picker:
                  sort: str = core.PICKER_SORTS[0], at: Path | None = None,
                  reload=None, note: str = "", several: bool = False,
                  favourites: core.Favourites | None = None,
-                 view: str | None = None) -> None:
+                 view: str | None = None, filter: str = "") -> None:
         self.scr = stdscr
+        # Kept for the sitting by the chooser, as the view is (SR-0093).
+        self.filter = filter
         self.sort = sort
         # ``reload`` returns the candidates as they now stand on disk (SR-0068).
         self._reload = reload
@@ -1560,7 +1609,8 @@ class _Picker:
         self.top = 0
 
     def _in_view(self) -> list[core.Candidate]:
-        return core.in_view(self.found, self.view, self.favourites.roots)
+        return core.matching(core.in_view(self.found, self.view, self.favourites.roots),
+                             self.filter)
 
     def _held(self) -> Path | None:
         return self.candidates[self.pos].root if self.candidates else None
@@ -1599,6 +1649,8 @@ class _Picker:
                 self.resort()
             elif ch == ord("v"):
                 self.next_view()
+            elif ch == ord("/"):
+                self.ask_filter()
             elif ch == ord("f"):
                 self.toggle_favourite()
             elif ch == ord("R") and self._reload is not None:
@@ -1624,6 +1676,16 @@ class _Picker:
         was on where the new view lists it, and on the first row otherwise."""
         self.view = core.PICKER_VIEWS[
             (core.PICKER_VIEWS.index(self.view) + 1) % len(core.PICKER_VIEWS)]
+        self._relist(self._held(), to_first=True)
+
+    def ask_filter(self) -> None:
+        """Ask for the text the list is narrowed to (SR-0093), offering the one in
+        force for editing. Escape leaves it as it was; the highlight stays on its
+        graph where that is still listed, and goes to the first row otherwise."""
+        typed = _read_line(self.scr, "filter (name/path): ", self.filter, self.draw)
+        if typed is None:
+            return
+        self.filter = typed.strip()
         self._relist(self._held(), to_first=True)
 
     def toggle_favourite(self) -> None:
@@ -1676,14 +1738,25 @@ class _Picker:
         _safe_addstr(self.scr, 0, 0, f" tl-ratify {__version__} \u2502 choose a project",
                      _attr("header", bold=True))
         where = "the paths you gave" if self.several else "the path you gave"
-        _safe_addstr(self.scr, 2, 1,
-                     f"{len(self.found)} throughline projects lie beneath {where}. "
-                     f"\u2502 sort:{self.sort} \u2502 view:{core.VIEW_NAMES[self.view]} "
-                     f"{len(self.candidates)}/{len(self.found)}", _attr("dim"))
+        state = (f"sort:{self.sort} \u2502 view:{core.VIEW_NAMES[self.view]} "
+                 f"{len(self.candidates)}/{len(self.found)}")
+        if self.filter:
+            state += f" \u2502 filter:{self.filter}"
+        # The sentence gives way before the state does: the order, view and
+        # filter in force are what the reviewer needs named (SR-0052, SR-0090,
+        # SR-0093).
+        line = f"{len(self.found)} throughline projects lie beneath {where}. \u2502 {state}"
+        if len(line) > w - 2:
+            line = f"{len(self.found)} projects \u2502 {state}"
+        _safe_addstr(self.scr, 2, 1, line, _attr("dim"))
         # On a row of its own: a note that names a graph by its path is as long
         # as the screen is wide, and beside the count it would be cut short.
         if self.note:
             _safe_addstr(self.scr, 3, 1, self.note, _attr("warn"))
+        elif self.candidates and self.candidates[self.pos].error:
+            # The reason a highlighted graph cannot be read (SR-0092).
+            held = self.candidates[self.pos]
+            _safe_addstr(self.scr, 3, 1, _about(held, held.error), _attr("warn"))
         self._draw_list(h, w)
         _hline(self.scr, h - 1, 0, w, _attr("header"))
         legend = next((f for f in _PICKER_FOOTERS if len(f) < w), _PICKER_FOOTERS[-1])
@@ -1692,6 +1765,11 @@ class _Picker:
         curses.doupdate()
 
     def _draw_list(self, h: int, w: int) -> None:
+        if not self.candidates and self.filter:
+            _safe_addstr(self.scr, _PICKER_TOP, 3,
+                         f"nothing here matches the filter \"{self.filter}\" \u2502 / changes it",
+                         _attr("dim"))
+            return
         if not self.candidates:
             empty = _EMPTY_VIEW[self.view]
             if self.view == "all" and self.several:
@@ -1710,8 +1788,14 @@ class _Picker:
         elif self.pos >= self.top + height:
             self.top = self.pos - height + 1
 
-        name_width = max((len(c.name) for c in self.candidates), default=0)
+        # Every column fits, and the path is always shown (SR-0092). The name
+        # takes at most a third of the screen; the figure only what the widest
+        # figure needs, since an unreadable graph shows a mark, not its reason.
+        name_width = min(max((len(c.name) for c in self.candidates), default=0),
+                         max(8, w // 3))
         status_width = max((len(_picker_status(c)) for c in self.candidates), default=0)
+        # marker, star, a space, the name, two spaces, the figure, two spaces
+        path_width = w - 1 - (2 + 1 + name_width + 2 + status_width + 2) - 1
         for i in range(height):
             idx = self.top + i
             if idx >= len(self.candidates):
@@ -1725,8 +1809,10 @@ class _Picker:
             marker = "\u25b8" if selected else " "
             star = "\u2605" if c.root in self.favourites.roots else " "
             status = _picker_status(c).ljust(status_width)
+            name = _cut(c.name, name_width).ljust(name_width)
             _safe_addstr(self.scr, y, 1,
-                         f"{marker}{star} {c.name:<{name_width}}  {status}  {c.rel}", attr)
+                         f"{marker}{star} {name}  {status}  {_cut_start(c.rel, path_width)}",
+                         attr)
 
         if self.top > 0:
             _safe_addstr(self.scr, _PICKER_TOP, w - 1, "\u25b2", _attr("dim"))
@@ -1779,6 +1865,7 @@ class ProjectChooser:
         self.sort = core.PICKER_SORTS[0]
         # Settled by the first asking, then kept for the sitting (SR-0090).
         self.view: str | None = None
+        self.filter = ""
         self.last: Path | None = None
         # What the screen says when it is next shown, and only then (SR-0067).
         self.note = ""
@@ -1806,11 +1893,12 @@ class ProjectChooser:
 
         picker = _Picker(stdscr, _read(), sort=self.sort, at=self.last, reload=_reload,
                          note=self.note, several=self.several,
-                         favourites=self.favourites, view=self.view)
+                         favourites=self.favourites, view=self.view, filter=self.filter)
         self.note = ""
         chosen = picker.choose()
         self.sort = picker.sort
         self.view = picker.view
+        self.filter = picker.filter
         if chosen is not None:
             self.last = chosen.root
         return chosen
@@ -1862,7 +1950,15 @@ def work_through(candidates: list[core.Candidate], open_graph,
             if chosen is None:
                 return
             _draw_opening(stdscr, chosen)
-            session, ratifier, log = open_graph(chosen)
+            try:
+                session, ratifier, log = open_graph(chosen)
+            except core.RatifierError as refused:
+                # The list is where the reviewer chose, and the other graphs are
+                # still theirs to open, so it comes back and says why, named as
+                # its row names it (SR-0091). Nothing was opened, so nothing was
+                # written.
+                chooser.note = _about(chosen, str(refused))
+                continue
             try:
                 if not App(stdscr, session, ratifier, log, ratifier_id=ratifier_id,
                            role=role,

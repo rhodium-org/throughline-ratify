@@ -1,0 +1,58 @@
+uid: SR-0091
+type: system_requirement
+status: ratified
+title: A graph picked from the list that will not open sends the reviewer back to
+  the list, saying why
+text: Where the reviewer picks a graph from the selection screen and it cannot be
+  opened — it cannot be read, it is at an older on-disk format, a source it declares
+  cannot be resolved, or the identity the sitting signs under cannot be settled for
+  it — tl-ratify shall write nothing to it, shall show the selection screen again
+  with the highlight on that graph, and the screen shall name the graph by its label
+  and give the reason, starting with its first line, until the next key is pressed.
+  The program shall not end. A graph opened directly, not picked from the list, shall
+  be refused as before, on standard error with a non-zero status.
+rationale: 'Asked for by the operator on 1 November 2026, after picking a Caseflow
+  graph at format 3 ended the program with the migrate message and took the list
+  of 427 graphs with it. The list is where the reviewer chose; a refusal that discards
+  it makes them start the program again and find their place, for a graph they may
+  simply skip. SR-0067 already brings the list back for a graph that vanishes under
+  the open cockpit; this does the same for one that never opened. Rejected, opening
+  an older graph read-only (SR-0081): SR-0081 keeps the cockpit refusing older graphs,
+  and a read-only worklist the reviewer cannot sign in is not what they picked it
+  for. The reason still names tl migrate, which is what they need. Test: pick a graph
+  at an older format and expect the list again, the highlight on that graph, the
+  reason on the screen and nothing written; pick one that declares roles without
+  --as and expect the same; pick a sound one next and expect it to open. Who pays:
+  nobody; a reviewer who wanted the program to end presses q.'
+normative: true
+links:
+- target: UR-0013
+  type: derives_from
+- target: SR-0048
+  type: relates
+- target: SR-0067
+  type: relates
+- target: SR-0081
+  type: relates
+- target: SR-0051
+  type: relates
+attrs:
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T18:54:35Z'
+  fingerprint: sha256:db777da3ab8161ec70961d95398dceb9d37d698a107425220d96eac181f0d06b
+  content:
+    type: system_requirement
+    text: Where the reviewer picks a graph from the selection screen and it cannot
+      be opened — it cannot be read, it is at an older on-disk format, a source it
+      declares cannot be resolved, or the identity the sitting signs under cannot
+      be settled for it — tl-ratify shall write nothing to it, shall show the selection
+      screen again with the highlight on that graph, and the screen shall name the
+      graph by its label and give the reason, starting with its first line, until
+      the next key is pressed. The program shall not end. A graph opened directly,
+      not picked from the list, shall be refused as before, on standard error with
+      a non-zero status.
+    normative: true
+    derived: false
+    attrs: {}

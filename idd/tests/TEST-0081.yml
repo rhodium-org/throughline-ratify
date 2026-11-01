@@ -1,0 +1,31 @@
+uid: TEST-0081
+type: test
+status: ratified
+title: 'Tests of SR-0092: Every row on the selection screen shows its name, its figure
+  and its path within the screen''s width'
+text: The shipped pytest suite checks SR-0092 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0092
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_picker_fit_and_filter.py::test_a_long_name_is_cut_to_a_third_of_the_screen
+    tests/test_picker_fit_and_filter.py::test_an_unreadable_graph_shows_a_mark_not_its_reason
+    tests/test_picker_fit_and_filter.py::test_the_reason_is_given_above_the_list_while_its_graph_is_highlighted
+    tests/test_picker_fit_and_filter.py::test_a_note_takes_the_line_before_the_reason
+    tests/test_picker_fit_and_filter.py::test_a_long_path_keeps_its_end
+    tests/test_picker_fit_and_filter.py::test_every_row_fits_the_width
+    tests/test_picker_fit_and_filter.py::test_the_reason_leaves_out_the_graphs_own_path
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T18:54:45Z'
+  fingerprint: sha256:ac61c22030fdb805c884eb515f419e12f1e7512af507b47ecd5960c62a493ae5
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0092 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

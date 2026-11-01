@@ -1,0 +1,55 @@
+uid: SR-0093
+type: system_requirement
+status: ratified
+title: / filters the selection screen by name or path
+text: On the selection screen, / shall ask for a filter at the foot of the screen
+  in the way the worklist asks for its own, offering the filter in force for editing.
+  The screen shall then list only the graphs in the view in force whose name or path
+  contains the text typed, ignoring case. Escape shall leave the filter as it was,
+  and an empty filter shall show every graph in the view. The filter in force shall
+  be named on the screen. The highlight shall stay on the graph it was on where that
+  graph is still listed, and go to the first row otherwise. Where nothing matches,
+  the screen shall say so and name the key that changes the filter, and Enter shall
+  open nothing. The filter shall be kept for the sitting, as the view is (SR-0090),
+  and not remembered between runs. The footer shall name the key.
+rationale: 'Asked for by the operator on 1 November 2026: a list of 427 graphs, many
+  named alike, is hard to choose from, and the worklist already filters with /. The
+  same key and the same prompt mean one thing to learn. Name and path both, because
+  many graphs share a name (shape, library, explore) and differ only by path, and
+  a repository''s name is often how the reviewer thinks of a graph. Case is ignored
+  because nobody remembers it. The filter applies within the view because favourites
+  and filter answer different questions and combine. Test: / then caseflow lists
+  only the Caseflow graphs and names the filter; a path fragment finds graphs whose
+  name does not contain it; Escape keeps the filter; an empty filter shows the view
+  again; a filter matching nothing says so and Enter opens nothing; the filter is
+  still in force when the list comes back after a graph is closed. Who pays: nobody.'
+normative: true
+links:
+- target: UR-0014
+  type: derives_from
+- target: SR-0090
+  type: relates
+- target: SR-0064
+  type: relates
+attrs:
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T18:54:44Z'
+  fingerprint: sha256:b345bac8a969c9102760fc4889fcba85f578f97df48d1d8fb36d487f4d487a50
+  content:
+    type: system_requirement
+    text: On the selection screen, / shall ask for a filter at the foot of the screen
+      in the way the worklist asks for its own, offering the filter in force for
+      editing. The screen shall then list only the graphs in the view in force whose
+      name or path contains the text typed, ignoring case. Escape shall leave the
+      filter as it was, and an empty filter shall show every graph in the view. The
+      filter in force shall be named on the screen. The highlight shall stay on the
+      graph it was on where that graph is still listed, and go to the first row otherwise.
+      Where nothing matches, the screen shall say so and name the key that changes
+      the filter, and Enter shall open nothing. The filter shall be kept for the
+      sitting, as the view is (SR-0090), and not remembered between runs. The footer
+      shall name the key.
+    normative: true
+    derived: false
+    attrs: {}

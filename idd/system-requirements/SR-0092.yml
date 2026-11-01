@@ -1,0 +1,55 @@
+uid: SR-0092
+type: system_requirement
+status: ratified
+title: Every row on the selection screen shows its name, its figure and its path
+  within the screen's width
+text: Each row of the selection screen shall fit the screen's width and shall show,
+  in this order, the graph's name, its figure or the fact that it cannot be read,
+  and its path. The name column shall be no wider than a third of the screen, a longer
+  name being cut with an ellipsis. The figure column shall be no wider than the widest
+  figure; a graph that cannot be read shall show a short mark saying so in that column,
+  never its reason. While the highlight is on such a graph and no other note is shown,
+  the screen shall give its reason on the line above the list. The path shall take
+  the rest of the row, cut with an ellipsis at the start where it does not fit, so
+  that the part that tells graphs apart is the part that shows.
+rationale: 'Seen by the operator on 1 November 2026 over 427 graphs: the widest name
+  (132 characters) and the widest reason a graph could not be read (402) set the
+  columns, so on every row the path fell off the right of the screen. Rows then read
+  shape, library, explore, over and over, with nothing to tell them apart. A column
+  sized to its widest entry is sound for a handful of graphs and wrong at this scale.
+  The reason moves to the line above the list because it is prose: it fits nowhere
+  in a column, and it is wanted only for the graph being looked at. A path is cut
+  at its start because its end names the graph and its start names the tree the reviewer
+  already knows. Test: a name longer than a third of the screen is cut with an ellipsis;
+  an unreadable graph''s row says it cannot be read and the line above the list gives
+  the reason when it is highlighted; at 80 columns a row''s path is shown, its end
+  intact. Who pays: a reviewer with one very long name sees it cut.'
+normative: true
+links:
+- target: UR-0014
+  type: derives_from
+- target: SR-0050
+  type: relates
+- target: SR-0051
+  type: relates
+attrs:
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-01T18:54:41Z'
+  fingerprint: sha256:8ffadcb67f24ec23acb959f0e0fca2e892a98a4f24404f64830cafc4b28186bf
+  content:
+    type: system_requirement
+    text: Each row of the selection screen shall fit the screen's width and shall
+      show, in this order, the graph's name, its figure or the fact that it cannot
+      be read, and its path. The name column shall be no wider than a third of the
+      screen, a longer name being cut with an ellipsis. The figure column shall be
+      no wider than the widest figure; a graph that cannot be read shall show a short
+      mark saying so in that column, never its reason. While the highlight is on
+      such a graph and no other note is shown, the screen shall give its reason on
+      the line above the list. The path shall take the rest of the row, cut with
+      an ellipsis at the start where it does not fit, so that the part that tells
+      graphs apart is the part that shows.
+    normative: true
+    derived: false
+    attrs: {}
