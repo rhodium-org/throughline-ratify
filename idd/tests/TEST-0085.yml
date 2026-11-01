@@ -1,0 +1,18 @@
+uid: TEST-0085
+type: test
+status: proposed
+title: 'Tests of SR-0096: r settles a signed item only where one permitted move reaches
+  ratified, and otherwise names the first move'
+text: The shipped pytest suite checks SR-0096 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0096
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_settle_one_move.py::test_one_permitted_move_still_settles
+    tests/test_settle_one_move.py::test_two_moves_are_refused_and_nothing_is_written
+    tests/test_settle_one_move.py::test_the_refusal_names_the_first_move_and_the_command
+    tests/test_settle_one_move.py::test_settle_item_refuses_a_route_of_several_moves
+    tests/test_settle_one_move.py::test_the_row_still_says_signed_but_not_settled
+  origin: ai

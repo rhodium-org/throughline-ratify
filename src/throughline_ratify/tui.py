@@ -681,6 +681,11 @@ class App:
                 f"transitions offer no route to '{self.session.ratified_status}' "
                 f"that avoids suspect", "warn")
             return
+        in_steps = core.settle_in_steps(self.session, item, item.settle_path)
+        if in_steps is not None:
+            # Refused before asking: nothing is moved (SR-0096).
+            self.flash = _Flash(in_steps, "warn")
+            return
         route = " \u2192 ".join(item.settle_path)
         who = item.ratified_by or "a human"
         if not self._confirm(f"{item.uid} is signed by {who} but at '{item.status}'. "
