@@ -46,6 +46,7 @@ From anywhere inside a throughline project (it walks up to find `throughline.tom
 ```bash
 tl-ratify                    # open the cockpit
 tl-ratify -C path/to/project # point at a specific project
+tl-ratify -C ../apps -C ../standards  # choose among the graphs beneath several paths
 tl-ratify --by alice         # record a specific ratifier on sign-off
 tl-ratify --as senior        # sign in a role the graph declares under [ratify.roles]
 tl-ratify --list             # print the worklist (no TUI) — good for CI/pipelines
@@ -136,6 +137,10 @@ Point `tl-ratify` at a tree that holds several graphs (`tl-ratify -C .` at the r
 In a graph opened from that list, `q` goes back to the list instead of ending the program, and the footer says `q:projects`. The list comes back with the highlight on the graph you just closed and its figure read again, so the next graph is one key away. The full-screen view stays up throughout: while a graph is being opened it says which one, and your shell is not shown until you leave. `q` on the list, or `Ctrl-C` anywhere, ends the program. With `--summary`, a sitting that took decisions in more than one graph gets one account for each, in the order you opened them, all in the one file.
 
 Without a terminal to ask on (`--list`, or output piped), an ambiguous path is refused, with the `-C` command that selects each graph.
+
+Give `-C` more than once to choose among the graphs beneath every path in one sitting: each path is resolved as a single one would be, the graphs are listed together, each once, and labelled from the directory the paths share. `R` searches beneath every path again. A path that reaches no graph is refused by name.
+
+`f` marks the highlighted graph as a favourite (a `★` on its row), or unmarks it. Favourites are kept between runs in a file of your own, `tl-ratify/favourites` under `$XDG_STATE_HOME` (`~/.local/state` by default; `%LOCALAPPDATA%` on Windows), one graph root per line; nothing is written into any project. `v` switches the list between your favourites, every graph found and the graphs not yet favourites. The list opens on your favourites when any of the graphs found is one, and the header names the view and how many of the graphs it shows.
 
 ### Deletions
 

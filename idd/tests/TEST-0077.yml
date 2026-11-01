@@ -1,0 +1,27 @@
+uid: TEST-0077
+type: test
+status: proposed
+title: 'Tests of SR-0088: -C may be given more than once, and the graphs found beneath
+  every path are offered together'
+text: The shipped pytest suite checks SR-0088 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0088
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_several_paths.py::test_the_graphs_beneath_every_path_are_offered_together
+    tests/test_several_paths.py::test_each_graph_is_labelled_from_the_directory_the_paths_share
+    tests/test_several_paths.py::test_a_graph_two_paths_reach_is_offered_once
+    tests/test_several_paths.py::test_exactly_one_graph_between_the_paths_is_opened
+    tests/test_several_paths.py::test_a_path_that_is_a_graph_contributes_itself_alone
+    tests/test_several_paths.py::test_a_path_with_nothing_beneath_still_walks_upward
+    tests/test_several_paths.py::test_a_path_that_reaches_no_graph_is_refused_by_name
+    tests/test_several_paths.py::test_the_cli_refuses_a_path_that_reaches_nothing
+    tests/test_several_paths.py::test_list_over_several_paths_refuses_with_commands_that_work
+    tests/test_several_paths.py::test_the_cli_opens_the_graph_picked_from_several_paths
+    tests/test_several_paths.py::test_a_reload_searches_beneath_every_path
+    tests/test_several_paths.py::test_a_reload_after_one_path_has_gone_keeps_the_others_labels
+    tests/test_several_paths.py::test_the_screen_says_the_graphs_lie_beneath_the_paths_given
+    tests/test_several_paths.py::test_one_path_reads_as_it_always_did
+  origin: ai

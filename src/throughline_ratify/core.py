@@ -25,6 +25,7 @@ ratified through this cockpit signed but unbound. One implementation, not two.
 """
 from __future__ import annotations
 
+import os
 import subprocess
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -404,12 +405,17 @@ class AmbiguousProjectError(RatifierError):
     reviewer's to say (SR-0045). Carries the candidates so the caller can offer
     them — interactively (SR-0048) or by refusing with them named (SR-0047)."""
 
-    def __init__(self, base: Path, candidates: list[Candidate]) -> None:
+    def __init__(self, base: Path, candidates: list[Candidate],
+                 several: bool = False) -> None:
+        where = "the paths given" if several else str(base)
         super().__init__(
-            f"{len(candidates)} throughline projects found beneath {base} — "
+            f"{len(candidates)} throughline projects found beneath {where} — "
             "which one to ratify against is yours to choose")
+        # Where several paths were given, base is the directory they share and
+        # each candidate's label is relative to it (SR-0088).
         self.base = base
         self.candidates = candidates
+        self.several = several
 
 
 def _project_name_of(root: Path) -> str:
@@ -483,19 +489,36 @@ def _is_excluded(d: Path) -> bool:
     )
 
 
-def discover_projects(path: str | Path) -> list[Candidate]:
-    """Every graph at or beneath ``path``, in the order they should be offered.
+def discover_projects(path: str | Path, *more: str | Path) -> list[Candidate]:
+    """Every graph at or beneath ``path`` — and beneath each of ``more``, where
+    several paths were given (SR-0088) — in the order they should be offered.
 
     Breadth-first to ``_MAX_SEARCH_DEPTH``, pruning what SR-0046 excludes as the
     walk descends rather than filtering at the end, so an ignored directory costs
     nothing to skip. A graph an enclosing candidate declares as a source is
     dropped: composition gives a wider view, never a wider authority, so offering
     one as a peer would present a graph on which every decision is then refused.
+    Over several paths that holds across the whole list, and a graph two of them
+    reach is offered once.
     """
-    base = Path(path).resolve()
-    if not base.is_dir():
-        base = base.parent
+    bases = [base_of(p) for p in (path, *more)]
+    roots: list[Path] = []
+    for base in bases:
+        roots.extend(r for r in _graphs_beneath(base) if r not in roots)
+    return _candidates(_drop_borrowed(roots), shared_directory(bases))
 
+
+def base_of(path: str | Path) -> Path:
+    """The directory a given path stands for: itself, or the one holding it.
+    Taken once, when the path is given: a directory that has since gone stands
+    for nothing, never for its parent (SR-0068)."""
+    base = Path(path).resolve()
+    return base if base.is_dir() else base.parent
+
+
+def _graphs_beneath(base: Path) -> list[Path]:
+    """The roots of every graph at or beneath ``base``, before SR-0046's rule on
+    borrowed graphs is applied."""
     roots: list[Path] = []
     if (base / CONFIG_NAME).exists():
         roots.append(base)
@@ -520,25 +543,48 @@ def discover_projects(path: str | Path) -> list[Candidate]:
         children = [c for c in children if c.resolve() not in ignored]
         roots.extend(c for c in children if (c / CONFIG_NAME).exists())
         level = children
+    return roots
 
+
+def _drop_borrowed(roots: list[Path]) -> list[Path]:
+    """``roots`` less every graph another of them declares as a source and
+    encloses (SR-0046)."""
     borrowed: set[Path] = set()
     for root in roots:
         borrowed |= {
             src for src in _declared_path_sources(root)
             if src != root and root in src.parents
         }
-
-    return [
-        Candidate(root=r, name=_project_name_of(r), rel=_relative_label(r, base))
-        for r in roots if r not in borrowed
-    ]
+    return [r for r in roots if r not in borrowed]
 
 
-def _relative_label(root: Path, base: Path) -> str:
+def _candidates(roots: list[Path], base: Path | None) -> list[Candidate]:
+    return [Candidate(root=r, name=_project_name_of(r), rel=_relative_label(r, base))
+            for r in roots]
+
+
+def labelled_from(candidates: list[Candidate], base: Path | None) -> list[Candidate]:
+    """``candidates`` with each label written relative to ``base``."""
+    return [replace(c, rel=_relative_label(c.root, base)) for c in candidates]
+
+
+def shared_directory(bases: list[Path]) -> Path | None:
+    """The deepest directory every one of ``bases`` lies within, which candidates
+    are labelled from (SR-0088). One path is its own. Paths with nothing in
+    common — two drives on Windows — have none, and are labelled in full."""
+    try:
+        return Path(os.path.commonpath([str(b) for b in bases]))
+    except ValueError:
+        return None
+
+
+def _relative_label(root: Path, base: Path | None) -> str:
     """How a candidate's location is written for the reviewer — relative to what
     they typed, so it reads as the answer to the path they gave."""
     if root == base:
         return "."
+    if base is None:
+        return str(root)
     try:
         return str(root.relative_to(base))
     except ValueError:  # pragma: no cover - roots always sit under base
@@ -661,17 +707,121 @@ def sort_candidates(candidates: list[Candidate], sort: str) -> list[Candidate]:
     return by_path
 
 
-def resolve_root(path: str | Path) -> Path:
-    """Which graph ``path`` means (SR-0045).
+# The views the selection screen offers, in the order the view key cycles them
+# (SR-0090). Fixed in code, as the orders are (SR-0052).
+PICKER_VIEWS = ("all", "favourites", "others")
+VIEW_NAMES = {"all": "all", "favourites": "favourites", "others": "not yet favourites"}
+
+
+def in_view(candidates: list[Candidate], view: str,
+            favourites: set[Path]) -> list[Candidate]:
+    """Those of ``candidates`` the view ``view`` lists, in the order given."""
+    if view == "favourites":
+        return [c for c in candidates if c.root in favourites]
+    if view == "others":
+        return [c for c in candidates if c.root not in favourites]
+    return list(candidates)
+
+
+def favourites_path() -> Path:
+    """Where the reviewer's favourites are kept (SR-0089): their own state
+    directory, outside every project. The XDG convention elsewhere, which also
+    says to ignore a relative value; the local application data folder on
+    Windows."""
+    if os.name == "nt":
+        home = os.environ.get("LOCALAPPDATA") or ""
+        state = Path(home) if home else Path.home() / "AppData" / "Local"
+    else:
+        home = os.environ.get("XDG_STATE_HOME") or ""
+        state = Path(home) if os.path.isabs(home) else Path.home() / ".local" / "state"
+    return state / "tl-ratify" / "favourites"
+
+
+class FavouritesError(RatifierError):
+    """The favourites file could not be read or written (SR-0089)."""
+
+
+class Favourites:
+    """The graphs the reviewer has marked as favourites (SR-0089).
+
+    The reviewer's own, not the assistant's and not any project's: SR-0026
+    admits them because nothing read from here changes how a graph is read,
+    shown or signed — only which graphs a view lists. One absolute graph root
+    per line, so the file can be read and edited with anything.
+    """
+
+    def __init__(self, path: Path | None = None) -> None:
+        self.path = path if path is not None else favourites_path()
+        self.roots: set[Path] = set()
+
+    def load(self) -> None:
+        """Read the file as it now stands. An absent file is no favourites; one
+        that cannot be read raises :class:`FavouritesError` and keeps what was
+        held."""
+        self.roots = set(map(Path, self._lines()))
+
+    def toggle(self, root: Path) -> bool:
+        """Mark ``root`` a favourite, or unmark it where it is one, returning
+        whether it now is. The file is read again first and only that one line
+        changes, so a sitting never undoes another's marks; it is replaced whole,
+        so it is never left half-written. Raises :class:`FavouritesError`, with
+        nothing changed, where the file cannot be read or written."""
+        lines = self._lines()
+        entry = str(root)
+        marked = entry not in lines
+        lines = [*lines, entry] if marked else [line for line in lines if line != entry]
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            spare = self.path.with_name(self.path.name + ".new")
+            spare.write_text("".join(f"{line}\n" for line in lines), encoding="utf-8")
+            os.replace(spare, self.path)
+        except OSError as exc:
+            raise FavouritesError(
+                f"could not save favourites to {self.path}: {exc.strerror or exc}") from exc
+        self.roots = set(map(Path, lines))
+        return marked
+
+    def _lines(self) -> list[str]:
+        try:
+            text = self.path.read_text(encoding="utf-8")
+        except FileNotFoundError:
+            return []
+        except (OSError, UnicodeDecodeError) as exc:
+            raise FavouritesError(
+                f"could not read favourites from {self.path}: "
+                f"{getattr(exc, 'strerror', None) or exc}") from exc
+        return [line.strip() for line in text.splitlines() if line.strip()]
+
+
+def resolve_root(path: str | Path, *more: str | Path) -> Path:
+    """Which graph ``path`` means (SR-0045) — or, where several paths were given,
+    which graph they mean between them (SR-0088).
 
     Pointing straight at a graph settles it, so a chosen candidate reopens
     without being asked again and a project holding a nested graph is not turned
     into a question by it. Otherwise the search runs beneath the path, and only
     an empty result falls back to the upward walk that lets the tool run from
-    anywhere inside a project.
+    anywhere inside a project. Each of several paths is resolved by that same
+    rule, and the graphs they reach are asked about together.
     """
+    paths = (path, *more)
+    bases = [base_of(_start_of(p)) for p in paths]
+    roots: list[Path] = []
+    for given, base in zip(paths, bases):
+        roots.extend(r for r in _graphs_reached(given, base) if r not in roots)
+    if len(paths) > 1:
+        # A graph in one tree may be a source declared by a graph in another.
+        roots = _drop_borrowed(roots)
+    if len(roots) == 1:
+        return roots[0]
+    shared = shared_directory(bases)
+    raise AmbiguousProjectError(shared if shared is not None else bases[0],
+                                _candidates(roots, shared), several=len(paths) > 1)
+
+
+def _start_of(path: str | Path) -> Path:
     try:
-        start = Path(path).resolve()
+        return Path(path).resolve()
     except OSError as exc:
         # A relative path is resolved against the directory the program was
         # started in. Where that directory has since been removed there is
@@ -681,22 +831,23 @@ def resolve_root(path: str | Path) -> Path:
             f"cannot resolve the path {str(path)!r}: the directory tl-ratify was "
             "started in no longer exists. Change to a directory that exists, "
             "or give an absolute path with -C") from exc
-    base = start if start.is_dir() else start.parent
+
+
+def _graphs_reached(given: str | Path, base: Path) -> list[Path]:
+    """The graphs one given path contributes (SR-0045): itself where it is a
+    graph, those beneath it otherwise, and the nearest enclosing one where none
+    lies beneath. A path that reaches none is refused by its name (SR-0088)."""
     if (base / CONFIG_NAME).exists():
-        return base
-
-    candidates = discover_projects(base)
-    if len(candidates) == 1:
-        return candidates[0].root
-    if len(candidates) > 1:
-        raise AmbiguousProjectError(base, candidates)
-
+        return [base]
+    beneath = _drop_borrowed(_graphs_beneath(base))
+    if beneath:
+        return beneath
     root = _find_root(base)
     if root is None:
         raise RatifierError(
-            f"no throughline.toml at, beneath or above {start} — "
+            f"no throughline.toml at, beneath or above {_start_of(given)} — "
             "not inside a throughline project")
-    return root
+    return [root]
 
 
 def disk_state(session: Session) -> tuple:
@@ -744,7 +895,8 @@ def changed_on_disk(session: Session) -> bool:
     return disk_state(session) != session.seen
 
 
-def open_session(path: str | Path, *, read_older: bool = False) -> Session:
+def open_session(path: str | Path, *more: str | Path,
+                 read_older: bool = False) -> Session:
     """Open the throughline project ``path`` names, composing its sources when it
     declares any. Raises :class:`AmbiguousProjectError` when the path encloses
     more than one graph and the choice is the reviewer's to make.
@@ -752,7 +904,7 @@ def open_session(path: str | Path, *, read_older: bool = False) -> Session:
     A graph at an older on-disk format is refused unless ``read_older``, which
     reads it with the Tool's tolerant reader into a session every write through
     is refused (SR-0081). A graph at the Tool's own format opens as always."""
-    return open_root(resolve_root(path), read_older=read_older)
+    return open_root(resolve_root(path, *more), read_older=read_older)
 
 
 def open_root(root: Path, *, read_older: bool = False) -> Session:

@@ -163,6 +163,6 @@ def test_the_role_reaches_the_cockpit_opened_from_a_list(multi_project, monkeypa
     handed = {}
     monkeypatch.setattr(tui, "work_through",
                         lambda candidates, open_graph, ratifier_id=None, search=None,
-                        role=None: handed.update(role=role))
+                        role=None, **k: handed.update(role=role))
     assert cli.main(["-C", str(multi_project), "--by", "Ada", "--as", "senior"]) == 0
     assert handed == {"role": "senior"}

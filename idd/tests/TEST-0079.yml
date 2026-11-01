@@ -1,0 +1,27 @@
+uid: TEST-0079
+type: test
+status: proposed
+title: 'Tests of SR-0090: v switches the selection screen between favourites, every
+  graph and those not yet favourites'
+text: The shipped pytest suite checks SR-0090 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0090
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_picker_views.py::test_with_no_favourites_the_screen_opens_on_every_graph
+    tests/test_picker_views.py::test_with_a_favourite_the_screen_opens_on_the_favourites
+    tests/test_picker_views.py::test_v_cycles_favourites_every_graph_and_the_rest
+    tests/test_picker_views.py::test_the_view_in_force_is_named
+    tests/test_picker_views.py::test_changing_view_keeps_the_highlight_on_its_graph
+    tests/test_picker_views.py::test_changing_view_puts_the_highlight_on_the_first_row_otherwise
+    tests/test_picker_views.py::test_unmarking_in_the_favourites_view_takes_the_graph_out
+    tests/test_picker_views.py::test_marking_in_the_view_of_the_rest_takes_the_graph_out
+    tests/test_picker_views.py::test_an_empty_view_says_so_and_opens_nothing
+    tests/test_picker_views.py::test_unmarking_the_last_favourite_leaves_an_empty_view_that_names_v
+    tests/test_picker_views.py::test_the_order_in_force_applies_within_a_view
+    tests/test_picker_views.py::test_the_footer_names_f_and_v_at_eighty_columns
+    tests/test_picker_views.py::test_the_view_is_kept_for_the_sitting
+    tests/test_picker_views.py::test_the_view_is_not_remembered_between_runs
+  origin: ai

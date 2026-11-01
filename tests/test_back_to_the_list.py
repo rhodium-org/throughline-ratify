@@ -80,7 +80,7 @@ def sitting(multi_project, monkeypatch):
         leaving = list(leaves)
 
         class Scripted:
-            def __init__(self, candidates, search=None):
+            def __init__(self, candidates, search=None, **kwargs):
                 self.picks = [candidates[i] for i in picks]
 
             def ask(self, stdscr):
@@ -346,7 +346,7 @@ def test_the_ratifier_offered_is_asked_of_each_graph(multi_project, monkeypatch)
     offered = []
 
     class Scripted:
-        def __init__(self, candidates, search=None):
+        def __init__(self, candidates, search=None, **kwargs):
             self.picks = list(candidates)
 
         def ask(self, stdscr):
@@ -588,7 +588,7 @@ def test_the_program_hands_the_list_the_search_beneath_the_path_given(
     found = []
     monkeypatch.setattr(
         tui, "work_through",
-        lambda candidates, open_graph, ratifier_id=None, search=None, role=None:
+        lambda candidates, open_graph, ratifier_id=None, search=None, role=None, **k:
         found.extend(search()))
     assert cli.main(["-C", str(multi_project), "--by", "Ada Lovelace"]) == 0
     assert [c.name for c in found] == ["Alpha Graph", "Beta Graph"]

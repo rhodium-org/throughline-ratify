@@ -35,7 +35,11 @@ def build_parser() -> argparse.ArgumentParser:
         description="A full-screen assistant for ratifying throughline items (compose-aware).",
     )
     p.add_argument("--version", action="version", version=_version_string())
-    p.add_argument("-C", "--path", default=".", help="project root or a path within it (default: .)")
+    # Repeatable (SR-0088): the graphs beneath every path given are offered
+    # together. None rather than a default list, which append would extend.
+    p.add_argument("-C", "--path", action="append", default=None,
+                   help="project root or a path within it (default: .); give it "
+                        "more than once to choose among the graphs beneath every path")
     # The described default is throughline's, not a sentence maintained here (SR-0027).
     # This help string is the third place the one concept is written down, after this
     # tool's code and throughline's; naming the offer rather than restating its source
@@ -114,7 +118,11 @@ def _refuse_ambiguous(exc: core.AmbiguousProjectError) -> None:
     print(f"tl-ratify: {exc}", file=sys.stderr)
     width = max(len(c.name) for c in exc.candidates)
     for c in exc.candidates:
-        print(f"  {c.name:<{width}}  {c.rel:<20}  tl-ratify -C {c.rel}", file=sys.stderr)
+        # Over several paths a label is relative to the directory they share,
+        # which is not where the command is run from, so the command names the
+        # graph in full (SR-0088).
+        target = c.root if exc.several else c.rel
+        print(f"  {c.name:<{width}}  {c.rel:<20}  tl-ratify -C {target}", file=sys.stderr)
 
 
 def _force_utf8_io() -> None:
@@ -146,10 +154,11 @@ def main(argv: list[str] | None = None) -> int:
               "decisions, so there is nothing to summarise", file=sys.stderr)
         return 2
 
+    paths = args.path or ["."]
     interactive = not args.list and sys.stdout.isatty()
     candidates = None
     try:
-        session = core.open_session(args.path)
+        session = core.open_session(*paths)
     except core.AmbiguousProjectError as exc:
         # Which graph to open is the reviewer's to say (SR-0045). Where they cannot
         # be asked, refusing is the only honest answer — every rule for picking one
@@ -158,7 +167,7 @@ def main(argv: list[str] | None = None) -> int:
         if not interactive:
             _refuse_ambiguous(exc)
             return 2
-        session, candidates, base = None, exc.candidates, exc.base
+        session, candidates = None, exc.candidates
     except core.RatifierError as exc:
         print(f"tl-ratify: {exc}", file=sys.stderr)
         return 2
@@ -199,7 +208,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"tl-ratify: {err}", file=sys.stderr)
             rc = 2
     else:
-        rc = _work_through(tui, candidates, sitting, base)
+        rc = _work_through(tui, candidates, sitting, paths)
 
     # Rendered only now, with curses closed, so the output is redirectable and
     # pasteable rather than merely readable inside the full-screen view.
@@ -207,24 +216,37 @@ def main(argv: list[str] | None = None) -> int:
     return rc
 
 
-def _search_beneath(base: Path) -> list[core.Candidate]:
-    """The graphs beneath ``base`` as they now stand, for a reload of the list
-    (SR-0068). A path that is gone holds none: ``discover_projects`` would search
-    its parent instead, and offer graphs the reviewer never pointed at."""
-    return core.discover_projects(base) if base.is_dir() else []
+def _search_beneath(*bases: Path) -> list[core.Candidate]:
+    """The graphs beneath every one of ``bases`` as they now stand, for a reload
+    of the list (SR-0068, SR-0088). A path that is gone holds none:
+    ``discover_projects`` would search its parent instead, and offer graphs the
+    reviewer never pointed at."""
+    present = [b for b in bases if b.is_dir()]
+    if not present:
+        return []
+    found = core.discover_projects(*present)
+    if len(present) < len(bases):
+        # Labelled from the directory all the paths given share, as the list
+        # was before one of them went, so the rows that remain do not move.
+        found = core.labelled_from(found, core.shared_directory(bases))
+    return found
 
 
 def _work_through(tui, candidates: list[core.Candidate], sitting: "_Sitting",
-                  base: Path) -> int:
+                  paths: list[str]) -> int:
     """Let the reviewer open one graph after another from the list (SR-0063),
     settling for each the identity it is signed under before it is shown."""
+    # Taken now, against the directory the program was started in, so a
+    # reload searches the same places whatever has happened since.
+    bases = [core.base_of(p) for p in paths]
     def _open(candidate: core.Candidate):
         session = core.open_root(candidate.root)
         return (session, *sitting.enter(session))
 
     try:
         tui.work_through(candidates, _open, ratifier_id=sitting.ratifier_id,
-                         search=lambda: _search_beneath(base), role=sitting.role)
+                         search=lambda: _search_beneath(*bases), role=sitting.role,
+                         several=len(bases) > 1)
     except core.RatifierError as err:
         # Raised through the full-screen view, which has restored the terminal
         # by now, so the reason is printed where it stays readable (SR-0048).
