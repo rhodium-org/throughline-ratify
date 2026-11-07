@@ -109,25 +109,27 @@ satisfies    = { from = ["system_requirement"], to = ["system_requirement", "use
 verifies     = { from = ["test"], to = ["system_requirement", "user_requirement"] }
 
 [status]
-values = ["proposed", "draft", "approved", "ratified", "implemented",
-          "verified", "suspect", "rejected", "deleted"]
+# Retired by `tl migrate` (SR-0313): draft, approved stood between proposal and
+# signature. Every item is born proposed and counts only once a person signs it
+# (UR-0046).
+values = ["proposed", "ratified", "implemented", "verified", "suspect",
+          "rejected", "deleted"]
 
 # 'proposed' and 'draft' reach 'suspect' because that is where the least settled
 # items sit: without the route, withdrawing their footing would leave them carrying
 # no record of it. These two are judged because local items actually hold them, not
 # merely because the status vocabulary names them (tl:SR-0177).
 [transitions]
-proposed    = ["draft", "approved", "ratified", "suspect", "rejected", "deleted"]
-draft       = ["approved", "ratified", "suspect", "rejected", "deleted"]
-approved    = ["ratified", "implemented", "suspect", "rejected", "deleted"]
+proposed = ["ratified", "suspect", "rejected", "deleted"]
 ratified    = ["implemented", "suspect", "rejected", "deleted"]
 implemented = ["verified", "suspect", "rejected", "deleted"]
 verified    = ["implemented", "suspect", "deleted"]
-suspect     = ["approved", "ratified", "implemented", "verified", "rejected", "deleted"]
-rejected    = ["draft", "deleted"]
+suspect = ["proposed", "ratified", "implemented", "verified", "rejected",
+           "deleted"]
+rejected = ["proposed", "deleted"]
 
 [status.roles]
-initial = "draft"
+initial = "proposed"
 proposed = "proposed"
 ratified = "ratified"
 invalidated = "rejected"

@@ -20,10 +20,7 @@ attrs:
     tests/test_core.py::test_a_stale_item_counts_as_outstanding_not_as_ratified
     tests/test_core.py::test_a_stale_item_that_also_overshot_is_signed_where_it_stands
     tests/test_core.py::test_a_stale_signature_returns_the_item_to_the_worklist
-    tests/test_core.py::test_an_unbound_signature_can_be_bound_without_changing_anything_else
     tests/test_core.py::test_re_signing_a_stale_item_rebinds_it_and_clears_the_concern
-    tests/test_core.py::test_re_signing_a_stale_overshoot_restores_its_status
-    tests/test_core.py::test_reratifying_binds_the_signature_too_and_the_walk_does_not_stale_it
     tests/test_core.py::test_stale_sorts_below_the_unsigned_backlog_but_above_what_must_be_fixed
     tests/test_core.py::test_staleness_is_judged_by_throughlines_own_fingerprint
     tests/test_core.py::test_the_stale_rows_are_exactly_what_throughline_calls_ratified_stale

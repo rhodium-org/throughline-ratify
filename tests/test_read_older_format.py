@@ -35,10 +35,11 @@ def test_an_older_graph_opens_read_only_with_read_older_and_lists_its_items(form
 
 @pytest.mark.parametrize("write", [
     lambda s: core.ratify_item(s, "FR-0001", by="tester"),
-    lambda s: core.reratify_item(s, "FR-0007", by="tester"),
+    lambda s: core.agree_item(s, "FR-0001"),
+    lambda s: core.delete_draft(s, "FR-0001", reason="not needed"),
     lambda s: core.reject_item(s, "FR-0002", reason="not needed"),
     lambda s: core.remove_link(s, "FR-0001", 0),
-], ids=["ratify", "reratify", "reject", "remove-link"])
+], ids=["ratify", "agree", "delete-draft", "reject", "remove-link"])
 def test_every_write_to_an_older_graph_is_refused_and_names_migrate(format3_project, write):
     before = _files(format3_project)
     session = core.open_session(format3_project, read_older=True)

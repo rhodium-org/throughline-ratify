@@ -10,3 +10,14 @@ links:
   type: derives_from
 attrs:
   origin: human
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-07T18:33:42Z'
+  fingerprint: sha256:adfe4229efd2464c93d6e2c37312a9d430dc610a99d479057ca73e10115c172e
+  content:
+    type: user_requirement
+    text: As a reviewer I want to sign off or reject the selected item in place,
+      with a confirmation, so review is a continuous flow.
+    normative: true
+    derived: false
+    attrs: {}

@@ -35,12 +35,11 @@ from textwrap import wrap
 # What kind of decision an entry records. These strings are the words the report
 # prints, so they read as the ratifier's own account of what they did.
 RATIFIED = "ratified"
-RERATIFIED = "re-ratified"
-# Distinct from RERATIFIED on purpose (SR-0030). "re-ratified" is the account of a
-# sign-off that was never taken and has now been recorded; this is the account of one
-# that was taken, over wording that has since changed, and has now been given again.
-# Reporting the second as the first would say of an item that nobody had accepted it,
-# when somebody had — a false statement about the very record the report exists for.
+# Distinct from RATIFIED on purpose (SR-0030): the account of a signature that was
+# taken, over wording that has since changed, and has now been given again.
+# Reporting it as a first signature would say of an item that nobody had accepted
+# it, when somebody had — a false statement about the very record the report
+# exists for.
 RESIGNED = "re-signed"
 REJECTED = "rejected"
 # A signature over a deletion record (throughline SR-0269). The account says
@@ -48,10 +47,10 @@ REJECTED = "rejected"
 # rejection's does (SR-0082): the two withdraw footing by the one walk.
 RETIRED = "retired"
 LINK_REMOVED = "link removed"
-# A status move that took no signature: an item put forward to proposed
-# (SR-0085), and a signed item moved to ratified on its signature (SR-0087).
-PUT_FORWARD = "put forward"
-SETTLED = "settled"
+# A draft agreed, a status move that took no signature (SR-0085), and a draft
+# deleted (SR-0086): the two ends of a draft (throughline SR-0307).
+AGREED = "agreed"
+DRAFT_DELETED = "draft deleted"
 
 # The destination meaning "stdout" — what ``--summary`` with no path resolves to.
 STDOUT = "-"
@@ -115,14 +114,11 @@ class DecisionLog:
     def ratified(self, uid: str, title: str) -> None:
         self.decisions.append(Decision(RATIFIED, uid, title))
 
-    def reratified(self, uid: str, title: str, route: list[str]) -> None:
-        self.decisions.append(Decision(RERATIFIED, uid, title, route=tuple(route)))
+    def agreed(self, uid: str, title: str, was: str, to: str) -> None:
+        self.decisions.append(Decision(AGREED, uid, title, route=(was, to)))
 
-    def put_forward(self, uid: str, title: str, was: str, to: str) -> None:
-        self.decisions.append(Decision(PUT_FORWARD, uid, title, route=(was, to)))
-
-    def settled(self, uid: str, title: str, route: list[str]) -> None:
-        self.decisions.append(Decision(SETTLED, uid, title, route=tuple(route)))
+    def draft_deleted(self, uid: str, title: str, reason: str) -> None:
+        self.decisions.append(Decision(DRAFT_DELETED, uid, title, reason=reason))
 
     def resigned(self, uid: str, title: str, superseded: str = "") -> None:
         # Signed where it stood: a replaced signature walks no route (SR-0030).
@@ -167,7 +163,7 @@ class DecisionLog:
 
     def tally(self) -> list[tuple[str, int]]:
         """``(kind, count)`` in a fixed order, omitting kinds that did not occur."""
-        counts = {k: 0 for k in (RATIFIED, RERATIFIED, RESIGNED, SETTLED, PUT_FORWARD,
+        counts = {k: 0 for k in (RATIFIED, RESIGNED, AGREED, DRAFT_DELETED,
                                  REJECTED, RETIRED, LINK_REMOVED)}
         for d in self.decisions:
             counts[d.kind] = counts.get(d.kind, 0) + 1
@@ -187,18 +183,16 @@ def _entry(n: int, d: Decision) -> list[str]:
     """One decision, as the block of lines the report prints for it."""
     head = f"  {n}. {d.kind:<12} {d.uid}"
     out = [head, *_wrapped(d.title, "     ")]
-    if d.kind in (PUT_FORWARD, SETTLED) and d.route:
+    if d.kind == AGREED and d.route:
         out += _wrapped("status moved, no signature taken: " + " -> ".join(d.route),
                         "     ")
-    if d.kind == RERATIFIED and d.route:
-        out += _wrapped("route walked: " + " -> ".join(d.route), "     ")
     if d.kind == RESIGNED:
         out += _wrapped(
             f"content changed since {d.superseded or 'a human'} ratified it", "     ")
     if d.kind == RETIRED:
         out += _wrapped("deletion ratified" + ("" if d.stands else
                         "; signed, not yet retired (more signatures required)"), "     ")
-    if d.kind == REJECTED:
+    if d.kind in (REJECTED, DRAFT_DELETED):
         out += _wrapped(f"reason: {d.reason or '(none given)'}", "     ")
     if d.kind in (REJECTED, RETIRED):
         if d.suspected:

@@ -6,8 +6,8 @@ A project whose statuses track progress rather than agreement binds the ratified
 role to a workflow state, and declares that ratification records the sign-off where
 the item already stands. The cockpit must then stop treating "can this status reach
 ratified?" as the question — there is no transition to make, so every status can
-take a sign-off, and the round trip that exists for an overshot item must not be
-offered. Walking one would fabricate the history that setting exists to avoid.
+take a sign-off. Since throughline 5.0 an overshot item is signed where it stands
+in either mode (throughline SR-0306), so no round trip is ever walked.
 
 FR-0007 is the fixture's overshot item: advanced to `implemented`, never signed off.
 It is the case that separates the two modes.
@@ -21,15 +21,14 @@ def _by_uid(rows):
     return {r.uid: r for r in rows}
 
 
-def test_default_still_needs_the_round_trip(demo_project):
-    """The premise. Where ratification advances the item, an overshot one cannot be
-    signed off directly and is offered the itinerary instead."""
+def test_default_signs_an_overshot_item_where_it_stands(demo_project):
+    """Where ratification advances the item, an overshot one is still signed
+    directly, where it stands (throughline SR-0306), never routed."""
     session = core.open_session(demo_project)
     row = _by_uid(core.build_queue(session))["FR-0007"]
     assert row.status == "implemented"
-    assert not row.ratifiable_now
-    assert row.concern == "blocked"
-    assert row.reratify_path is not None
+    assert row.ratifiable_now
+    assert row.concern == "ready"
 
 
 def test_in_place_makes_an_overshot_item_directly_ratifiable(in_place_project):
@@ -39,8 +38,7 @@ def test_in_place_makes_an_overshot_item_directly_ratifiable(in_place_project):
     row = _by_uid(core.build_queue(session))["FR-0007"]
     assert row.status == "implemented"
     assert row.ratifiable_now
-    assert row.concern != "blocked"
-    assert row.reratify_path is None
+    assert row.concern == "ready"
 
 
 def test_in_place_sign_off_leaves_the_status_where_it_was(in_place_project):
@@ -69,6 +67,9 @@ def test_in_place_does_not_read_the_ratified_status_as_a_signature(in_place_proj
     role to an ordinary workflow state, so reading that status as a signature would
     settle every item merely passing through it — signed by nobody. FR-0005 sits at
     `ratified` in the fixture with no `ratified_by`, and must still be pending."""
+    path = in_place_project / "requirements" / "FR-0005.yml"
+    path.write_text(path.read_text(encoding="utf-8").replace(
+        "attrs:\n  ratified_by: alice\n", ""), encoding="utf-8")
     session = core.open_session(in_place_project)
     item = session.project.get("FR-0005")
     assert item.status == "ratified"

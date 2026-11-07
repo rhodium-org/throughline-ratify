@@ -1,6 +1,6 @@
 uid: TEST-0076
 type: test
-status: ratified
+status: deleted
 title: 'Tests of SR-0087: A signed item counts as ratified only once its status has
   reached ratified'
 text: The shipped pytest suite checks SR-0087 with the test functions this item lists.
@@ -29,3 +29,19 @@ ratifications:
     normative: false
     derived: false
     attrs: {}
+- by: Henry Grech-Cini
+  at: '2026-11-07T18:33:41Z'
+  fingerprint: sha256:655c7224998565652765c50637a007759c6865c22f37b69a9fe644d23b1b93d6
+  content:
+    deleted:
+      date: '2026-11-07'
+      reason: Its requirement, SR-0087, is withdrawn; TEST-0085 checks SR-0096, which
+        replaces it
+      fingerprint: sha256:e98d6b8f4233781c784ec9ba425a55b8ba7730e82a835001c57b0381f12032d8
+      from: ratified
+deleted:
+  date: '2026-11-07'
+  reason: Its requirement, SR-0087, is withdrawn; TEST-0085 checks SR-0096, which
+    replaces it
+  fingerprint: sha256:e98d6b8f4233781c784ec9ba425a55b8ba7730e82a835001c57b0381f12032d8
+  from: ratified

@@ -1,0 +1,43 @@
+uid: SR-0096
+type: system_requirement
+status: ratified
+title: The queue holds only what needs a signature or a decision
+text: 'The queue shall list an item only when it needs a person''s signature or a
+  decision about a draft. No row shall be blocked: an item past ratified that nobody
+  signed is offered for a signature taken where it stands, through throughline''s
+  own ratify, and no status route is walked for it. A signed item is settled whatever
+  its status and is not listed by default. The ratification progress shall be throughline''s,
+  counting signatures alone and leaving drafts out.'
+rationale: 'throughline 5.0 makes every item past the draft count only once signed,
+  signs an item where it stands when the ratified status is out of reach, and drops
+  the blocked concern (throughline UR-0046, SR-0306, SR-0308). The cockpit''s own
+  answers to the old limbo, the round trip through suspect for an overshot item (SR-0019)
+  and settling a signed item''s status (SR-0087), had nothing left to do: one listed
+  items the gate did not need, the other walked an item''s history to obtain a signature
+  the Tool now takes in place. On hitl-hci the queue showed eleven items ready that
+  the gate did not require and four blocked that could never be signed. Who pays:
+  a reviewer used to r walking a route sees it sign in place instead.'
+normative: true
+links:
+- target: INT-0001
+  type: derives_from
+- target: SR-0058
+  type: relates
+attrs:
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-07T18:33:40Z'
+  fingerprint: sha256:bd3b6cb140cc1d6c58ca83bf55feb4ecfda60717e1d7d0fac12f1cbcb79dcce3
+  content:
+    type: system_requirement
+    text: 'The queue shall list an item only when it needs a person''s signature
+      or a decision about a draft. No row shall be blocked: an item past ratified
+      that nobody signed is offered for a signature taken where it stands, through
+      throughline''s own ratify, and no status route is walked for it. A signed item
+      is settled whatever its status and is not listed by default. The ratification
+      progress shall be throughline''s, counting signatures alone and leaving drafts
+      out.'
+    normative: true
+    derived: false
+    attrs: {}

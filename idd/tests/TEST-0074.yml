@@ -10,14 +10,13 @@ links:
   type: verifies
 attrs:
   checks: |-
-    tests/test_not_yet_proposed.py::test_an_item_before_ratified_can_be_put_forward
-    tests/test_not_yet_proposed.py::test_p_puts_it_forward_and_takes_no_signature
-    tests/test_not_yet_proposed.py::test_r_on_an_item_not_yet_proposed_refuses_and_names_p
-    tests/test_not_yet_proposed.py::test_the_plan_standard_lifecycle_puts_draft_forward
-    tests/test_not_yet_proposed.py::test_an_overshot_item_still_takes_the_round_trip
-    tests/test_not_yet_proposed.py::test_p_refuses_an_item_that_cannot_be_put_forward
-    tests/test_not_yet_proposed.py::test_a_draft_with_no_move_to_proposed_is_not_offered_p
-    tests/test_not_yet_proposed.py::test_no_suspect_role_offers_no_round_trip
+    tests/test_drafts.py::test_a_draft_is_offered_agreement_not_a_signature
+    tests/test_drafts.py::test_p_agrees_it_and_takes_no_signature
+    tests/test_drafts.py::test_r_on_a_draft_refuses_in_throughlines_words
+    tests/test_drafts.py::test_the_plan_standard_lifecycle_agrees_then_signs
+    tests/test_drafts.py::test_p_refuses_what_is_no_draft
+    tests/test_drafts.py::test_a_draft_with_nowhere_to_go_can_only_be_deleted
+    tests/test_report.py::test_an_agreed_draft_says_no_signature_was_taken
   origin: ai
 ratifications:
 - by: Henry Grech-Cini

@@ -23,8 +23,7 @@ from throughline_ratify import cli, core, report
 def _log() -> report.DecisionLog:
     log = report.DecisionLog("Ada Lovelace")
     log.ratified("FR-0001", "Guided setup wizard")
-    log.reratified("FR-0007", "Overshot requirement",
-                   ["implemented", "suspect", "ratified", "implemented"])
+    log.agreed("FR-0007", "Drafted requirement", "draft", "approved")
     log.rejected("FR-0002", "Rate-limit login", "superseded by FR-0001",
                  ["FR-0003", "FR-0004"])
     log.link_removed("FR-0001", "Guided setup wizard", "relates", "FR-0002")
@@ -52,22 +51,30 @@ def test_header_distinguishes_a_composed_scope():
 
 def test_entries_appear_in_the_order_taken():
     out = _rendered(_log())
-    assert out.index("1. ratified") < out.index("2. re-ratified") < out.index("3. rejected")
+    assert out.index("1. ratified") < out.index("2. agreed") < out.index("3. rejected")
 
 
 def test_every_entry_names_the_item_and_its_title():
     out = _rendered(_log())
     for uid, title in [("FR-0001", "Guided setup wizard"),
-                       ("FR-0007", "Overshot requirement"),
+                       ("FR-0007", "Drafted requirement"),
                        ("FR-0002", "Rate-limit login")]:
         assert uid in out and title in out
 
 
-def test_reratification_names_the_route_walked():
-    # The assistant moved the item through intermediate statuses on the ratifier's
-    # behalf; the account must say so rather than silently claim a plain sign-off.
+def test_an_agreed_draft_says_no_signature_was_taken():
+    # SR-0085: agreeing a draft moves its status and signs nothing; the account
+    # must say so rather than read as a sign-off.
     out = _rendered(_log())
-    assert "route walked: implemented -> suspect -> ratified -> implemented" in out
+    assert "status moved, no signature taken: draft -> approved" in out
+
+
+def test_a_deleted_draft_names_its_reason():
+    # SR-0086: deleting a draft is a decision of its own, with its reason.
+    log = report.DecisionLog("Ada")
+    log.draft_deleted("FR-0008", "Abandoned idea", "never needed")
+    out = _rendered(log)
+    assert "1. draft deleted FR-0008" in out and "reason: never needed" in out
 
 
 def test_rejection_names_the_reason_and_the_cascade():
@@ -92,7 +99,7 @@ def test_link_removal_distinguishes_a_grounding_link():
 def test_tally_counts_each_kind_and_omits_kinds_that_did_not_occur():
     out = _rendered(_log())
     tally = next(ln for ln in out.splitlines() if ln.startswith("Tally:"))
-    assert "1 ratified" in tally and "1 re-ratified" in tally
+    assert "1 ratified" in tally and "1 agreed" in tally
     assert "1 rejected" in tally and "1 link removed" in tally
 
     only_ratified = report.DecisionLog("Ada")
@@ -224,16 +231,18 @@ def test_ratifying_records_the_decision_and_the_graph_agrees(app, demo_project):
     assert reloaded.ratifications[-1].get("by") == "Ada Lovelace"
 
 
-def test_reratifying_records_the_route_core_actually_walked(app):
+def test_an_overshoot_is_signed_where_it_stands_and_reported_as_ratified(app,
+                                                                       demo_project):
+    """SR-0096: an item past ratified that nobody signed is signed where it
+    stands (throughline SR-0306); no route is walked and the account says so."""
     app_obj, log = app
     _select(app_obj, "FR-0007")  # overshot to 'implemented', never signed off
-    app_obj.do_ratify()          # falls through to the re-ratify route
+    app_obj.do_ratify()
 
     assert len(log) == 1
     d = log.decisions[0]
-    assert d.kind == report.RERATIFIED and d.uid == "FR-0007"
-    assert d.route and d.route[0] == d.route[-1] == "implemented"
-    assert "ratified" in d.route
+    assert d.kind == report.RATIFIED and d.uid == "FR-0007" and d.route == ()
+    assert core.open_session(demo_project).project.get("FR-0007").status == "implemented"
 
 
 def test_rejecting_records_the_reason_and_the_dependents_made_suspect(app):
@@ -294,9 +303,8 @@ def test_the_cockpit_runs_unchanged_without_a_log(demo_project, monkeypatch):
 
 def test_a_re_signature_is_not_reported_as_a_missing_one(app):
     """SR-0030: FR-0010 was ratified by alice and rewritten since. The account has to
-    distinguish that from FR-0007's case — "re-ratified" is the record of a sign-off
-    that never happened, and reporting this as that would say nobody had accepted an
-    item somebody had."""
+    distinguish that from a first signature: reporting it as one would say nobody had
+    accepted an item somebody had."""
     app_obj, log = app
     _select(app_obj, "FR-0010")
     app_obj.do_ratify()

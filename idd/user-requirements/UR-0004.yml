@@ -10,3 +10,15 @@ links:
   type: derives_from
 attrs:
   origin: human
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-07T18:33:42Z'
+  fingerprint: sha256:a2a82f3762aa97090f8f6242f19f9b8770170d8b557d33b155cf1534f9c92905
+  content:
+    type: user_requirement
+    text: As a reviewer I want a full-screen, colour-and-glyph interface using the
+      whole terminal, with keyboard navigation, so semantic concerns are seen at
+      a glance.
+    normative: true
+    derived: false
+    attrs: {}

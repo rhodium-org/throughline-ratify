@@ -82,8 +82,9 @@ PROBE = textwrap.dedent(
     # could not actually write.
     core.ratify_item(session, "FR-0001", by="A Person", by_id="email:a@example.com")
 
-    # The walk for an item that overshot ratification, and the refusal cascade.
-    assert core.reratify_item(session, "FR-0007", by="A Person") is not None
+    # An item that overshot ratification, signed where it stands, and the
+    # refusal cascade.
+    assert core.ratify_item(session, "FR-0007", by="A Person") is not None
     before = core.preview_reject(session, "FR-0002")
     refused = core.reject_item(session, "FR-0002", reason="not as written")
     assert isinstance(before, list) and isinstance(refused, list)

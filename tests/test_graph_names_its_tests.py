@@ -22,7 +22,7 @@ GRAPH = REPO / "idd"
 # Test functions that check no requirement of this project. These cover an
 # upstream clause, throughline SR-0172, that this graph does not restate.
 NO_REQUIREMENT_HERE = {
-    "tests/test_ratify_in_place.py::test_default_still_needs_the_round_trip",
+    "tests/test_ratify_in_place.py::test_default_signs_an_overshot_item_where_it_stands",
     "tests/test_ratify_in_place.py::test_in_place_makes_an_overshot_item_directly_ratifiable",
     "tests/test_ratify_in_place.py::test_in_place_sign_off_leaves_the_status_where_it_was",
     "tests/test_ratify_in_place.py::test_in_place_sign_off_settles_the_item",
@@ -59,8 +59,10 @@ def named(item: dict) -> list[str]:
 
 
 def names_that_do_not_exist(items: dict, functions: set[str]) -> list[str]:
+    # A tombstone's list is history: the tests it named may go with it.
     return sorted(f"{uid} names {name}, which is not a test in the suite"
-                  for uid, item in items.items() if item["type"] == "test"
+                  for uid, item in items.items()
+                  if item["type"] == "test" and item["status"] not in DEAD
                   for name in named(item) if name not in functions)
 
 
