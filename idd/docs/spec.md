@@ -25,6 +25,8 @@ Why throughline-ratify exists. Everything below grounds upward into one of these
 > A reviewer facing many AI-proposed or approved items can work through them item-by-item in one full-screen tool, ratifying or rejecting each with the same grounding guarantees the throughline CLI enforces.
 
 **origin**: human
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item INT-0002 -->
@@ -88,6 +90,8 @@ What a person working with the tool must be able to do.
 *Derives from:* INT-0001
 
 **origin**: human
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0002 -->
@@ -98,6 +102,8 @@ What a person working with the tool must be able to do.
 *Derives from:* INT-0001
 
 **origin**: human
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0003 -->
@@ -108,6 +114,8 @@ What a person working with the tool must be able to do.
 *Derives from:* INT-0001
 
 **origin**: human
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0004 -->
@@ -118,6 +126,8 @@ What a person working with the tool must be able to do.
 *Derives from:* INT-0001
 
 **origin**: human
+
+*Ratified by:* Henry Grech-Cini
 <!-- tl:end -->
 
 <!-- tl:item UR-0005 -->
@@ -533,19 +543,6 @@ What the software must do to meet them.
 *Ratified by:* henry
 <!-- tl:end -->
 
-<!-- tl:item SR-0019 -->
-**SR-0019 — Overshot items can be retrospectively ratified via a config-computed route** — `system_requirement`, status `implemented`
-
-> An item that was advanced past the ratified status without ever being signed off (it carries no ratification stamp) is grounded and unambiguous yet cannot move straight to ratified. The assistant offers to record the missed sign-off by walking a status itinerary — from the current status, through ratified, and back to the current status — computed solely from the project's own [transitions] table, never from any hardcoded status name. If the configuration affords no such round-trip the affordance does not appear. Walking the route applies the ratification stamp as it passes through the ratified status and persists only the end state, which equals the item's original status, so the item ends exactly where it was but now proven ratified.
-
-*Derives from:* INT-0001
-*Refines:* SR-0018
-
-**origin**: hybrid
-
-*Ratified by:* henry
-<!-- tl:end -->
-
 <!-- tl:item SR-0020 -->
 **SR-0020 — Dead items stay visible under the wide (show-all) view** — `system_requirement`, status `implemented`
 
@@ -701,7 +698,7 @@ What the software must do to meet them.
 *Rationale:* throughline reports a stale ratification because the words a human accepted have since been rewritten, and only a person can clear it by accepting the new wording or reverting it (tl:SR-0148). That is a job exactly one kind of user can do, and this is the tool built for them — yet it was the one place the job was invisible. Before this requirement, `tl-compose check --strict` reported SR-0028 stale while `tl-ratify --list --all` showed it as `✓ ratified` and the progress figure read 37/37. A cockpit that reports full marks while the validator reports an error is worse than one that reports nothing, because the reviewer stops looking. It is deliberately not the case SR-0019 answers, where an item advanced past ratified without ever being signed off and the route through ratified records a sign-off that never happened; here the sign-off did happen and a second is being taken over changed wording. Saying 'never ratified' of an item somebody did ratify would be a false statement about the accountability record, and counting it as ratified in the progress figure would be the same falsehood in a number. Nor is it SR-0024, where a suspect item's sign-off has already stopped holding for a reason of its own. The comparison is delegated to throughline for the reason SR-0022 gives for ratification itself — a second implementation of what counts as a content change would drift from the validator's, and the cockpit would then disagree with `check` about which items need a human.
 
 *Derives from:* UR-0001
-*Relates:* SR-0019, SR-0022, SR-0024
+*Relates:* SR-0022, SR-0024
 *Satisfies:* tl:SR-0148
 
 **origin**: ai
@@ -1427,7 +1424,6 @@ checked by a workflow or a document, or not at all.
 | SR-0016 | Interrupting the cockpit with Ctrl-C exits cleanly, without a traceback | TEST-0013 |
 | SR-0017 | The release workflow publishes to PyPI on a GitHub Release using supported, non-deprecated action runtimes | — |
 | SR-0018 | An item ratified then advanced beyond the ratified status is still treated as signed off | TEST-0014 |
-| SR-0019 | Overshot items can be retrospectively ratified via a config-computed route | TEST-0015 |
 | SR-0020 | Dead items stay visible under the wide (show-all) view | TEST-0016 |
 | SR-0021 | A session summary of every decision taken, ready to paste into a commit | TEST-0017 |
 | SR-0022 | Ratification is recorded through throughline's own ratify, never a copy of it | TEST-0018 |
@@ -1493,9 +1489,8 @@ checked by a workflow or a document, or not at all.
 | SR-0082 | Signing a deletion receives throughline's cascade, writes every dependent it marked, and reports what it could not | TEST-0071 |
 | SR-0083 | The pane shows a proposed deletion as the record throughline renders for its signer | TEST-0072 |
 | SR-0084 | A proposed deletion is named as one in the row, the printed list and the confirmation | TEST-0073 |
-| SR-0085 | An item not yet proposed is put forward with p, never carried to ratified by r | TEST-0074 |
-| SR-0086 | A row not yet proposed says so, not blocked, and names p | TEST-0075 |
-| SR-0087 | A signed item counts as ratified only once its status has reached ratified | TEST-0076 |
+| SR-0085 | A draft is agreed with p, never signed by r | TEST-0074 |
+| SR-0086 | A draft row says draft and offers p and D | TEST-0075 |
 | SR-0088 | -C may be given more than once, and the graphs found beneath every path are offered together | TEST-0077 |
 | SR-0089 | f marks a graph as a favourite, kept between runs in the reviewer's own file | TEST-0078 |
 | SR-0090 | v switches the selection screen between favourites, every graph and those not yet favourites | TEST-0079 |
@@ -1504,4 +1499,5 @@ checked by a workflow or a document, or not at all.
 | SR-0093 | / filters the selection screen by name or path | TEST-0082 |
 | SR-0094 | The search for graphs at start shows how far it has got | TEST-0083 |
 | SR-0095 | Each graph's figure is kept, and read again only when its own files change | TEST-0084 |
+| SR-0096 | The queue holds only what needs a signature or a decision | TEST-0085 |
 <!-- tl:end -->
