@@ -64,6 +64,16 @@ ratifications:
     normative: true
     derived: false
     attrs: {}
+- by: Henry Grech-Cini
+  at: '2026-11-07T18:33:41Z'
+  fingerprint: sha256:3fadd3c2cce5838afd9689a7ca593b4d76144700ff7e4165817855360f0e4092
+  content:
+    deleted:
+      date: '2026-11-07'
+      reason: 'Superseded by SR-0096: only a signature counts (throughline SR-0308),
+        so a signed item is settled whatever its status and has nothing to settle'
+      fingerprint: sha256:2e762acdf023b5bcb9e0571c5e26777ffd96d54be654954c60e856535952ef87
+      from: ratified
 deleted:
   date: '2026-11-07'
   reason: 'Superseded by SR-0096: only a signature counts (throughline SR-0308),

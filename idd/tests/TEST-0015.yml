@@ -28,6 +28,16 @@ ratifications:
     derived: false
     attrs: {}
   revision: 1235a50437922a29ab5ddd4d3241609b31f210ab
+- by: Henry Grech-Cini
+  at: '2026-11-07T18:33:40Z'
+  fingerprint: sha256:88176bd6e5f5b2acc54cb10062adbfb82a23d6c75a8d6861ce45942ed639a706
+  content:
+    deleted:
+      date: '2026-11-07'
+      reason: Its requirement, SR-0019, is withdrawn; TEST-0085 checks SR-0096, which
+        replaces it
+      fingerprint: sha256:6148d1a3650557c61adda76535d9536cfb29c03678676562535f9f1aecf75b27
+      from: ratified
 deleted:
   date: '2026-11-07'
   reason: Its requirement, SR-0019, is withdrawn; TEST-0085 checks SR-0096, which

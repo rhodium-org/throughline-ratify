@@ -8,3 +8,15 @@ text: A reviewer facing many AI-proposed or approved items can work through them
 normative: true
 attrs:
   origin: human
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-07T18:33:41Z'
+  fingerprint: sha256:28c4724d656d70e978295f827935dfd93ea6121e958cff6ae8f7e8baa3fde791
+  content:
+    type: intent
+    text: A reviewer facing many AI-proposed or approved items can work through them
+      item-by-item in one full-screen tool, ratifying or rejecting each with the
+      same grounding guarantees the throughline CLI enforces.
+    normative: true
+    derived: false
+    attrs: {}

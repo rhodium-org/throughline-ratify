@@ -10,3 +10,14 @@ links:
   type: derives_from
 attrs:
   origin: human
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-07T18:33:42Z'
+  fingerprint: sha256:208d43fc26c483b3c65e0d6e9ca5f9803f7817d60cb2e0b204e864569ac99963
+  content:
+    type: user_requirement
+    text: As a reviewer of a tl-compose project I want an item whose grounding chain
+      reaches a root only through a borrowed source treated as grounded, not orphaned.
+    normative: true
+    derived: false
+    attrs: {}

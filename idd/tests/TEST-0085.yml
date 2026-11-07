@@ -1,6 +1,6 @@
 uid: TEST-0085
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0096: The queue holds only what needs a signature or a decision'
 text: The shipped pytest suite checks SR-0096 with the test functions this item lists.
 normative: false
@@ -16,3 +16,14 @@ attrs:
     tests/test_core.py::test_a_stamped_item_that_moved_on_stays_out_of_the_worklist
     tests/test_report.py::test_an_overshoot_is_signed_where_it_stands_and_reported_as_ratified
     tests/test_prompt.py::test_an_unsigned_overshoot_is_asked_as_a_first_signature
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-07T18:33:40Z'
+  fingerprint: sha256:d5730f331182c272db7f2b1f575f02fd1cc073bfb0197a834ab6e69c722a834f
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0096 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

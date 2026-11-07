@@ -22,24 +22,17 @@ attrs:
   origin: ai
 ratifications:
 - by: Henry Grech-Cini
-  at: '2026-10-31T17:34:11Z'
-  fingerprint: sha256:ef12444e11d894d94658062a3b22c9350c7e0c28e5cc9a18916eb66729617625
+  at: '2026-11-07T18:33:42Z'
+  fingerprint: sha256:6ecc6db7ff80002881ff3dbc6ae9919f2aa720582a4db6ff30da4e8ccde6eebf
   content:
     type: system_requirement
-    text: 'Where an item cannot be signed where it stands, the item carries no signature,
-      the project declares a status in the proposed role, the item is not at that
-      status, the project''s [transitions] do not allow its status to move to ratified
-      and do allow it to move to the proposed status, the key p shall put the item
-      forward: it shall move the item to the proposed status through throughline''s
-      own status move (the choke point tl status uses), write the item, and take
-      no signature. This is the rule table.iddn.uk''s putForwardTo applies (table
-      REQ-0214), so the two tools offer one act under one condition. Pressing r on
-      such an item shall refuse with a message that names p, and shall write nothing.
-      The round trip of SR-0019 shall be offered only for an item past ratified,
-      being one whose status the ratified status reaches by moving forward through
-      neither the status in the suspect role nor a dead status; where the project
-      declares no suspect role, forward cannot be told from back and no round trip
-      shall be offered. Pressing p on any other item shall refuse and write nothing.'
+    text: 'A row in throughline''s draft concern shall not be signed. The key p shall
+      agree it: move it, through throughline''s own status operation and taking no
+      signature, to the status throughline names for it (agree_to), and the decision
+      report shall record that it was agreed, from and to which status. r on a draft
+      shall refuse in throughline''s own words. p on any other row, or on a draft
+      throughline names no status for, shall write nothing and say so, naming D for
+      the latter.'
     normative: true
     derived: false
     attrs: {}

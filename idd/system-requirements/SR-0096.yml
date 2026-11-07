@@ -1,6 +1,6 @@
 uid: SR-0096
 type: system_requirement
-status: proposed
+status: ratified
 title: The queue holds only what needs a signature or a decision
 text: 'The queue shall list an item only when it needs a person''s signature or a
   decision about a draft. No row shall be blocked: an item past ratified that nobody
@@ -25,3 +25,19 @@ links:
   type: relates
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-07T18:33:40Z'
+  fingerprint: sha256:bd3b6cb140cc1d6c58ca83bf55feb4ecfda60717e1d7d0fac12f1cbcb79dcce3
+  content:
+    type: system_requirement
+    text: 'The queue shall list an item only when it needs a person''s signature
+      or a decision about a draft. No row shall be blocked: an item past ratified
+      that nobody signed is offered for a signature taken where it stands, through
+      throughline''s own ratify, and no status route is walked for it. A signed item
+      is settled whatever its status and is not listed by default. The ratification
+      progress shall be throughline''s, counting signatures alone and leaving drafts
+      out.'
+    normative: true
+    derived: false
+    attrs: {}

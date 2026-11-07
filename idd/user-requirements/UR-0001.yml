@@ -10,3 +10,14 @@ links:
   type: derives_from
 attrs:
   origin: human
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-07T18:33:41Z'
+  fingerprint: sha256:6405ee62e08a7345541d921b57a336de0c460365c0792743c8e13511e4e921d6
+  content:
+    type: user_requirement
+    text: As a reviewer I want the items that still need a human decision surfaced
+      and ranked so I act on the ready ones before the blocked ones.
+    normative: true
+    derived: false
+    attrs: {}
