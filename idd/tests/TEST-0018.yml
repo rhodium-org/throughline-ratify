@@ -13,7 +13,7 @@ attrs:
     tests/test_change_pane.py::test_an_unknown_uid_resolves_to_nothing
     tests/test_change_pane.py::test_the_difference_is_resolved_by_throughline_and_memoised
     tests/test_core.py::test_ratifying_binds_the_signature_to_the_content_signed
-    tests/test_core.py::test_reratify_surfaces_throughlines_own_refusal_and_leaves_the_item_alone
+    tests/test_core.py::test_ratify_surfaces_throughlines_own_refusal_and_leaves_the_item_alone
   origin: ai
 ratifications:
 - by: Henry Grech-Cini

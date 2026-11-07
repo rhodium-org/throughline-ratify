@@ -1,6 +1,6 @@
 uid: SR-0019
 type: system_requirement
-status: implemented
+status: deleted
 title: Overshot items can be retrospectively ratified via a config-computed route
 text: An item that was advanced past the ratified status without ever being signed
   off (it carries no ratification stamp) is grounded and unambiguous yet cannot move
@@ -40,3 +40,9 @@ ratifications:
     derived: false
     attrs: {}
   revision: d5e29dba8fdfd601893725bb4e08c46c8dd1abab
+deleted:
+  date: '2026-11-07'
+  reason: 'Superseded by SR-0096: throughline 5.0 signs an item past ratified where
+    it stands (throughline SR-0306), so no round trip through suspect is walked'
+  fingerprint: sha256:eddb618ae9c6aeb27239b1f1a1af4329704660855ff5b67357a1d2cd444266df
+  from: implemented

@@ -9,10 +9,14 @@ links:
   type: verifies
 attrs:
   checks: |-
-    tests/test_not_yet_proposed.py::test_the_row_and_the_printed_list_say_not_yet_proposed
-    tests/test_not_yet_proposed.py::test_the_summary_counts_not_yet_proposed_apart_from_blocked
-    tests/test_not_yet_proposed.py::test_the_pane_names_p
-    tests/test_not_yet_proposed.py::test_the_help_tells_not_yet_proposed_from_blocked
+    tests/test_drafts.py::test_the_row_and_the_printed_list_say_draft
+    tests/test_drafts.py::test_the_summary_counts_drafts
+    tests/test_drafts.py::test_the_pane_names_p_and_d
+    tests/test_drafts.py::test_d_deletes_a_draft_after_a_reason_and_a_confirmation
+    tests/test_drafts.py::test_declining_d_writes_nothing
+    tests/test_drafts.py::test_d_refuses_what_is_no_draft
+    tests/test_drafts.py::test_the_help_names_p_d_and_the_draft
+    tests/test_report.py::test_a_deleted_draft_names_its_reason
   origin: ai
 ratifications:
 - by: Henry Grech-Cini

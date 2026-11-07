@@ -1,6 +1,6 @@
 uid: SR-0087
 type: system_requirement
-status: ratified
+status: deleted
 title: A signed item counts as ratified only once its status has reached ratified
 text: 'Where the project''s ratify moves an item''s status, an item that carries
   a signature covering its wording but whose status is neither the ratified status
@@ -64,3 +64,9 @@ ratifications:
     normative: true
     derived: false
     attrs: {}
+deleted:
+  date: '2026-11-07'
+  reason: 'Superseded by SR-0096: only a signature counts (throughline SR-0308),
+    so a signed item is settled whatever its status and has nothing to settle'
+  fingerprint: sha256:2e762acdf023b5bcb9e0571c5e26777ffd96d54be654954c60e856535952ef87
+  from: ratified
