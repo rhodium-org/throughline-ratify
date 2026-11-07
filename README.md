@@ -168,9 +168,9 @@ Every row is classified by the one thing you most need to know about it:
 | Glyph | Concern | Meaning |
 | --- | --- | --- |
 | ● | proposed | AI-proposed, awaiting a human's accountability — including a proposed deletion, marked `☠ deletion:` in the row |
-| ◉ | ready | past the draft and unsigned — needs a signature, which is taken where the item stands |
+| ◉ | ready | unsigned and past proposal (e.g. `implemented`) — needs a signature, which is taken where the item stands |
 | ↺ | stale | signed off, but the wording has changed since — the signature no longer covers it |
-| ◌ | draft | neither signed nor counted: agree it (`p`) or delete it (`D`) |
+| ◌ | draft | neither signed nor counted: agree it (`p`) or delete it (`D`) — only where a project keeps a draft status apart from `proposed`; throughline 5.0 ships none |
 | ⚠ | ungrounded | reaches no root — link it upward before sign-off |
 | ⚑ | ambiguous | flagged ambiguous — clarify it first |
 | ✓ | ratified | already signed off — shown only in the wide view (`a`) |
