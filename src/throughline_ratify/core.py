@@ -14,7 +14,9 @@ Every status change routes through throughline's own config-driven choke points
 (:func:`throughline.grounding.set_status`, :func:`throughline.grounding.invalidate`),
 so no status literal is hardcoded here — the project's ``[status.roles]`` and
 ``[transitions]`` govern what "ratified", "rejected" and "suspect" mean and which
-moves are legal.
+moves are legal. Each move is also judged against where the item stood at the last
+commit, as ``tl check`` judges it, so moves that are each permitted never add up to
+one the project forbids (SR-0097).
 
 Ratification itself is throughline's :func:`throughline.grounding.ratify`, called
 rather than copied (SR-0022). We hand it our union index and it writes the whole
@@ -25,6 +27,7 @@ ratified through this cockpit signed but unbound. One implementation, not two.
 """
 from __future__ import annotations
 
+import copy
 import json
 import os
 import subprocess
@@ -72,6 +75,7 @@ from throughline import (
     invalidate,
     is_namespace_qualified,
     load_project,
+    load_project_at_ref,
     parse_sources,
     read_project,
     reaches_root,
@@ -79,6 +83,7 @@ from throughline import (
     resolve_sources,
     retired,
     set_status,
+    transition_refusal,
     write_item,
 )
 from throughline import distribution_version
@@ -1414,6 +1419,110 @@ def normalise_identifier(raw: str | None) -> str | None:
         raise RatifierError(str(exc)) from exc
 
 
+# Moves judged from the last commit (SR-0097). throughline's set_status judges a
+# move from the status in memory; tl check judges it from the status at the last
+# commit. Two permitted moves in one sitting can add up to one the project forbids
+# (deferred -> proposed -> ratified, suspect -> rejected after verified -> suspect),
+# which the gate then fails after the cockpit has written it. So before any action
+# writes, it is run through throughline on a copy of the project, and every status
+# that copy moved is judged from the last commit by throughline's own wording.
+SIGN, AGREE, DELETE, REJECT = "sign", "agree", "delete", "reject"
+
+
+@dataclass(frozen=True)
+class Forbidden:
+    """A move an action would write that the project's [transitions] forbid from
+    where the item stood at the last commit: its UID, the status it held there, the
+    status it would be given, and throughline's words for the refusal."""
+
+    uid: str
+    was: str
+    to: str
+    why: str
+
+
+def forbidden_moves(session: Session, uid: str, action: str, *, by: str = "",
+                    by_id: str | None = None, role: str | None = None) -> list[Forbidden]:
+    """The moves ``action`` on ``uid`` would write that the last commit forbids
+    (SR-0097), empty when there are none. ``action`` is one of :data:`SIGN`,
+    :data:`AGREE`, :data:`DELETE` and :data:`REJECT`; ``by``, ``by_id`` and
+    ``role`` are the signature's, since who signs decides whether a deletion
+    retires and so what it marks. What the action moves is throughline's answer on
+    a copy, never this module's prediction (SR-0026). An action throughline would
+    refuse moves nothing here; the action itself then says why. Where no last
+    commit can be read, nothing is judged, as tl check judges nothing then; outside
+    a git work tree git is not asked (SR-0039)."""
+    project = session.project
+    if project.get(uid) is None:
+        return []
+    trial = copy.deepcopy(project)
+    try:
+        if action == SIGN:
+            core_ratify(trial, uid, by, by_id=by_id, index=session.index, role=role,
+                        cascade=Cascade())
+        elif action == AGREE:
+            to = entry_for(project, project.get(uid), index=session.index).agree_to
+            if to is None:
+                return []
+            set_status(session.schema, trial.get(uid), to)
+        elif action == DELETE:
+            delete_item(trial, uid, reason="judged before it is written")
+        elif action == REJECT:
+            invalidate(trial, uid, "")
+        else:
+            raise ValueError(f"no such action: {action}")
+    except (GroundingError, IdentityError):
+        return []
+    moved = {item.uid: item.status for item in trial.items()
+             if item.status != project.get(item.uid).status}
+    if not moved or not _in_work_tree(Path(project.path)):
+        return []
+    try:
+        committed, _sha = load_project_at_ref(project.path, "HEAD")
+    except ProjectError:
+        return []
+    schema = session.schema
+    found = []
+    for aid, to in sorted(moved.items()):
+        then = committed.get(aid)
+        # New since the commit, or held a status the project no longer declares:
+        # not a move tl check judges (throughline SR-0083, SR-0314).
+        if then is None or then.status == to or not schema.is_status(then.status):
+            continue
+        why = transition_refusal(schema, then, to)
+        if why is not None:
+            found.append(Forbidden(aid, then.status, to, why))
+    return found
+
+
+def _in_work_tree(path: Path) -> bool:
+    """Whether ``path`` sits in a git work tree, looked for without starting a
+    process: a graph outside one has no last commit, and the decisions stay usable
+    where no process can be started (SR-0039). ``GIT_DIR`` names a repository kept
+    elsewhere, so git is asked then too."""
+    if os.environ.get("GIT_DIR"):
+        return True
+    here = path.resolve()
+    return any((d / ".git").exists() for d in (here, *here.parents))
+
+
+def refuse_forbidden_moves(session: Session, uid: str, action: str, *, by: str = "",
+                           by_id: str | None = None, role: str | None = None) -> None:
+    """Raise :class:`RatifierError` where ``action`` on ``uid`` would write a move
+    the last commit forbids (SR-0097), naming the first such item, from and to
+    which status, and that this sitting's work must be committed first. Called by
+    every writer before it writes, and by the cockpit before it asks."""
+    found = forbidden_moves(session, uid, action, by=by, by_id=by_id, role=role)
+    if not found:
+        return
+    first = found[0]
+    more = f" (and {len(found) - 1} more)" if len(found) > 1 else ""
+    raise RatifierError(
+        f"nothing written: {first.uid} was '{first.was}' at the last commit, and "
+        f"'{first.was}' -> '{first.to}' is not a move this project's transitions "
+        f"permit{more}; commit this sitting's work, then {action} {uid} again")
+
+
 @dataclass
 class Signing:
     """What one signature did beyond the item it was written on (SR-0082).
@@ -1469,6 +1578,7 @@ def ratify_item(session: Session, uid: str, by: str, by_id: str | None = None,
     _refuse_if_read_only(session)
     if session.project.get(uid) is None:
         raise RatifierError(f"{uid} does not exist")
+    refuse_forbidden_moves(session, uid, SIGN, by=by, by_id=by_id, role=role)
     cascade = Cascade()
     try:
         item = core_ratify(session.project, uid, by, by_id=by_id, index=session.index,
@@ -1496,6 +1606,7 @@ def agree_item(session: Session, uid: str) -> str:
             f"{uid} is at '{item.status}' and cannot be agreed: it is no draft, or "
             "this project's transitions offer it nowhere from which it can be "
             "signed — delete it instead")
+    refuse_forbidden_moves(session, uid, AGREE)
     try:
         set_status(session.schema, item, to)
     except GroundingError as exc:
@@ -1515,6 +1626,7 @@ def delete_draft(session: Session, uid: str, reason: str) -> bool:
         raise RatifierError(f"{uid} does not exist")
     if entry_for(session.project, item, index=session.index).concern != "draft":
         raise RatifierError(f"{uid} is not a draft — reject it with x instead")
+    refuse_forbidden_moves(session, uid, DELETE)
     try:
         delete_item(session.project, uid, reason=reason)
     except GroundingError as exc:
@@ -1601,6 +1713,7 @@ def reject_item(session: Session, uid: str, reason: str = "") -> Rejection:
     project = session.project
     if project.get(uid) is None:
         raise RatifierError(f"{uid} does not exist")
+    refuse_forbidden_moves(session, uid, REJECT)
     try:
         outcome = invalidate(project, uid, reason)
     except GroundingError as exc:

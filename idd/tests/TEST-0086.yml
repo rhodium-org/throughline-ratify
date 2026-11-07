@@ -1,0 +1,30 @@
+uid: TEST-0086
+type: test
+status: ratified
+title: 'Tests of SR-0097: no status move is written that the transitions forbid from
+  the last commit'
+text: The shipped pytest suite checks SR-0097 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0097
+  type: verifies
+attrs:
+  checks: |-
+    tests/test_moves_since_commit.py::test_a_rejection_that_would_net_a_forbidden_move_writes_nothing
+    tests/test_moves_since_commit.py::test_a_cascade_that_would_net_a_forbidden_move_writes_nothing
+    tests/test_moves_since_commit.py::test_signing_a_draft_agreed_this_sitting_writes_nothing
+    tests/test_moves_since_commit.py::test_a_permitted_move_is_written_and_judged_from_the_commit
+    tests/test_moves_since_commit.py::test_without_a_commit_nothing_is_judged
+    tests/test_moves_since_commit.py::test_the_cockpit_refuses_before_asking
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-07T23:16:10Z'
+  fingerprint: sha256:5a5620aa8d7b52015b9c0650f160d987ba38274f952d7fe059864c96ad944f86
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0097 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

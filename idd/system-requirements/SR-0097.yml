@@ -1,0 +1,46 @@
+uid: SR-0097
+type: system_requirement
+status: ratified
+title: No status move is written that the project's transitions forbid from the last
+  commit
+text: Before p, x, D or r writes any status, tl-ratify shall work out through throughline
+  every status the action would move, and judge each against the status the item
+  held at the last commit, as tl check does. Where any move from that status is one
+  the project's [transitions] forbid, it shall write nothing and say which item,
+  from and to which status, and that this sitting's work on it must be committed
+  first. Where no last commit can be read, nothing is judged, as in tl check.
+rationale: 'tl check judges a status against the last commit, while throughline''s
+  set_status judges each move against the status in memory. Two permitted moves in
+  one sitting can therefore add up to a forbidden one, and the gate fails after the
+  cockpit has written it. On 7 November 2026, 0.18.0''s settle moved throughline''s
+  SR-0008 and SR-0105 deferred -> proposed -> ratified, and tl check --strict reported
+  deferred -> ratified. 0.19.0 removed settling, but x on an item that marks a verified
+  dependent suspect, then x on that dependent, still writes verified -> rejected.
+  Asking throughline what an action moves, on a copy of the project, keeps the cockpit''s
+  account of a cascade the same as the Tool''s (SR-0026). Rejected: making the moves
+  in steps with a commit between them, because the cockpit does not commit (the reviewer
+  does); and refusing a second action on any item touched this sitting, which also
+  refuses moves the lifecycle permits. Who pays: a reviewer who rejects in a chain
+  commits between the steps.'
+normative: true
+links:
+- target: SR-0005
+  type: refines
+attrs:
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-07T23:16:10Z'
+  fingerprint: sha256:3f7f2d235dc2312d23ff158d07032ec88a9d0fc753e43a73bd5b7f5c7d274d68
+  content:
+    type: system_requirement
+    text: Before p, x, D or r writes any status, tl-ratify shall work out through
+      throughline every status the action would move, and judge each against the
+      status the item held at the last commit, as tl check does. Where any move from
+      that status is one the project's [transitions] forbid, it shall write nothing
+      and say which item, from and to which status, and that this sitting's work
+      on it must be committed first. Where no last commit can be read, nothing is
+      judged, as in tl check.
+    normative: true
+    derived: false
+    attrs: {}

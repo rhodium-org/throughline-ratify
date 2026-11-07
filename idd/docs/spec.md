@@ -819,7 +819,7 @@ What the software must do to meet them.
 <!-- tl:item SR-0039 -->
 **SR-0039 — The decisions the cockpit offers are importable without a terminal** — `system_requirement`, status `ratified`
 
-> The module in which the worklist is built and every decision is taken shall be importable and usable on its own, without importing curses and without running a subprocess. Everything the cockpit can decide shall be decidable through it: the ordered worklist and its counts, the concerns each item is in, ratification by a named person, the walk to ratification for an item that overshot it, the preview of what a refusal unsettles, the refusal itself, the removal of a link, and the record of the sitting. The full-screen view shall be one caller of that module rather than the place the decisions live. A test shall assert the import, so a terminal-only dependency reintroduced anywhere on that path is caught rather than discovered by whoever imported it.
+> The module in which the worklist is built and every decision is taken shall be importable and usable on its own, without importing curses and without running a subprocess, except that where the graph sits in a git work tree it may ask git for the last commit, through throughline, to judge a status move as tl check does (SR-0097). Everything the cockpit can decide shall be decidable through it: the ordered worklist and its counts, the concerns each item is in, ratification by a named person, the walk to ratification for an item that overshot it, the preview of what a refusal unsettles, the refusal itself, the removal of a link, and the record of the sitting. The full-screen view shall be one caller of that module rather than the place the decisions live. A test shall assert the import, so a terminal-only dependency reintroduced anywhere on that path is caught rather than discovered by whoever imported it.
 
 *Derives from:* INT-0002
 
@@ -1500,4 +1500,5 @@ checked by a workflow or a document, or not at all.
 | SR-0094 | The search for graphs at start shows how far it has got | TEST-0083 |
 | SR-0095 | Each graph's figure is kept, and read again only when its own files change | TEST-0084 |
 | SR-0096 | The queue holds only what needs a signature or a decision | TEST-0085 |
+| SR-0097 | No status move is written that the project's transitions forbid from the last commit | TEST-0086 |
 <!-- tl:end -->
