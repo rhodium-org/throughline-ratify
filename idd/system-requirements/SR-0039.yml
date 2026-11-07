@@ -26,12 +26,15 @@ attrs:
   origin: ai
 ratifications:
 - by: Henry Grech-Cini
-  fingerprint: sha256:2933045aa6af9722e86c0466f0a089316a0e13175dabd2cd18a265b6618c92c0
+  at: '2026-11-07T23:16:10Z'
+  fingerprint: sha256:fe6a1babdccb746a6e41a333ba36f0ab0db5692c42985c71f1c9099bf028e4fb
   content:
     type: system_requirement
     text: 'The module in which the worklist is built and every decision is taken
       shall be importable and usable on its own, without importing curses and without
-      running a subprocess. Everything the cockpit can decide shall be decidable
+      running a subprocess, except that where the graph sits in a git work tree it
+      may ask git for the last commit, through throughline, to judge a status move
+      as tl check does (SR-0097). Everything the cockpit can decide shall be decidable
       through it: the ordered worklist and its counts, the concerns each item is
       in, ratification by a named person, the walk to ratification for an item that
       overshot it, the preview of what a refusal unsettles, the refusal itself, the
@@ -42,4 +45,3 @@ ratifications:
     normative: true
     derived: false
     attrs: {}
-  revision: 89fbaecda7af550d55ea55c3b7717e02f877a94c
