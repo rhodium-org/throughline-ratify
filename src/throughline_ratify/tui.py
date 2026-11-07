@@ -498,6 +498,9 @@ class App:
             # signed (SR-0085, SR-0086), or an item to fix first.
             self.flash = _Flash(self._why_not(item), "warn")
             return
+        if self._forbidden(item.uid, core.SIGN, by=self.ratifier,
+                           by_id=self.ratifier_id, role=self.role):
+            return
         detail = self._ratify_detail(item)
         confirmed = (self._confirm(self._ratify_question(item), detail) if detail
                      else self._confirm(self._ratify_question(item)))
@@ -632,6 +635,8 @@ class App:
         if not item.draft:
             self.flash = _Flash(f"{item.uid} is not a draft \u2014 x rejects it", "warn")
             return
+        if self._forbidden(item.uid, core.DELETE):
+            return
         reason = self._prompt(f"Delete draft {item.uid} \u2014 reason: ")
         if reason is None:
             self.flash = _Flash("delete cancelled", "dim")
@@ -660,6 +665,8 @@ class App:
             return
         item = self.current
         if item is None:
+            return
+        if self._forbidden(item.uid, core.REJECT):
             return
         reason = self._prompt(f"Reject {item.uid} — reason: ")
         if reason is None:
@@ -705,6 +712,18 @@ class App:
             self.flash = _Flash(f"\u2717 {item.uid} rejected{extra}", "warn")
         except core.RatifierError as exc:
             self.flash = _Flash(str(exc), "err")
+
+    def _forbidden(self, uid: str, action: str, **signature) -> bool:
+        """Refuse, before anything is asked, an action that would write a move the
+        last commit forbids (SR-0097), saying so; True when it was refused. Asked
+        first so a reviewer never answers a question for an action that cannot be
+        taken (SR-0025)."""
+        try:
+            core.refuse_forbidden_moves(self.session, uid, action, **signature)
+        except core.RatifierError as exc:
+            self.flash = _Flash(str(exc), "err")
+            return True
+        return False
 
     def do_filter(self) -> None:
         val = self._prompt("filter (uid/title): ", initial=self.filter)
