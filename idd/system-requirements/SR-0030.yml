@@ -37,8 +37,6 @@ normative: true
 links:
 - target: UR-0001
   type: derives_from
-- target: SR-0019
-  type: relates
 - target: SR-0022
   type: relates
 - target: SR-0024
