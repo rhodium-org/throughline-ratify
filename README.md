@@ -13,7 +13,7 @@ stays read-only.
 
 ```
  throughline-ratify │ my-service                               composed │ 2 source(s)
- queue: ● 3 proposed  ◉ 2 ready  ○ 0 blocked  ⚠ 1 ungrounded  ⚑ 0 ambiguous   (6 shown)
+ queue: ● 3 proposed  ◉ 2 ready  ⚠ 1 ungrounded  ⚑ 0 ambiguous  ◌ 0 draft   (6 shown)
  ▸ ● SR-0007  Rate-limit the login endpoint    │ ● SR-0007  system_requirement
    ◉ SR-0008  Store audit events append-only   │   status: proposed
    ⚠ SR-0011  Redact PII from logs             │
@@ -77,16 +77,16 @@ Decisions taken (3), in the order taken:
   1. ratified     SR-0021
      A session summary of every decision taken
 
-  2. re-ratified  SR-0009
+  2. agreed       SR-0009
      Ground each item over the composed union
-     route walked: implemented -> suspect -> ratified -> implemented
+     status moved, no signature taken: draft -> approved
 
   3. rejected     SR-0018
      Colour the queue by grounding depth
      reason: superseded by the concern ranking
      dependents made suspect: SR-0019, SR-0020
 
-Tally: 1 ratified, 1 re-ratified, 1 rejected
+Tally: 1 ratified, 1 agreed, 1 rejected
 
 Items: SR-0021, SR-0009, SR-0018
 ```
@@ -118,7 +118,9 @@ text already says whether the item is signed and by whom.
 | --- | --- |
 | `j` / `↓`, `k` / `↑` | move |
 | `g` / `G`, PgUp / PgDn | jump / page |
-| `r` / `Enter` | ratify the selected item (with confirm); on a stale one, accept the wording that has changed since it was signed; on an item that overshot ratification, record the missed sign-off. Where the item's status cannot reach ratified directly, a route the project's transitions permit carries it there and back. On a proposed deletion, sign the deletion record: the item is retired and everything grounded on it is marked suspect |
+| `r` / `Enter` | ratify the selected item (with confirm); on a stale one, accept the wording that has changed since it was signed. An item past ratified (`implemented`, `verified`) is signed where it stands, its status untouched. A draft is refused: agree it with `p` or delete it with `D`. On a proposed deletion, sign the deletion record: the item is retired and everything grounded on it is marked suspect |
+| `p` | agree the selected draft: move it to the status throughline names for it, taking no signature; `r` signs it after |
+| `D` | delete the selected draft, after a reason and a confirmation; the file stays as a tombstone |
 | `x` | reject (invalidate) the selected item, cascading suspect to dependents |
 | `a` | toggle the wide view — also show already-ratified and dead (rejected/tombstoned) items |
 | `/` | filter by uid or title |
@@ -166,9 +168,9 @@ Every row is classified by the one thing you most need to know about it:
 | Glyph | Concern | Meaning |
 | --- | --- | --- |
 | ● | proposed | AI-proposed, awaiting a human's accountability — including a proposed deletion, marked `☠ deletion:` in the row |
-| ◉ | ready | already approved, one move from ratified |
+| ◉ | ready | past the draft and unsigned — needs a signature, which is taken where the item stands |
 | ↺ | stale | signed off, but the wording has changed since — the signature no longer covers it |
-| ○ | blocked | pending, but not directly ratifiable from its status |
+| ◌ | draft | neither signed nor counted: agree it (`p`) or delete it (`D`) |
 | ⚠ | ungrounded | reaches no root — link it upward before sign-off |
 | ⚑ | ambiguous | flagged ambiguous — clarify it first |
 | ✓ | ratified | already signed off — shown only in the wide view (`a`) |

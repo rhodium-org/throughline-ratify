@@ -71,10 +71,12 @@ def _reg(prefix: str, title: str) -> str:
 
 # uid, dir, prefix, type, status, title, extra-yaml-body
 _ITEMS = [
+    # Signed: a status alone counts for nothing (throughline SR-0308).
     ("INT-0001", "intents", "INT", "Intents", "intent", "ratified",
-     "Frictionless onboarding", "attrs:\n  source_ref: ASVS-V1.2.3\n"),
+     "Frictionless onboarding",
+     "attrs:\n  source_ref: ASVS-V1.2.3\n  ratified_by: alice\n"),
     ("RISK-0001", "risks", "RISK", "Risks", "risk", "ratified",
-     "Account takeover", ""),
+     "Account takeover", "attrs:\n  ratified_by: alice\n"),
     # grounded + proposed -> ratifiable, concern "proposed"
     ("FR-0001", "requirements", "FR", "Requirements", "requirement", "proposed",
      "Guided setup wizard",
@@ -92,19 +94,18 @@ _ITEMS = [
     ("FR-0004", "requirements", "FR", "Requirements", "requirement", "proposed",
      "Ambiguous requirement",
      "attrs:\n  ambiguous: true\nlinks:\n- target: INT-0001\n  type: derives_from\n"),
-    # already ratified -> excluded unless show_all
+    # already ratified (signed) -> excluded unless show_all
     ("FR-0005", "requirements", "FR", "Requirements", "requirement", "ratified",
      "Done requirement",
+     "attrs:\n  ratified_by: alice\n"
      "links:\n- target: INT-0001\n  type: derives_from\n"),
     # ratified (carries the stamp) THEN advanced to 'implemented' — must still count
     # as signed off, not reappear as pending just because status left 'ratified'.
     ("FR-0006", "requirements", "FR", "Requirements", "requirement", "implemented",
      "Shipped requirement",
      "attrs:\n  ratified_by: alice\nlinks:\n- target: INT-0001\n  type: derives_from\n"),
-    # OVERSHOT: advanced to 'implemented' but NEVER ratified (no stamp). Grounded and
-    # unambiguous, so it is 'blocked' — pending but not directly ratifiable — and must
-    # carry a config-computed re-ratify route (implemented -> suspect -> ratified ->
-    # implemented under the fixture's transitions).
+    # OVERSHOT: advanced to 'implemented' but NEVER signed. Grounded and unambiguous,
+    # so it is 'ready': the Tool signs it where it stands (throughline SR-0306).
     ("FR-0007", "requirements", "FR", "Requirements", "requirement", "implemented",
      "Overshot requirement",
      "links:\n- target: INT-0001\n  type: derives_from\n"),

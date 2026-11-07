@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "throughline-ratify"
-version = "0.18.0"
+version = "0.19.0"
 description = "A full-screen, htop-style terminal assistant for reviewing and ratifying throughline requirement items. Compose-aware: grounds items over the composed union so borrowed clauses count. Ships the tl-ratify TUI."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -97,8 +97,12 @@ classifiers = [
 # `Cascade`, `retired` and `render_for_ratification`'s deletion view are what the
 # cockpit reads to write what the retirement marked and to show the record signed
 # (SR-0082 to SR-0084). Below it the cockpit passes a keyword the Tool rejects.
+# 5.0.0 signs every item past the draft where it stands, refuses a draft and names
+# the status it is agreed to (throughline UR-0046, SR-0306 to SR-0308): the
+# worklist's draft concern and `agree_to` are what p and D read (SR-0085, SR-0086,
+# SR-0096). Below it the cockpit draws a blocked concern it has no icon for.
 dependencies = [
-  "throughline>=4.1.0",
+  "throughline>=5.0.0",
   # The cockpit is drawn with the standard library's curses, which CPython on
   # Windows does not ship; windows-curses is the published build of it for that
   # platform, and the marker keeps it off every other (SR-0077). Without this a

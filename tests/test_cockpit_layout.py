@@ -74,7 +74,7 @@ def test_the_summary_counts_each_concern_and_asks_for_its_colour(cockpit):
     counts = {}
     for row in app.rows:
         counts[row.concern] = counts.get(row.concern, 0) + 1
-    for concern in ("proposed", "ready", "stale", "blocked", "ungrounded", "ambiguous"):
+    for concern in ("proposed", "ready", "stale", "ungrounded", "ambiguous", "draft"):
         assert f"{core.CONCERN_ICONS[concern]} {counts.get(concern, 0)} " in summary
         assert concern in app.asked, f"no colour was asked for {concern}"
 

@@ -108,33 +108,26 @@ def test_ratified_then_advanced_item_is_done_not_pending(demo_project):
     assert not rows["FR-0006"].stale
 
 
-def test_overshot_item_is_blocked_with_computed_reratify_route(demo_project):
-    # FR-0007 advanced to 'implemented' but was never signed off (no stamp). It is
-    # grounded and unambiguous, so it is 'blocked', not ratifiable now, and carries a
-    # re-ratify itinerary computed purely from the project's [transitions].
+def test_an_overshot_item_is_ready_and_needs_no_route(demo_project):
+    """SR-0096: FR-0007 advanced to 'implemented' but was never signed. The Tool
+    signs it where it stands (throughline SR-0306), so it is ready, not blocked,
+    and no status itinerary is offered or needed."""
     session = core.open_session(demo_project)
-    rows = _by_uid(core.build_queue(session, show_all=True))
-    row = rows["FR-0007"]
-    assert row.concern == "blocked"
-    assert not row.ratifiable_now
-    # implemented -> suspect -> ratified -> implemented under the fixture transitions
-    assert row.reratify_path == ["implemented", "suspect", "ratified", "implemented"]
-    # a directly-ratifiable item earns no route
-    assert rows["FR-0001"].reratify_path is None
-    # nor does an already-signed-off overshoot
-    assert rows["FR-0006"].reratify_path is None
+    row = _by_uid(core.build_queue(session))["FR-0007"]
+    assert row.concern == "ready" and row.ratifiable_now and row.obstacle is None
+    assert not hasattr(row, "reratify_path")
 
 
-def test_reratify_records_signoff_and_restores_status(demo_project):
+def test_an_overshot_item_is_signed_where_it_stands(demo_project):
+    """SR-0096: signing FR-0007 records the signature and leaves its status alone;
+    it then leaves the queue as ratified."""
     session = core.open_session(demo_project)
-    route = core.reratify_item(session, "FR-0007", by="tester")
-    assert route == ["implemented", "suspect", "ratified", "implemented"]
-    # reopen from disk: the item ends exactly where it started, now stamped, and it
-    # is no longer pending.
+    core.ratify_item(session, "FR-0007", by="tester")
     fresh = core.open_session(demo_project)
     item = fresh.project.get("FR-0007")
-    assert item.status == "implemented"          # restored to its original status
+    assert item.status == "implemented"
     assert item.ratifications[-1].get("by") == "tester"
+    assert item.ratifications[-1]["fingerprint"] == _fingerprint_of(fresh.project, "FR-0007")
     assert "FR-0007" not in _by_uid(core.build_queue(fresh))
     assert _by_uid(core.build_queue(fresh, show_all=True))["FR-0007"].concern == "ratified"
 
@@ -158,7 +151,6 @@ def test_a_stale_signature_returns_the_item_to_the_worklist(demo_project):
     assert row.concern == "stale"                          # never conflated with ratified
     assert row.ratified_by == "alice"                      # whose signature is being replaced
     assert row.ratifiable_now                              # 'ratified' may always move to itself
-    assert row.reratify_path is None                       # nothing to walk
 
 
 def test_a_stale_item_counts_as_outstanding_not_as_ratified(demo_project):
@@ -178,7 +170,6 @@ def test_a_stale_item_that_also_overshot_is_signed_where_it_stands(demo_project)
     row = _by_uid(core.build_queue(session))["FR-0011"]
     assert row.concern == "stale" and row.stale
     assert row.ratifiable_now
-    assert row.reratify_path is None
 
     core.ratify_item(session, "FR-0011", by="bob")
     fresh = core.open_session(demo_project)
@@ -198,18 +189,6 @@ def test_re_signing_a_stale_item_rebinds_it_and_clears_the_concern(demo_project)
     assert item.ratifications[-1]["fingerprint"] == _fingerprint_of(fresh.project, "FR-0010")
     assert "FR-0010" not in _by_uid(core.build_queue(fresh))
     assert _by_uid(core.build_queue(fresh, show_all=True))["FR-0010"].concern == "ratified"
-
-
-def test_re_signing_a_stale_overshoot_restores_its_status(demo_project):
-    session = core.open_session(demo_project)
-    route = core.reratify_item(session, "FR-0011", by="bob")
-    assert route == ["implemented", "suspect", "ratified", "implemented"]
-
-    fresh = core.open_session(demo_project)
-    item = fresh.project.get("FR-0011")
-    assert item.status == "implemented"                    # exactly where it started
-    assert item.ratifications[-1]["fingerprint"] == _fingerprint_of(fresh.project, "FR-0011")
-    assert "FR-0011" not in _by_uid(core.build_queue(fresh))
 
 
 def test_staleness_is_judged_by_throughlines_own_fingerprint(demo_project):
@@ -269,9 +248,9 @@ def test_stale_sorts_below_the_unsigned_backlog_but_above_what_must_be_fixed(
 ):
     session = core.open_session(demo_project)
     order = [r.uid for r in core.build_queue(session)]
-    assert order.index("FR-0002") < order.index("FR-0010")   # ready(1) < stale(2)
-    assert order.index("FR-0010") < order.index("FR-0007")   # stale(2) < blocked(3)
-    assert order.index("FR-0007") < order.index("FR-0003")   # blocked(3) < ungrounded(4)
+    assert order.index("FR-0002") < order.index("FR-0010")   # ready < stale
+    assert order.index("FR-0007") < order.index("FR-0010")   # an overshoot is ready
+    assert order.index("FR-0010") < order.index("FR-0003")   # stale < ungrounded
 
 
 def test_ratifying_binds_the_signature_to_the_content_signed(demo_project):
@@ -287,20 +266,6 @@ def test_ratifying_binds_the_signature_to_the_content_signed(demo_project):
     assert item.ratifications[-1].get("fingerprint") == _fingerprint_of(fresh.project, "FR-0001")
 
 
-def test_reratifying_binds_the_signature_too_and_the_walk_does_not_stale_it(
-    demo_project,
-):
-    """The route walks on past ratified to restore the item's status. That must not
-    invalidate the stamp — the content fingerprint deliberately excludes status."""
-    session = core.open_session(demo_project)
-    core.reratify_item(session, "FR-0007", by="tester")
-
-    fresh = core.open_session(demo_project)
-    item = fresh.project.get("FR-0007")
-    assert item.status == "implemented"          # walked on, as before
-    assert item.ratifications[-1].get("fingerprint") == _fingerprint_of(fresh.project, "FR-0007")
-
-
 def test_a_ratified_item_whose_content_has_not_changed_is_refused(demo_project):
     """throughline refuses a second sign-off that accepts nothing rather than
     silently replacing the record of who accepted it (throughline SR-0148). The
@@ -312,48 +277,15 @@ def test_a_ratified_item_whose_content_has_not_changed_is_refused(demo_project):
     assert session.project.get("FR-0001").ratifications[-1]["by"] == "alice"
 
 
-def test_an_unbound_signature_can_be_bound_without_changing_anything_else(
+def test_ratify_surfaces_throughlines_own_refusal_and_leaves_the_item_alone(
     demo_project,
 ):
-    """The back catalogue: an item carrying a ratifier but no fingerprint — every
-    item this cockpit ever ratified — can be re-ratified in place to bind the
-    signature, and nothing but the stamp moves."""
-    session = core.open_session(demo_project)
-    item = session.project.get("FR-0006")  # ratified_by alice, no fingerprint
-    assert item.ratifications[-1].get("by") and "ratified_fingerprint" not in item.attrs
-    before_status, before_text = item.status, item.text
-
-    core.reratify_item(session, "FR-0006", by="alice")
-
-    fresh = core.open_session(demo_project).project.get("FR-0006")
-    assert fresh.status == before_status and fresh.text == before_text
-    assert fresh.ratifications[-1]["by"] == "alice"
-    assert fresh.ratifications[-1]["fingerprint"].startswith("sha256:")
-
-
-def test_reratify_refuses_when_the_config_offers_no_route(demo_project):
-    session = core.open_session(demo_project)
-    # a directly-ratifiable item has no round-trip overshoot route
-    with pytest.raises(core.RatifierError, match="no route"):
-        core.reratify_item(session, "FR-0001", by="tester")
-    # nor does an ungrounded one still sitting at proposed — routing is judged
-    # first, and the cockpit never sends such an item down this path anyway
-    with pytest.raises(core.RatifierError, match="no route"):
-        core.reratify_item(session, "FR-0003", by="tester")
-
-
-def test_reratify_surfaces_throughlines_own_refusal_and_leaves_the_item_alone(
-    demo_project,
-):
-    """Where a route exists, the gates are throughline's to apply, not ours — its
-    refusal is passed through as it stands, and a failure part-way along the route
-    must leave the item exactly where it started (SR-0022)."""
+    """The gates are throughline's to apply, not ours — its refusal is passed
+    through as it stands, and nothing is written (SR-0022)."""
     session = core.open_session(demo_project)
     session.project.get("FR-0007").attrs["ambiguous"] = True
     with pytest.raises(core.RatifierError, match="ambiguous"):
-        core.reratify_item(session, "FR-0007", by="tester")
-    assert session.project.get("FR-0007").status == "implemented"
-    # nothing was written: the item on disk is untouched and still unratified
+        core.ratify_item(session, "FR-0007", by="tester")
     fresh = core.open_session(demo_project).project.get("FR-0007")
     assert fresh.status == "implemented"
     assert not fresh.ratifications

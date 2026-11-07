@@ -242,10 +242,10 @@ def test_a_stale_overshoot_is_not_told_it_was_never_ratified(demo_project, monke
     assert "via" not in asked[0]
 
 
-def test_an_unsigned_overshoot_still_reads_as_a_missed_signature(demo_project,
-                                                                 monkeypatch):
-    """The other half of the distinction: FR-0007 really was never signed off, and
-    that wording must survive the arrival of the stale case."""
+def test_an_unsigned_overshoot_is_asked_as_a_first_signature(demo_project,
+                                                             monkeypatch):
+    """The other half of the distinction: FR-0007 was never signed off, so it is
+    asked as any first signature, taken where it stands (SR-0096)."""
     asked: list[str] = []
     monkeypatch.setattr(tui.App, "_confirm",
                         lambda self, msg, detail=None: asked.append(msg) or True)
@@ -254,7 +254,7 @@ def test_an_unsigned_overshoot_still_reads_as_a_missed_signature(demo_project,
     app.sel = next(i for i, r in enumerate(app.rows) if r.uid == "FR-0007")
     app.do_ratify()
 
-    assert asked[0].startswith("FR-0007 is at 'implemented' and was never ratified.")
+    assert asked[0] == "Ratify FR-0007 as Ada Lovelace?"
 
 
 # --------------------------------------------------------------------------- #
