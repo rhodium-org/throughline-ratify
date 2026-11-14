@@ -65,13 +65,16 @@ jobs:
         # Read the floors out of pyproject rather than restating them here, so
         # this cannot drift from the versions the package actually promises.
         run: |
-          pins=$(python -c "
+          # One requirement to a line, in a file: a dependency may carry a marker
+          # (windows-curses; sys_platform == 'win32'), whose spaces a shell word
+          # split would break into requirements of their own.
+          python -c "
           import tomllib
           deps = tomllib.load(open('pyproject.toml','rb'))['project']['dependencies']
-          print(' '.join(d.replace('>=','==') for d in deps))
-          ")
-          echo "installing floor: $pins"
-          pip install $pins
+          print('\n'.join(d.replace('>=','==', 1) for d in deps))
+          " > floor.txt
+          echo "installing floor:"; cat floor.txt
+          pip install -r floor.txt
           pip install -e . --no-deps
           pip install pytest
 
