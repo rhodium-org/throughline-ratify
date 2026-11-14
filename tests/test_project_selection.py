@@ -549,7 +549,10 @@ def test_a_graph_that_cannot_be_read_says_so_and_stays_selectable(multi_project,
 
     scr, chosen = pick(described, [ord("j"), ord("\n")])
     assert chosen.name == "Beta Graph"
-    assert beta.error in scr.painted()
+    # What went wrong comes first and is what the screen must show; how much of the
+    # rest fits is the screen's width. throughline 5.4.0 names the file and quotes
+    # the parser (tl:SR-0324), which is longer than one line of any screen.
+    assert tui._reason(beta, beta.error)[:30] in scr.painted()
 
 
 def test_choosing_the_broken_graph_fails_with_its_reason(multi_project, capfd,
