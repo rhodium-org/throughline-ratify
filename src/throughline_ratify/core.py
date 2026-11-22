@@ -1066,8 +1066,13 @@ def reopen(session: Session) -> Session:
     except RatifierError as exc:
         if not (root / CONFIG_NAME).exists():
             raise GraphLostError(root) from exc
-        raise GraphUnreadableError(
-            _first_line(str(exc)).removeprefix(f"{root}: ")) from exc
+        reason = _first_line(str(exc)).removeprefix(f"{root}: ")
+        # The Tool may name the file by its whole path inside the sentence
+        # (throughline 6.1: "cannot read <root>/throughline.toml as ..."), which
+        # names the graph again; the file's own name says enough (SR-0071).
+        for where in {root / CONFIG_NAME, root.resolve() / CONFIG_NAME}:
+            reason = reason.replace(str(where), CONFIG_NAME)
+        raise GraphUnreadableError(reason) from exc
 
 
 def _open(root: Path, compose: bool, read_older: bool = False) -> Session:
