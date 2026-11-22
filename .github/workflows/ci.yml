@@ -21,6 +21,15 @@ jobs:
           # Prove the supported floor (Python >= 3.11).
           - os: ubuntu-latest
             python-version: "3.11"
+          # And every newer Python minor release (SR-0099).
+          - os: ubuntu-latest
+            python-version: "3.13"
+          - os: ubuntu-latest
+            python-version: "3.14"
+          - os: macos-latest
+            python-version: "3.14"
+          - os: windows-latest
+            python-version: "3.14"
     steps:
       - uses: actions/checkout@v5
 

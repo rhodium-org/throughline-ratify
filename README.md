@@ -27,8 +27,14 @@ stays read-only.
 ## Install
 
 ```bash
-pipx install throughline-ratify
+uv tool install --python 3.13 --managed-python throughline-ratify --with-executables-from throughline
 ```
+
+`--managed-python` has uv use its own build of Python rather than the operating
+system's, so an OS Python upgrade does not break the install;
+`--with-executables-from throughline` puts `tl` on your `PATH` beside it. Get uv
+from [docs.astral.sh/uv](https://docs.astral.sh/uv/getting-started/installation/).
+If you use pipx instead: `pipx install --include-deps throughline-ratify`.
 
 This pulls in `throughline`, so the `tl` CLI comes along too; it composes a
 project's sources itself.
@@ -38,6 +44,24 @@ the build of the `curses` library the cockpit is drawn with, which Python on
 Windows does not include; nothing extra to do. Windows Terminal, PowerShell and
 the Command Prompt all work. If an install from before 0.12.5 fails with
 `No module named '_curses'`, `pipx upgrade throughline-ratify` fixes it.
+
+### If `tl-ratify` says `bad interpreter` after a Python upgrade
+
+A tool installed with pipx (or into any virtual environment) runs on the Python it
+was installed with. When your operating system upgrades its Python and removes the
+old one, every command in that environment fails before any of its code runs, with
+`bad interpreter` or `No module named ...`. Your graphs are fine; the environment has
+to be rebuilt on the new Python:
+
+| Installed with | Rebuild with |
+|---|---|
+| pipx | `pipx reinstall-all --python python3` (or the new Python's full path) |
+| pipx, when `pipx` itself is broken too | `uvx pipx reinstall-all --python python3` |
+| uv | `uv tool install --reinstall --python 3.13 --managed-python throughline-ratify --with-executables-from throughline` |
+
+An install made with uv's `--managed-python` does not hit this: the operating system
+does not touch the Python uv manages. `tl doctor` (throughline releases after 6.0.0) says
+which Python runs `tl` and how it was installed.
 
 ## Use
 
