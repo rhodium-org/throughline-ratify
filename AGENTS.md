@@ -34,7 +34,7 @@ throughline (`tl`) lets an agent **propose** grounded requirements
 rejecting** them:
 
 ```bash
-pipx install throughline-ratify   # pulls tl along too
+uv tool install --python 3.13 --managed-python throughline-ratify --with-executables-from throughline   # tl too
 tl-ratify                         # open the cockpit (walks up to find throughline.toml)
 tl-ratify -C idd                  # point at a graph under idd/
 tl-ratify --by alice              # record the ratifier on sign-off

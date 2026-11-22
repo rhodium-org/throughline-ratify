@@ -1501,4 +1501,6 @@ checked by a workflow or a document, or not at all.
 | SR-0095 | Each graph's figure is kept, and read again only when its own files change | TEST-0084 |
 | SR-0096 | The queue holds only what needs a signature or a decision | TEST-0085 |
 | SR-0097 | No status move is written that the project's transitions forbid from the last commit | TEST-0086 |
+| SR-0098 | The install instructions survive an operating system's Python upgrade | — |
+| SR-0099 | Every supported Python minor release is tested and declared | — |
 <!-- tl:end -->

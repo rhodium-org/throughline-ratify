@@ -1,0 +1,23 @@
+uid: SR-0098
+type: system_requirement
+status: proposed
+title: The install instructions survive an operating system's Python upgrade
+text: The README's install section shall recommend uv tool install with a uv-managed
+  Python, keep pipx as an alternative, and carry a section on bad interpreter after
+  a Python upgrade that says why it happens and gives, for each installer, the one
+  command that rebuilds the environment.
+rationale: 'Found on the operator''s workstation on 21 November 2026 (rhodium-org/cluster#226):
+  an Ubuntu upgrade replaced Python 3.12 with 3.14 and every pipx-installed throughline
+  command failed with bad interpreter. A pipx or venv environment runs on the interpreter
+  it was made with; when the OS removes that interpreter nothing in the package runs,
+  so nothing in the package can catch it. A uv-managed Python is one the OS package
+  manager does not upgrade or remove. Rejected, dropping pipx: many users already
+  have it. Rejected, a check inside the tool: it cannot run without its interpreter.
+  Who pays: nobody installing afresh; a pipx user reads one more section.'
+normative: true
+links:
+- target: INT-0002
+  type: derives_from
+  stamp: sha256:18c78ba67d83f2ae2a62ee86443ced918663cff2b04e6f242041ab46782bd46d
+attrs:
+  origin: ai
