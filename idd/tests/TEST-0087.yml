@@ -1,6 +1,6 @@
 uid: TEST-0087
 type: test
-status: proposed
+status: ratified
 title: 'Tests of SR-0100: the worklist can be ordered by when each item was last
   signed, newest first'
 text: The shipped pytest suite checks SR-0100 with the test functions this item lists.
@@ -19,3 +19,14 @@ attrs:
     tests/test_sort_by_signature.py::test_signed_sort_compares_quoted_and_unquoted_stamps
     tests/test_sort_by_signature.py::test_list_sort_signed_says_when_each_item_was_signed
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-28T15:46:30Z'
+  fingerprint: sha256:140f2198eddd7272dce41bb720b227b3b896812342c5c723bae0c731e73f6227
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0100 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

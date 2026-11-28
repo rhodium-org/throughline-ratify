@@ -1,6 +1,6 @@
 uid: SR-0100
 type: system_requirement
-status: proposed
+status: ratified
 title: The worklist can be ordered by when each item was last signed, newest first
 text: In addition to the default ordering, the operator can re-sort the queue by
   the time of each item's newest signature, newest first, so that in the wide view
@@ -21,3 +21,17 @@ links:
   stamp: sha256:6405ee62e08a7345541d921b57a336de0c460365c0792743c8e13511e4e921d6
 attrs:
   origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-28T15:46:28Z'
+  fingerprint: sha256:4f8706163aa5ce2a515f1fbd6073f78ed08bc416fe38da14fa39bb0ee350ab2f
+  content:
+    type: system_requirement
+    text: In addition to the default ordering, the operator can re-sort the queue
+      by the time of each item's newest signature, newest first, so that in the wide
+      view they can read back what they have just signed. Items whose signatures
+      carry no time follow those whose signatures do, and items never signed come
+      last. Items signed at the same time keep the default order among themselves.
+    normative: true
+    derived: false
+    attrs: {}
