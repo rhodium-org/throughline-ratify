@@ -65,7 +65,9 @@ def build_parser() -> argparse.ArgumentParser:
                         "(rejected/tombstoned) items, not just the pending backlog")
     p.add_argument("--sort", choices=core.SORTS, default="concern",
                    help="worklist ordering: concern (default), roots (shallowest "
-                        "grounding depth first) or leaves (deepest first)")
+                        "grounding depth first), leaves (deepest first) or signed "
+                        "(newest signature first; with --all, to read back what "
+                        "was just signed)")
     # nargs="?" makes the path optional: bare --summary reports to stdout once the
     # full-screen view has closed, which is what makes it redirectable (SR-0021).
     p.add_argument("--summary", nargs="?", const=report.STDOUT, default=None,
@@ -104,7 +106,13 @@ def _print_list(session: core.Session, show_all: bool, sort: str) -> int:
             mark = "draft"
         else:
             mark = "ratify-ready" if r.ratifiable_now else r.concern
-        print(f"  {r.icon} {r.uid:<14} [{r.status:<10}] {mark:<12} {r.title}")
+        # Under the signed sort the row says when, which is the point of it (SR-0100).
+        when = ""
+        if sort == "signed":
+            when = (r.signed_at.strftime("%Y-%m-%d %H:%M:%SZ") if r.signed_at
+                    else "undated" if r.ratified_by else "unsigned")
+            when = f"{when:<20} "
+        print(f"  {r.icon} {r.uid:<14} [{r.status:<10}] {mark:<12} {when}{r.title}")
     return 0
 
 

@@ -28,6 +28,7 @@ ratified through this cockpit signed but unbound. One implementation, not two.
 from __future__ import annotations
 
 import copy
+import datetime as dt
 import json
 import os
 import subprocess
@@ -162,7 +163,10 @@ assert set(CONCERN_ICONS) >= set(CONCERNS), sorted(set(CONCERNS) - set(CONCERN_I
 # The orderings the queue can be sorted by (SR-0011). "concern" is the default
 # most-actionable-first ranking; "roots"/"leaves" walk grounding depth so a large
 # graph can be worked top-down (roots first) or bottom-up (leaves first).
-SORTS = ("concern", "roots", "leaves")
+# "signed" puts the newest signature first (SR-0100), so a reviewer can read back
+# what they have just signed; it is meant for the wide view, where signed items
+# are shown at all.
+SORTS = ("concern", "roots", "leaves", "signed")
 
 
 @dataclass
@@ -257,6 +261,10 @@ class QueueItem:
     # reason, the day, the status the item held, the content retired, whose
     # acceptance the deletion undoes and what it marks suspect.
     record: tuple[str, ...] = ()
+    # When the newest signature the item carries was given, as the Tool stamped it
+    # (SR-0100), in UTC. None when no signature carries a time: a signature
+    # backfilled without one, or no signature at all.
+    signed_at: dt.datetime | None = None
 
     @property
     def icon(self) -> str:
@@ -1207,6 +1215,12 @@ def build_queue(
         rows.sort(key=lambda r: (r.depth is None, r.depth or 0, r.uid))
     elif sort == "leaves":
         rows.sort(key=lambda r: (r.depth is None, -(r.depth or 0), r.uid))
+    elif sort == "signed":
+        # Newest signature first, then the signed whose signatures carry no time,
+        # then the never signed (SR-0100). The sort is stable, so items signed in
+        # the same second keep the concern order they arrived in.
+        rows.sort(key=lambda r: (r.signed_at is None, not r.ratified_by,
+                                 -r.signed_at.timestamp() if r.signed_at else 0))
     return rows
 
 
@@ -1247,7 +1261,33 @@ def _row(session: Session, entry: WorklistEntry) -> QueueItem:
         deletion=deletion,
         dependents=tuple(_withdrawal_reaches(session, item.uid)) if deletion else (),
         record=_deletion_record(session, item) if deletion else (),
+        signed_at=_latest_signature(item),
     )
+
+
+def _latest_signature(item: Item) -> dt.datetime | None:
+    """When the newest of ``item``'s signatures was given, in UTC (SR-0100), read
+    from the entries the Tool's own ``signatures`` publishes (SR-0057). A quoted
+    stamp reads back as text and an unquoted one as a datetime, so both are
+    taken; a stamp with no zone is read as UTC, the zone the Tool writes. A stamp
+    that is not a time counts as none."""
+    latest = None
+    for entry in throughline_signatures(item):
+        at = entry.get("at")
+        if isinstance(at, str):
+            try:
+                at = dt.datetime.fromisoformat(at.strip())
+            except ValueError:
+                continue
+        elif isinstance(at, dt.date) and not isinstance(at, dt.datetime):
+            at = dt.datetime(at.year, at.month, at.day)
+        if not isinstance(at, dt.datetime):
+            continue
+        at = (at.replace(tzinfo=dt.timezone.utc) if at.tzinfo is None
+              else at.astimezone(dt.timezone.utc))
+        if latest is None or at > latest:
+            latest = at
+    return latest
 
 
 def _deletion_record(session: Session, item: Item) -> tuple[str, ...]:

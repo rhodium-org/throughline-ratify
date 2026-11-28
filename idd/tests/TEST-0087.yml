@@ -1,0 +1,32 @@
+uid: TEST-0087
+type: test
+status: ratified
+title: 'Tests of SR-0100: the worklist can be ordered by when each item was last
+  signed, newest first'
+text: The shipped pytest suite checks SR-0100 with the test functions this item lists.
+normative: false
+links:
+- target: SR-0100
+  type: verifies
+  stamp: sha256:4f8706163aa5ce2a515f1fbd6073f78ed08bc416fe38da14fa39bb0ee350ab2f
+attrs:
+  checks: |-
+    tests/test_sort_by_signature.py::test_signed_sort_puts_the_newest_signature_first
+    tests/test_sort_by_signature.py::test_signed_sort_reads_the_newest_of_several_signatures
+    tests/test_sort_by_signature.py::test_signed_sort_puts_the_never_signed_last
+    tests/test_sort_by_signature.py::test_signed_sort_puts_undated_signatures_after_dated_ones
+    tests/test_sort_by_signature.py::test_signed_sort_keeps_the_default_order_for_a_tie
+    tests/test_sort_by_signature.py::test_signed_sort_compares_quoted_and_unquoted_stamps
+    tests/test_sort_by_signature.py::test_list_sort_signed_says_when_each_item_was_signed
+  origin: ai
+ratifications:
+- by: Henry Grech-Cini
+  at: '2026-11-28T15:46:30Z'
+  fingerprint: sha256:140f2198eddd7272dce41bb720b227b3b896812342c5c723bae0c731e73f6227
+  content:
+    type: test
+    text: The shipped pytest suite checks SR-0100 with the test functions this item
+      lists.
+    normative: false
+    derived: false
+    attrs: {}

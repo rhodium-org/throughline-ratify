@@ -732,7 +732,8 @@ class App:
 
     @staticmethod
     def _sort_label(sort: str) -> str:
-        return {"concern": "concern", "roots": "roots\u2193", "leaves": "leaves\u2191"}.get(sort, sort)
+        return {"concern": "concern", "roots": "roots\u2193", "leaves": "leaves\u2191",
+                "signed": "signed\u2193"}.get(sort, sort)
 
     def _add_change(self, item: QueueItem, add, wrap, width: int) -> None:
         """Lay out throughline's answer for what changed since the signature.
@@ -1277,7 +1278,7 @@ class App:
             "  x            [\u2717] reject (invalidate) the selected item",
             "  a            [\u2200] toggle the wide view: also show already-ratified",
             "               and dead (rejected/tombstoned) items",
-            "  s            [\u21c5] cycle sort: concern \u2192 roots\u2193 \u2192 leaves\u2191",
+            "  s            [\u21c5] cycle sort: concern \u2192 roots\u2193 \u2192 leaves\u2191 \u2192 signed\u2193",
             "  /            [\u2315] filter by uid or title",
             "  R            [\u21bb] reload the graph from disk",
             "               (it also reloads by itself when the files change, and",
@@ -1309,6 +1310,8 @@ class App:
             "",
             "sort roots\u2193 orders shallowest-first (closest to intent);",
             "leaves\u2191 orders deepest-first. ungrounded items sort last.",
+            "signed\u2193 orders newest signature first, never-signed last;",
+            "with 'a' it reads back what was just signed.",
         ]
         # The help is longer than most terminals are tall, so it scrolls (SR-0075).
         # Every wait here is for the reviewer: the interval that bounds the wait at
