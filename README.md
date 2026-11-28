@@ -80,6 +80,7 @@ tl-ratify --by alice         # record a specific ratifier on sign-off
 tl-ratify --as senior        # sign in a role the graph declares under [ratify.roles]
 tl-ratify --list             # print the worklist (no TUI) — good for CI/pipelines
 tl-ratify --list --all       # widen: also show ratified and dead (rejected/tombstoned) items
+tl-ratify --list --all --sort signed  # read back what you just signed, newest signature first
 tl-ratify --summary          # on exit, print an account of everything you decided
 tl-ratify --summary out.txt  # …or write it to a file
 ```
@@ -152,6 +153,7 @@ text already says whether the item is signed and by whom.
 | `D` | delete the selected draft, after a reason and a confirmation; the file stays as a tombstone |
 | `x` | reject (invalidate) the selected item, cascading suspect to dependents |
 | `a` | toggle the wide view — also show already-ratified and dead (rejected/tombstoned) items |
+| `s` | cycle the sort: concern (default) → roots↓ (shallowest first) → leaves↑ (deepest first) → signed↓ (newest signature first; with `a`, reads back what you just signed — undated signatures follow, never-signed items come last) |
 | `/` | filter by uid or title |
 | `R` | reload the graph from disk |
 | `?` | help |

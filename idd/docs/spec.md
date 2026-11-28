@@ -1370,7 +1370,7 @@ with an empty right-hand column is a requirement nothing yet delivers.
 <!-- tl:matrix incoming:derives_from type == 'user_requirement' -->
 | UID | Title | Derives_from (incoming) |
 |---|---|---|
-| UR-0001 | See every item awaiting my ratification, most-actionable first | SR-0001, SR-0002, SR-0008, SR-0009, SR-0011, SR-0024, SR-0030, SR-0074 |
+| UR-0001 | See every item awaiting my ratification, most-actionable first | SR-0001, SR-0002, SR-0008, SR-0009, SR-0011, SR-0024, SR-0030, SR-0074, SR-0100 |
 | UR-0002 | Ratify or reject an item without leaving the full-screen view | SR-0003, SR-0004, SR-0005, SR-0012, SR-0013, SR-0014, SR-0022, SR-0023, SR-0025, SR-0026, SR-0027, SR-0028, SR-0029, SR-0037, SR-0076 |
 | UR-0003 | On a composed project, items grounded through a source are ratifiable | SR-0006 |
 | UR-0004 | Read the interface like htop, not a scrolling log | SR-0007, SR-0010, SR-0031, SR-0044, SR-0073, SR-0075 |
@@ -1503,4 +1503,5 @@ checked by a workflow or a document, or not at all.
 | SR-0097 | No status move is written that the project's transitions forbid from the last commit | TEST-0086 |
 | SR-0098 | The install instructions survive an operating system's Python upgrade | — |
 | SR-0099 | Every supported Python minor release is tested and declared | — |
+| SR-0100 | The worklist can be ordered by when each item was last signed, newest first | TEST-0087 |
 <!-- tl:end -->
